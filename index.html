@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DA GO TRPG 團務資料庫</title>
+  <link rel="stylesheet" href="assets/styles.css">
+</head>
+<body>
+  <header class="app-header">
+    <div>
+      <p class="eyebrow">DA GO</p>
+      <h1>TRPG 團務資料庫</h1>
+      <p class="subtitle">角色、團務劇情與玩家補充資料的靜態網頁工具</p>
+    </div>
+    <div class="header-actions">
+      <label class="button" for="importFile">
+        匯入 JSON
+        <input id="importFile" type="file" accept="application/json,.json">
+      </label>
+      <button id="exportData" type="button">匯出 JSON</button>
+      <button id="resetDemo" type="button">重置示範資料</button>
+    </div>
+  </header>
+
+  <nav class="tabs" aria-label="主要頁面">
+    <button class="tab" type="button" data-page="character" aria-current="page">角色資料</button>
+    <button class="tab" type="button" data-page="images">角色圖片</button>
+    <button class="tab" type="button" data-page="fields">自填欄位</button>
+    <button class="tab" type="button" data-page="story">團務劇情</button>
+    <button class="tab" type="button" data-page="create">角色建立</button>
+  </nav>
+
+  <main>
+    <section class="page two-column" id="page-character">
+      <aside class="panel">
+        <div class="panel-head">
+          <h2>角色概覽</h2>
+        </div>
+        <div class="panel-body" id="characterProfile"></div>
+      </aside>
+      <section class="content-stack">
+        <div class="metric-grid" id="metrics"></div>
+        <section class="panel">
+          <div class="panel-head">
+            <h2>角色資料</h2>
+          </div>
+          <div class="panel-body" id="sections"></div>
+        </section>
+      </section>
+    </section>
+
+    <section class="page" id="page-images" hidden>
+      <section class="panel">
+        <div class="panel-head">
+          <h2>角色圖片</h2>
+        </div>
+        <div class="panel-body image-grid">
+          <article class="image-slot">
+            <h3>大頭照</h3>
+            <div class="image-preview compact">
+              <img id="headshotPreview" alt="大頭照預覽" hidden>
+              <p id="headshotEmpty" class="empty">尚未放置圖片</p>
+            </div>
+            <label class="button" for="headshotFile">
+              選擇圖片
+              <input id="headshotFile" type="file" accept="image/*">
+            </label>
+          </article>
+          <article class="image-slot">
+            <h3>全身立繪</h3>
+            <div class="image-preview tall">
+              <img id="fullbodyPreview" alt="全身立繪預覽" hidden>
+              <p id="fullbodyEmpty" class="empty">尚未放置圖片</p>
+            </div>
+            <label class="button" for="fullbodyFile">
+              選擇圖片
+              <input id="fullbodyFile" type="file" accept="image/*">
+            </label>
+          </article>
+        </div>
+      </section>
+    </section>
+
+    <section class="page" id="page-fields" hidden>
+      <section class="panel">
+        <div class="panel-head">
+          <h2>玩家自填欄位</h2>
+          <button class="primary" id="addField" type="button">新增欄位</button>
+        </div>
+        <div class="panel-body field-list" id="fieldList"></div>
+      </section>
+    </section>
+
+    <section class="page" id="page-story" hidden>
+      <section class="panel">
+        <div class="panel-head">
+          <h2>團務劇情紀錄</h2>
+          <span class="muted" id="storyCount"></span>
+        </div>
+        <div class="story-scroll" id="storyScroll" tabindex="0" aria-label="團務劇情紀錄"></div>
+      </section>
+    </section>
+
+    <section class="page" id="page-create" hidden>
+      <section class="panel">
+        <div class="panel-head">
+          <h2>角色建立</h2>
+        </div>
+        <form class="panel-body form-grid" id="characterForm">
+          <label>
+            角色名稱
+            <input name="character_name" type="text" required>
+          </label>
+          <label>
+            角色代碼
+            <input name="character_code" type="text" required>
+          </label>
+          <label>
+            角色類型
+            <select name="character_type">
+              <option value="player_character">玩家角色</option>
+              <option value="sub_character">副角色</option>
+              <option value="temporary_character">臨時角色</option>
+            </select>
+          </label>
+          <label>
+            原型
+            <input name="archetype" type="text">
+          </label>
+          <label>
+            種族
+            <input name="race_or_species" type="text">
+          </label>
+          <label>
+            職業
+            <input name="class_or_profession" type="text">
+          </label>
+          <label>
+            陣營
+            <input name="faction" type="text">
+          </label>
+          <label>
+            敘事功能
+            <input name="narrative_function" type="text">
+          </label>
+          <label class="span-2">
+            角色背景
+            <textarea name="background_story"></textarea>
+          </label>
+          <label>
+            個性
+            <textarea name="personality_note"></textarea>
+          </label>
+          <label>
+            動機
+            <textarea name="motivation_note"></textarea>
+          </label>
+          <label>
+            關係
+            <textarea name="relationship_note"></textarea>
+          </label>
+          <label>
+            能力
+            <textarea name="ability_note"></textarea>
+          </label>
+          <label class="span-2">
+            物品
+            <textarea name="item_note"></textarea>
+          </label>
+          <div class="span-2 form-actions">
+            <button class="primary" type="submit">建立到本頁資料</button>
+            <button type="reset">清空</button>
+          </div>
+        </form>
+      </section>
+    </section>
+  </main>
+
+  <script src="assets/app.js"></script>
+</body>
+</html>
