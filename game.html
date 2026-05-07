@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DA GO TRPG Corpus Game</title>
+  <link rel="stylesheet" href="assets/game-screen.css">
+</head>
+<body>
+  <aside id="ui-bar">
+    <header id="ui-title"><h1>DA GO</h1><p>TRPG Corpus</p></header>
+    <section id="ui-status"></section>
+    <nav id="ui-actions">
+      <button type="button" data-open-overlay="save">Save</button>
+      <button type="button" data-open-overlay="settings">Settings</button>
+      <button type="button" id="exportCorpus">Export Corpus</button>
+      <button type="button" id="resetGame">Restart</button>
+      <label class="file-button">Import<input id="importFile" type="file" accept="application/json,.json"></label>
+    </nav>
+    <section class="sidebar-block"><h2>短期記憶</h2><div id="memoryList" class="sidebar-list"></div></section>
+    <section class="sidebar-block"><h2>線索</h2><div id="inventoryList" class="sidebar-list"></div></section>
+  </aside>
+  <main id="story">
+    <article id="passages">
+      <header class="passage-header"><h2 id="passageTitle"></h2><p id="passageMeta"></p></header>
+      <section id="passageText" class="passage-text"></section>
+      <section id="worldBox" class="world-box"></section>
+      <section id="eventBanner" class="event-banner" hidden></section>
+      <nav id="choiceList" class="choice-list"></nav>
+      <footer id="passageFooter"></footer>
+    </article>
+  </main>
+  <div id="overlayBackdrop" class="overlay-backdrop hidden">
+    <section id="overlay" class="overlay">
+      <header class="overlay-head"><h2 id="overlayTitle"></h2><button type="button" id="closeOverlay">Close</button></header>
+      <div id="overlayContent" class="overlay-content"></div>
+    </section>
+  </div>
+  <script src="assets/game-direct.js"></script>
+</body>
+</html>
