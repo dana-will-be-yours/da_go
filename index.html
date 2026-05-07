@@ -3,176 +3,147 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>DA GO TRPG 團務資料庫</title>
+  <title>DA GO：TRPG Corpus Narrative Game</title>
   <link rel="stylesheet" href="assets/styles.css">
 </head>
 <body>
   <header class="app-header">
     <div>
-      <p class="eyebrow">DA GO</p>
-      <h1>TRPG 團務資料庫</h1>
-      <p class="subtitle">角色、團務劇情與玩家補充資料的靜態網頁工具</p>
+      <p class="eyebrow">DA GO / TRPG CORPUS</p>
+      <h1>互動敘事研究遊戲</h1>
+      <p class="subtitle">分頁式互動敘事、角色狀態、選擇紀錄、知識查詢與 SQL Server 語料庫匯出工具</p>
     </div>
     <div class="header-actions">
       <label class="button" for="importFile">
-        匯入 JSON
+        匯入存檔
         <input id="importFile" type="file" accept="application/json,.json">
       </label>
-      <button id="exportData" type="button">匯出 JSON</button>
-      <button id="resetDemo" type="button">重置示範資料</button>
+      <button id="exportSave" type="button">匯出存檔</button>
+      <button id="exportCorpus" type="button">匯出 trpg-corpus</button>
+      <button id="resetGame" type="button">重置遊戲</button>
     </div>
   </header>
 
   <nav class="tabs" aria-label="主要頁面">
-    <button class="tab" type="button" data-page="character" aria-current="page">角色資料</button>
-    <button class="tab" type="button" data-page="images">角色圖片</button>
-    <button class="tab" type="button" data-page="fields">自填欄位</button>
-    <button class="tab" type="button" data-page="story">團務劇情</button>
-    <button class="tab" type="button" data-page="create">角色建立</button>
+    <button class="tab" type="button" data-page="game" aria-current="page">遊戲</button>
+    <button class="tab" type="button" data-page="character">角色</button>
+    <button class="tab" type="button" data-page="world">世界</button>
+    <button class="tab" type="button" data-page="log">歷程</button>
+    <button class="tab" type="button" data-page="corpus">資料庫</button>
   </nav>
 
   <main>
-    <section class="page two-column" id="page-character">
-      <aside class="panel">
-        <div class="panel-head">
-          <h2>角色概覽</h2>
-        </div>
-        <div class="panel-body" id="characterProfile"></div>
+    <section class="page game-layout" id="page-game">
+      <aside class="status-panel panel">
+        <div class="panel-head"><h2>角色狀態</h2></div>
+        <div class="panel-body" id="characterStatus"></div>
       </aside>
-      <section class="content-stack">
-        <div class="metric-grid" id="metrics"></div>
-        <section class="panel">
-          <div class="panel-head">
-            <h2>角色資料</h2>
+
+      <section class="story-panel panel">
+        <div class="panel-head">
+          <div>
+            <h2 id="sceneTitle">場景</h2>
+            <p class="muted" id="sceneMeta"></p>
           </div>
-          <div class="panel-body" id="sections"></div>
+          <span class="pill" id="sceneCode"></span>
+        </div>
+        <div class="panel-body">
+          <article class="passage" id="passageText"></article>
+          <div class="choice-list" id="choiceList"></div>
+        </div>
+      </section>
+
+      <aside class="side-stack">
+        <section class="panel">
+          <div class="panel-head"><h2>短期記憶</h2></div>
+          <div class="panel-body compact-list" id="memoryList"></div>
         </section>
-      </section>
+        <section class="panel">
+          <div class="panel-head"><h2>物品與線索</h2></div>
+          <div class="panel-body compact-list" id="inventoryList"></div>
+        </section>
+      </aside>
     </section>
 
-    <section class="page" id="page-images" hidden>
+    <section class="page" id="page-character" hidden>
       <section class="panel">
-        <div class="panel-head">
-          <h2>角色圖片</h2>
-        </div>
-        <div class="panel-body image-grid">
-          <article class="image-slot">
-            <h3>大頭照</h3>
-            <div class="image-preview compact">
-              <img id="headshotPreview" alt="大頭照預覽" hidden>
-              <p id="headshotEmpty" class="empty">尚未放置圖片</p>
-            </div>
-            <label class="button" for="headshotFile">
-              選擇圖片
-              <input id="headshotFile" type="file" accept="image/*">
-            </label>
-          </article>
-          <article class="image-slot">
-            <h3>全身立繪</h3>
-            <div class="image-preview tall">
-              <img id="fullbodyPreview" alt="全身立繪預覽" hidden>
-              <p id="fullbodyEmpty" class="empty">尚未放置圖片</p>
-            </div>
-            <label class="button" for="fullbodyFile">
-              選擇圖片
-              <input id="fullbodyFile" type="file" accept="image/*">
-            </label>
-          </article>
-        </div>
-      </section>
-    </section>
-
-    <section class="page" id="page-fields" hidden>
-      <section class="panel">
-        <div class="panel-head">
-          <h2>玩家自填欄位</h2>
-          <button class="primary" id="addField" type="button">新增欄位</button>
-        </div>
-        <div class="panel-body field-list" id="fieldList"></div>
-      </section>
-    </section>
-
-    <section class="page" id="page-story" hidden>
-      <section class="panel">
-        <div class="panel-head">
-          <h2>團務劇情紀錄</h2>
-          <span class="muted" id="storyCount"></span>
-        </div>
-        <div class="story-scroll" id="storyScroll" tabindex="0" aria-label="團務劇情紀錄"></div>
-      </section>
-    </section>
-
-    <section class="page" id="page-create" hidden>
-      <section class="panel">
-        <div class="panel-head">
-          <h2>角色建立</h2>
-        </div>
+        <div class="panel-head"><h2>研究角色卡</h2></div>
         <form class="panel-body form-grid" id="characterForm">
-          <label>
-            角色名稱
-            <input name="character_name" type="text" required>
-          </label>
-          <label>
-            角色代碼
-            <input name="character_code" type="text" required>
-          </label>
-          <label>
-            角色類型
+          <label>角色名稱<input name="character_name" type="text" required></label>
+          <label>角色代碼<input name="character_code" type="text" required></label>
+          <label>角色類型
             <select name="character_type">
               <option value="player_character">玩家角色</option>
               <option value="sub_character">副角色</option>
               <option value="temporary_character">臨時角色</option>
             </select>
           </label>
-          <label>
-            原型
-            <input name="archetype" type="text">
-          </label>
-          <label>
-            種族
-            <input name="race_or_species" type="text">
-          </label>
-          <label>
-            職業
-            <input name="class_or_profession" type="text">
-          </label>
-          <label>
-            陣營
-            <input name="faction" type="text">
-          </label>
-          <label>
-            敘事功能
-            <input name="narrative_function" type="text">
-          </label>
-          <label class="span-2">
-            角色背景
-            <textarea name="background_story"></textarea>
-          </label>
-          <label>
-            個性
-            <textarea name="personality_note"></textarea>
-          </label>
-          <label>
-            動機
-            <textarea name="motivation_note"></textarea>
-          </label>
-          <label>
-            關係
-            <textarea name="relationship_note"></textarea>
-          </label>
-          <label>
-            能力
-            <textarea name="ability_note"></textarea>
-          </label>
-          <label class="span-2">
-            物品
-            <textarea name="item_note"></textarea>
-          </label>
+          <label>原型<input name="archetype" type="text"></label>
+          <label>種族/身份<input name="race_or_species" type="text"></label>
+          <label>職業/任務<input name="class_or_profession" type="text"></label>
+          <label>陣營<input name="faction" type="text"></label>
+          <label>敘事功能<input name="narrative_function" type="text"></label>
+          <label class="span-2">背景<textarea name="background_story"></textarea></label>
+          <label>個性<textarea name="personality_note"></textarea></label>
+          <label>動機<textarea name="motivation_note"></textarea></label>
+          <label>關係<textarea name="relationship_note"></textarea></label>
+          <label>能力<textarea name="ability_note"></textarea></label>
+          <label class="span-2">物品<textarea name="item_note"></textarea></label>
           <div class="span-2 form-actions">
-            <button class="primary" type="submit">建立到本頁資料</button>
-            <button type="reset">清空</button>
+            <button class="primary" type="submit">儲存角色卡</button>
           </div>
         </form>
+      </section>
+    </section>
+
+    <section class="page world-grid" id="page-world" hidden>
+      <section class="panel">
+        <div class="panel-head"><h2>世界設定</h2></div>
+        <div class="panel-body" id="worldSettings"></div>
+      </section>
+      <section class="panel">
+        <div class="panel-head"><h2>規則與查詢</h2></div>
+        <div class="panel-body">
+          <form class="lookup-form" id="lookupForm">
+            <label>查詢目的<input name="purpose" type="text" placeholder="例如：確認角色能否進入禁區"></label>
+            <label>查詢文字<textarea name="query" placeholder="輸入玩家或 GM 查詢的內容"></textarea></label>
+            <div class="form-actions">
+              <button class="primary" type="submit">記錄知識查詢</button>
+            </div>
+          </form>
+          <div class="compact-list" id="lookupList"></div>
+        </div>
+      </section>
+    </section>
+
+    <section class="page" id="page-log" hidden>
+      <section class="panel">
+        <div class="panel-head">
+          <h2>遊戲歷程與研究紀錄</h2>
+          <span class="muted" id="logCount"></span>
+        </div>
+        <div class="timeline" id="eventTimeline"></div>
+      </section>
+    </section>
+
+    <section class="page corpus-grid" id="page-corpus" hidden>
+      <section class="panel">
+        <div class="panel-head"><h2>trpg-corpus 連結設定</h2></div>
+        <form class="panel-body form-grid" id="corpusForm">
+          <label>project_code<input name="project_code" type="text"></label>
+          <label>team_code<input name="team_code" type="text"></label>
+          <label>session_code<input name="session_code" type="text"></label>
+          <label>import_batch_code<input name="import_batch_code" type="text"></label>
+          <label class="span-2">API endpoint（選用；靜態頁面預設只匯出 JSON）<input name="api_endpoint" type="url" placeholder="https://your-api.example.com/trpg-corpus/import"></label>
+          <div class="span-2 form-actions">
+            <button class="primary" type="submit">儲存連結設定</button>
+            <button id="copyCorpusJson" type="button">複製 corpus JSON</button>
+          </div>
+        </form>
+      </section>
+      <section class="panel">
+        <div class="panel-head"><h2>資料庫對應摘要</h2></div>
+        <div class="panel-body mapping-table" id="mappingTable"></div>
       </section>
     </section>
   </main>
