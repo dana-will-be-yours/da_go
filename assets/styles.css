@@ -127,6 +127,15 @@ main {
   white-space: pre-wrap;
 }
 
+.event-banner {
+  margin-top: 12px;
+  padding: 10px 12px;
+  border: 1px solid #d4ba77;
+  border-radius: 10px;
+  background: #fff4cc;
+  color: #5f4615;
+}
+
 .choice-list { display: grid; gap: 10px; margin-top: 16px; }
 .choice {
   display: grid;
@@ -206,6 +215,20 @@ input:focus, select:focus, textarea:focus { border-color: var(--accent); box-sha
 }
 .timeline-marker { color: var(--muted); font-size: 13px; }
 
+.save-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(220px, 1fr));
+  gap: 12px;
+}
+.save-slot {
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #fffaf0;
+}
+.save-slot strong { display: block; margin-bottom: 6px; }
+.save-slot p { color: var(--muted); min-height: 48px; margin-bottom: 10px; }
+
 .mapping-table { display: grid; gap: 10px; }
 .mapping-row {
   display: grid;
@@ -225,10 +248,11 @@ input:focus, select:focus, textarea:focus { border-color: var(--accent); box-sha
 @media (max-width: 1120px) {
   .app-header, .game-layout, .world-grid, .corpus-grid, .form-grid { grid-template-columns: 1fr; }
   .app-header { display: grid; }
+  .save-grid { grid-template-columns: repeat(2, minmax(220px, 1fr)); }
 }
 
 @media (max-width: 680px) {
   .tabs, main { padding-left: 14px; padding-right: 14px; }
-  .timeline-item, .mapping-row, .stat-row { grid-template-columns: 1fr; }
+  .timeline-item, .mapping-row, .stat-row, .save-grid { grid-template-columns: 1fr; }
   .passage { min-height: 240px; font-size: 16px; }
 }
