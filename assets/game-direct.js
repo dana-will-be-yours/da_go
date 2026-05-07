@@ -1,6 +1,7 @@
 const STORAGE_KEY = "daGoPlayableStateV1";
 const SAVE_KEY = "daGoPlayableSaveV1";
 const ENGINE_VERSION = "0.6.0-nanjing-playable";
+const AUTO_LOOP_LIMIT = 100;
 
 const corpusConfig = {
   project_code: "TRPG-PROJ-DAGUO",
@@ -105,6 +106,81 @@ const textStyles = {
   night: "夜讀",
   large: "大字"
 };
+
+const chronicleCycle = [
+  {
+    key: "nanjing",
+    title: "南京潮聲",
+    location: "南京",
+    lead: "南京雨聲未歇，城門、驛站、官署與河埠把消息切成碎片。",
+    hook: "你從紙背翻出一條舊線，發現它仍能接回大興二十年八月。",
+    item: "南京札記",
+    note: "南京線索連到北路與南市。"
+  },
+  {
+    key: "kunlun",
+    title: "崑崙山腳",
+    location: "崑崙山腳",
+    lead: "山路霧重，逃亡、療傷與沉默的人名在風裡被反覆帶回。",
+    hook: "楚服與楚璃詩的名字被分開傳，你把它們重新合併到同一張紙上。",
+    item: "崑崙殘信",
+    note: "楚服與楚璃詩為同一 PC。"
+  },
+  {
+    key: "silver",
+    title: "銀川孤城",
+    location: "銀川",
+    lead: "銀川守備吃緊，突厥退去後的關卡仍有人暗中傳令。",
+    hook: "魏無紛的名字出現在驛站文袋，也出現在北路牌旁的耳語裡。",
+    item: "銀川關卡令",
+    note: "銀川線可追魏無紛與北方軍務。"
+  },
+  {
+    key: "nanyang",
+    title: "南陽暗線",
+    location: "南陽",
+    lead: "南陽奴隸、商會與江夏消息互相牽扯，像有人刻意拆散案情。",
+    hook: "一名商旅提到南合商會，又立刻改口說自己只是聽來的。",
+    item: "南陽路引",
+    note: "南陽線可接祈禍與陽月路線。"
+  },
+  {
+    key: "poisons",
+    title: "五毒山門",
+    location: "五毒山腳",
+    lead: "五毒山腳的霧色裡，葛氏、葛初秋與花家舊事重新浮上來。",
+    hook: "花瓊瑤的名字與傷勢、救治、祖先舊事放在同一段記錄裡。",
+    item: "五毒藥箋",
+    note: "花瓊瑤對應 Player 佐拉。"
+  },
+  {
+    key: "twin",
+    title: "雙孤單人線",
+    location: "荒野客舍",
+    lead: "角色分散後，單人線把路途切成更細的夜話與選擇。",
+    hook: "陽月線的消息向南陽、武陽、魏郡與忠勤祠逐步推進。",
+    item: "雙孤路線札",
+    note: "陽月對應 Player 莉絲。"
+  },
+  {
+    key: "wuji",
+    title: "魏無忌案卷",
+    location: "案卷房",
+    lead: "案卷裡有魏無忌、公孫南平、公孫蒿、李暮辰與北垣。",
+    hook: "你只抄下能接回目前路線的名字，因為燈油已快見底。",
+    item: "魏無忌案卷摘記",
+    note: "魏無忌案卷可接洛道與後續審訊。"
+  },
+  {
+    key: "luodao",
+    title: "洛道餘波",
+    location: "洛道",
+    lead: "上洛郡的人事像棋局殘子，舊勢力與新詔令還未分出次序。",
+    hook: "七股勢力的名字被你排成縱列，等待下一次入局時重排。",
+    item: "上洛七股勢力表",
+    note: "洛道線會回收李暮辰死後的政治餘波。"
+  }
+];
 
 const passages = {
   Gate: {
@@ -264,6 +340,8 @@ const passages = {
     choices: [
       { text: "下一日往北路追銀川", to: "NorthRoad", kind: "decision", effects: { spirit: -2, composure: 2 }, dev: { smm: 3, tms: 3, traceability: 5 } },
       { text: "下一日查南陽與五毒", to: "SouthLead", kind: "decision", effects: { spirit: -1, composure: 1 }, dev: { smm: 3, tms: 4, traceability: 5 } },
+      { text: "讓札記自行輪迴一百次", to: "AutoEpilogue", kind: "summary", autoRun: true, effects: { composure: 2 }, dev: { smm: 6, tms: 6, traceability: 8 } },
+      { text: "手動進入下一輪札記", to: "AutoLoop-1", kind: "decision", effects: { spirit: -1, composure: 2 }, dev: { smm: 3, tms: 3, traceability: 5 } },
       { text: "重新整理南京開局", to: "Gate", kind: "summary", effects: { composure: 2 }, dev: { smm: 2, tms: 2, traceability: 4 } }
     ]
   }
@@ -285,6 +363,10 @@ const defaultState = {
     composure: 50,
     coin: 12,
     suspicion: 0
+  },
+  autoLoop: {
+    generated: 0,
+    completed: false
   },
   items: ["素布行囊"],
   notes: ["大興二十年八月，南京。"],
@@ -328,6 +410,7 @@ function mergeState(base, incoming) {
   const next = Object.assign({}, base, incoming || {});
   next.player = Object.assign({}, base.player, incoming && incoming.player ? incoming.player : {});
   next.stats = Object.assign({}, base.stats, incoming && incoming.stats ? incoming.stats : {});
+  next.autoLoop = Object.assign({}, base.autoLoop, incoming && incoming.autoLoop ? incoming.autoLoop : {});
   next.dev = Object.assign({}, base.dev, incoming && incoming.dev ? incoming.dev : {});
   next.options = Object.assign({}, base.options, incoming && incoming.options ? incoming.options : {});
   next.items = Array.isArray(next.items) ? next.items : base.items.slice();
@@ -424,6 +507,41 @@ function statRow(label, value, color) {
   return `<div class="stat-name"><span>${label}</span><span>${number}</span></div><div class="meter ${color}"><span style="width:${width}%"></span></div>`;
 }
 
+function runAutoLoops() {
+  const start = clamp(Number(state.autoLoop.generated || 0) + 1, 1, AUTO_LOOP_LIMIT);
+  for (let loop = start; loop <= AUTO_LOOP_LIMIT; loop += 1) {
+    const passage = makeAutoPassage(loop);
+    const choiceIndex = loop % 2;
+    const choice = passage.choices[choiceIndex];
+    applyEffects(choice.effects || {});
+    applyDev(choice.dev || {});
+    addUnique(state.items, choice.item);
+    state.notes.unshift(`第${loop}輪：${getCycleSeed(loop).note}`);
+    state.events.push({
+      turn_no: state.turnNo,
+      scene_code: passage.code,
+      scene_title: passage.title,
+      choice_text: choice.text,
+      to_scene: choice.to,
+      auto_loop_no: loop,
+      created_at: new Date().toISOString()
+    });
+    recordUtterance({
+      speaker_type: "PC",
+      speaker_label_raw: state.player.name,
+      utterance_function: choice.kind || "summary",
+      text: choice.text,
+      scene: passage,
+      source: "auto_loop"
+    });
+    state.autoLoop.generated = loop;
+    state.turnNo += 1;
+  }
+  state.autoLoop.completed = true;
+  state.notes.unshift("百輪札記已完成。");
+  state.notes = state.notes.slice(0, 8);
+}
+
 function choose(index) {
   const passage = getPassage();
   const choice = passage.choices[index];
@@ -441,6 +559,11 @@ function choose(index) {
     to_scene: choice.to,
     created_at: new Date().toISOString()
   });
+  const manualLoopNo = getAutoLoopNo(passage.code);
+  if (manualLoopNo) {
+    state.autoLoop.generated = Math.max(state.autoLoop.generated, manualLoopNo);
+    state.autoLoop.completed = state.autoLoop.generated >= AUTO_LOOP_LIMIT;
+  }
   recordUtterance({
     speaker_type: "PC",
     speaker_label_raw: state.player.name,
@@ -449,6 +572,14 @@ function choose(index) {
     scene: passage,
     source: "choice"
   });
+  if (choice.autoRun) {
+    state.turnNo += 1;
+    runAutoLoops();
+    state.passage = choice.to;
+    saveState();
+    render();
+    return;
+  }
   state.passage = choice.to;
   state.turnNo += 1;
   saveState();
@@ -521,6 +652,7 @@ function openDeveloper() {
     <div class="dev-grid">
       <p><strong>Team</strong><span>${esc(corpusConfig.team_code)}</span></p>
       <p><strong>Utterance</strong><span>${state.utterances.length}</span></p>
+      <p><strong>自動輪迴</strong><span>${state.autoLoop.generated}/${AUTO_LOOP_LIMIT}</span></p>
       <p><strong>SMM</strong><span>${state.dev.smm}</span></p>
       <p><strong>TMS</strong><span>${state.dev.tms}</span></p>
       <p><strong>追溯</strong><span>${state.dev.traceability}</span></p>
@@ -626,6 +758,11 @@ function buildCorpus() {
   };
   const members = teamMembers.concat([localMember]);
   const characters = sourceCharacters.concat([localCharacter]);
+  const sceneRows = Object.keys(passages).map(function (key, index) {
+    return makeSceneRow(passages[key], index + 1);
+  }).concat(Array.from({ length: AUTO_LOOP_LIMIT }, function (_, index) {
+    return makeSceneRow(makeAutoPassage(index + 1), Object.keys(passages).length + index + 1);
+  })).concat([makeSceneRow(makeAutoEpilogue(), Object.keys(passages).length + AUTO_LOOP_LIMIT + 1)]);
   return {
     metadata: {
       export_format: "da_go_playable_json_v1",
@@ -637,6 +774,8 @@ function buildCorpus() {
       import_batch_code: corpusConfig.import_batch_code,
       story_time: "大興二十年八月",
       story_place: "南京",
+      auto_loop_limit: AUTO_LOOP_LIMIT,
+      auto_loop_generated: state.autoLoop.generated,
       exported_at: new Date().toISOString()
     },
     source_documents: sourceDocuments,
@@ -692,18 +831,7 @@ function buildCorpus() {
       session_type: "play",
       transcript_status: "imported"
     }],
-    dbo_Scene: Object.keys(passages).map(function (key, index) {
-      const scene = passages[key];
-      return {
-        session_code: corpusConfig.session_code,
-        scene_code: scene.code,
-        scene_no: index + 1,
-        scene_title: scene.title,
-        scene_type: "play",
-        scene_summary_raw: scene.text.join("\n"),
-        scene_status: "draft"
-      };
-    }),
+    dbo_Scene: sceneRows,
     stg_Utterance_Import: state.utterances.map(toStagingRow),
     dbo_Utterance_12_preview: state.utterances.map(toUtterance12Preview),
     raw_game_events: state.events,
@@ -752,6 +880,18 @@ function toStagingRow(utterance, index) {
   };
 }
 
+function makeSceneRow(scene, sceneNo) {
+  return {
+    session_code: corpusConfig.session_code,
+    scene_code: scene.code,
+    scene_no: sceneNo,
+    scene_title: scene.title,
+    scene_type: scene.code.indexOf("SCN-AUTO") === 0 ? "auto_loop" : "play",
+    scene_summary_raw: scene.text.join("\n"),
+    scene_status: "draft"
+  };
+}
+
 function toUtterance12Preview(utterance) {
   return {
     session_code: utterance.session_code,
@@ -791,7 +931,60 @@ function handleHotkey(event) {
 }
 
 function getPassage() {
+  if (state.passage === "AutoEpilogue") return makeAutoEpilogue();
+  const autoMatch = /^AutoLoop-(\d+)$/.exec(state.passage);
+  if (autoMatch) return makeAutoPassage(clamp(Number(autoMatch[1]), 1, AUTO_LOOP_LIMIT));
   return passages[state.passage] || passages.Gate;
+}
+
+function makeAutoPassage(loopNo) {
+  const seed = getCycleSeed(loopNo);
+  const next = loopNo >= AUTO_LOOP_LIMIT ? "AutoEpilogue" : `AutoLoop-${loopNo + 1}`;
+  const turnName = String(loopNo).padStart(3, "0");
+  return {
+    code: `SCN-AUTO-${turnName}`,
+    title: `第${loopNo}輪：${seed.title}`,
+    time: `大興二十年八月，第${loopNo}輪`,
+    location: seed.location,
+    text: [
+      seed.lead,
+      `${state.player.name}翻開上一頁札記，${seed.hook}`,
+      `這是自動延伸的第${loopNo}輪。每一輪都會留下事件、選擇與 utterance，之後可從開發者面板匯出 JSON。`
+    ],
+    choices: [
+      { text: `沿${seed.location}線索往下一輪`, to: next, kind: "decision", effects: { spirit: -1, composure: 1 }, dev: { smm: 2, tms: 2, traceability: 4 }, item: seed.item, note: seed.note },
+      { text: `把${seed.title}整理成札記`, to: next, kind: "summary", effects: { composure: 2, suspicion: -1 }, dev: { smm: 3, tms: 2, traceability: 5 }, item: seed.item, note: seed.note },
+      { text: "暫停輪迴，回夜宿札記", to: "NightRecord", kind: "decision", effects: { composure: 1 }, dev: { smm: 1, tms: 1, traceability: 2 } }
+    ]
+  };
+}
+
+function makeAutoEpilogue() {
+  return {
+    code: "SCN-AUTO-100-END",
+    title: "百輪札記",
+    time: "大興二十年八月，百輪收束",
+    location: "南京客舍",
+    text: [
+      `${state.player.name}把一百輪札記疊在桌上。南京、崑崙、銀川、南陽、五毒、雙孤、魏無忌案卷與洛道餘波都留下了可回讀的線索。`,
+      `目前已生成 ${state.autoLoop.generated} 輪自動劇情，事件與 utterance 已寫入本機存檔。`,
+      "可繼續從既有路線遊玩，也可打開開發者面板匯出 JSON。"
+    ],
+    choices: [
+      { text: "回南京城門重新入局", to: "Gate", kind: "decision", effects: { spirit: 2, composure: 2 }, dev: { smm: 1, tms: 1, traceability: 2 } },
+      { text: "回夜宿札記查看下一步", to: "NightRecord", kind: "summary", effects: { composure: 2 }, dev: { smm: 1, tms: 1, traceability: 2 } },
+      { text: "從第一輪手動重走", to: "AutoLoop-1", kind: "decision", effects: { spirit: -1 }, dev: { smm: 1, tms: 1, traceability: 2 } }
+    ]
+  };
+}
+
+function getCycleSeed(loopNo) {
+  return chronicleCycle[(loopNo - 1) % chronicleCycle.length];
+}
+
+function getAutoLoopNo(sceneCode) {
+  const match = /^SCN-AUTO-(\d+)$/.exec(sceneCode);
+  return match ? Number(match[1]) : 0;
 }
 
 function applyVars(line) {
