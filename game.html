@@ -3,39 +3,89 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>DA GO TRPG Corpus Game</title>
+  <title>大國年代記</title>
   <link rel="stylesheet" href="assets/game-screen.css">
 </head>
-<body>
-  <aside id="ui-bar">
-    <header id="ui-title"><h1>DA GO</h1><p>TRPG Corpus</p></header>
-    <section id="ui-status"></section>
-    <nav id="ui-actions">
-      <button type="button" data-open-overlay="save">Save</button>
-      <button type="button" data-open-overlay="settings">Settings</button>
-      <button type="button" id="exportCorpus">Export Corpus</button>
-      <button type="button" id="resetGame">Restart</button>
-      <label class="file-button">Import<input id="importFile" type="file" accept="application/json,.json"></label>
-    </nav>
-    <section class="sidebar-block"><h2>短期記憶</h2><div id="memoryList" class="sidebar-list"></div></section>
-    <section class="sidebar-block"><h2>線索</h2><div id="inventoryList" class="sidebar-list"></div></section>
+<body data-text-style="standard">
+  <div id="story" role="main">
+    <div id="passages" aria-live="polite">
+      <article id="passage" class="passage">
+        <section id="startPanel" class="start-panel">
+          <h1>大國年代記</h1>
+          <p class="version">da_go playable build</p>
+          <form id="startForm" class="start-form">
+            <label>角色名字
+              <input id="playerName" name="playerName" type="text" value="旅人" maxlength="16" autocomplete="off">
+            </label>
+            <fieldset>
+              <legend>文字外觀</legend>
+              <label><input type="radio" name="textStyle" value="standard" checked> 標準</label>
+              <label><input type="radio" name="textStyle" value="scroll"> 書卷</label>
+              <label><input type="radio" name="textStyle" value="night"> 夜讀</label>
+              <label><input type="radio" name="textStyle" value="large"> 大字</label>
+            </fieldset>
+            <button id="startButton" type="submit">開始遊戲</button>
+          </form>
+        </section>
+
+        <section id="playPanel" hidden>
+          <header class="passage-header">
+            <h2 id="passageTitle"></h2>
+            <p id="passageMeta"></p>
+          </header>
+          <section id="passageText" class="passage-text"></section>
+          <nav id="choiceList" class="choice-list"></nav>
+          <footer id="passageFooter"></footer>
+        </section>
+      </article>
+    </div>
+  </div>
+
+  <aside id="ui-bar" aria-live="polite">
+    <div id="ui-bar-body">
+      <header id="title" role="banner">
+        <div id="story-banner"></div>
+        <h1 id="story-title">大國年代記</h1>
+        <div id="story-subtitle">大興二十年八月，南京</div>
+      </header>
+
+      <nav id="ui-actions">
+        <button type="button" data-action="save">保存</button>
+        <button type="button" data-action="load">載入</button>
+        <button type="button" data-action="settings">設定</button>
+        <button type="button" data-action="restart">重來</button>
+        <button type="button" data-action="developer">開發者</button>
+      </nav>
+
+      <section class="sidebar-block">
+        <h2>角色</h2>
+        <div id="characterBox" class="sidebar-list"></div>
+      </section>
+      <section class="sidebar-block">
+        <h2>狀態</h2>
+        <div id="statusBox"></div>
+      </section>
+      <section class="sidebar-block">
+        <h2>物品</h2>
+        <div id="itemBox" class="sidebar-list"></div>
+      </section>
+      <section class="sidebar-block">
+        <h2>紀錄</h2>
+        <div id="noteBox" class="sidebar-list"></div>
+      </section>
+    </div>
   </aside>
-  <main id="story">
-    <article id="passages">
-      <header class="passage-header"><h2 id="passageTitle"></h2><p id="passageMeta"></p></header>
-      <section id="passageText" class="passage-text"></section>
-      <section id="worldBox" class="world-box"></section>
-      <section id="eventBanner" class="event-banner" hidden></section>
-      <nav id="choiceList" class="choice-list"></nav>
-      <footer id="passageFooter"></footer>
-    </article>
-  </main>
+
   <div id="overlayBackdrop" class="overlay-backdrop hidden">
     <section id="overlay" class="overlay">
-      <header class="overlay-head"><h2 id="overlayTitle"></h2><button type="button" id="closeOverlay">Close</button></header>
+      <header class="overlay-head">
+        <h2 id="overlayTitle"></h2>
+        <button type="button" id="closeOverlay">關閉</button>
+      </header>
       <div id="overlayContent" class="overlay-content"></div>
     </section>
   </div>
+
   <script src="assets/game-direct.js"></script>
 </body>
 </html>
