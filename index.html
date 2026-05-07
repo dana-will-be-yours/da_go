@@ -11,7 +11,7 @@
     <div>
       <p class="eyebrow">DA GO / TRPG CORPUS</p>
       <h1>互動敘事研究遊戲</h1>
-      <p class="subtitle">分頁式互動敘事、角色狀態、選擇紀錄、知識查詢與 SQL Server 語料庫匯出工具</p>
+      <p class="subtitle">Passage 引擎、時間推進、事件池、存檔槽、研究紀錄與 SQL Server 語料庫匯出工具</p>
     </div>
     <div class="header-actions">
       <label class="button" for="importFile">
@@ -29,13 +29,15 @@
     <button class="tab" type="button" data-page="character">角色</button>
     <button class="tab" type="button" data-page="world">世界</button>
     <button class="tab" type="button" data-page="log">歷程</button>
+    <button class="tab" type="button" data-page="save">存檔</button>
+    <button class="tab" type="button" data-page="settings">設定</button>
     <button class="tab" type="button" data-page="corpus">資料庫</button>
   </nav>
 
   <main>
     <section class="page game-layout" id="page-game">
       <aside class="status-panel panel">
-        <div class="panel-head"><h2>角色狀態</h2></div>
+        <div class="panel-head"><h2>狀態側欄</h2></div>
         <div class="panel-body" id="characterStatus"></div>
       </aside>
 
@@ -49,6 +51,7 @@
         </div>
         <div class="panel-body">
           <article class="passage" id="passageText"></article>
+          <div class="event-banner" id="eventBanner" hidden></div>
           <div class="choice-list" id="choiceList"></div>
         </div>
       </section>
@@ -123,6 +126,51 @@
           <span class="muted" id="logCount"></span>
         </div>
         <div class="timeline" id="eventTimeline"></div>
+      </section>
+    </section>
+
+    <section class="page" id="page-save" hidden>
+      <section class="panel">
+        <div class="panel-head"><h2>存檔槽</h2><span class="muted">8 個手動槽 + 自動存檔</span></div>
+        <div class="panel-body save-grid" id="saveSlots"></div>
+      </section>
+    </section>
+
+    <section class="page" id="page-settings" hidden>
+      <section class="panel">
+        <div class="panel-head"><h2>遊戲與研究設定</h2></div>
+        <form class="panel-body form-grid" id="settingsForm">
+          <label>顯示模式
+            <select name="display_mode">
+              <option value="full">完整模式</option>
+              <option value="text_only">純文字模式</option>
+              <option value="research">研究標註模式</option>
+            </select>
+          </label>
+          <label>側欄指標
+            <select name="sidebar_stats">
+              <option value="all">全部</option>
+              <option value="research">僅 SMM/TMS/追溯</option>
+              <option value="minimal">最小</option>
+            </select>
+          </label>
+          <label>連結編號
+            <select name="numberify_enabled">
+              <option value="true">啟用</option>
+              <option value="false">停用</option>
+            </select>
+          </label>
+          <label>自動存檔
+            <select name="autosave_enabled">
+              <option value="true">啟用</option>
+              <option value="false">停用</option>
+            </select>
+          </label>
+          <label class="span-2">研究備註<textarea name="research_note"></textarea></label>
+          <div class="span-2 form-actions">
+            <button class="primary" type="submit">儲存設定</button>
+          </div>
+        </form>
       </section>
     </section>
 
