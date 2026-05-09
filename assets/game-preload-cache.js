@@ -1,8 +1,8 @@
 (()=>{
 'use strict';
-const VERSION='1.10.11-role-rank-table';
+const VERSION='1.11.0-changshan-year';
 const CACHE_NAME='da_go_runtime_'+VERSION;
-const ASSETS=[['assets/game-screen.css','介面樣式',1,''],['assets/game-v4.css','卡片與地圖樣式',1,''],['assets/game-v6-hotfix.js','角色建立修正',1,'ROLE_GROUPS'],['assets/game-playable-v6.js','南京篇規則引擎',1,'identity-rank-attr-formula'],['assets/data/dago-nanjing-v5-bundle.json','南京資料包',0,'json']];
+const ASSETS=[['assets/game-screen.css','介面樣式',1,''],['assets/game-v4.css','卡片與地圖樣式',1,''],['assets/game-v6-hotfix.js','角色建立修正',1,'ROLE_GROUPS'],['assets/game-playable-v6.js','常山縣規則引擎',1,'identity-rank-attr-formula'],['assets/data/dago-changshan-v1-bundle.json','常山縣備用資料包',0,'json']];
 const SCROLL_LINES=[
 '風將住而雨將來……可這雨不知能沖刷走多少眼淚，抑會有多少眼淚留下。',
 '那是恨不得從一塊銅錢裡再無中生有扳出另一塊的呢喃。',
@@ -37,7 +37,7 @@ css.textContent=`#story,#ui-bar{visibility:hidden}body.dago-ready #story,body.da
 document.head.appendChild(css);
 const box=document.createElement('section');
 box.className='dago-preload';
-box.innerHTML='<div class="dago-preload-atmosphere" aria-hidden="true"><div class="dago-vertical-log left"><div class="dago-scroll-cycle"><div class="dago-vertical-track">'+leftTrack+'</div><div class="dago-vertical-track">'+leftTrack+'</div></div></div><div class="dago-vertical-log right"><div class="dago-scroll-cycle"><div class="dago-vertical-track">'+rightTrack+'</div><div class="dago-vertical-track">'+rightTrack+'</div></div></div></div><div class="dago-preload-card"><h1>大國年代記</h1><p>正在預載入南京篇快取。必要檔案確認後即可進入遊戲。</p><div class="dago-preload-meter"><i id="dagoPreloadBar"></i></div><div id="dagoPreloadList" class="dago-preload-list"></div><p id="dagoPreloadMsg"><small>準備檢查資源。</small></p><div class="dago-preload-actions"><button id="dagoEnter" type="button" disabled>進入遊戲</button><button id="dagoRetry" type="button">重新讀取快取</button><button id="dagoBypass" type="button">略過快取直接進入</button></div></div>';
+box.innerHTML='<div class="dago-preload-atmosphere" aria-hidden="true"><div class="dago-vertical-log left"><div class="dago-scroll-cycle"><div class="dago-vertical-track">'+leftTrack+'</div><div class="dago-vertical-track">'+leftTrack+'</div></div></div><div class="dago-vertical-log right"><div class="dago-scroll-cycle"><div class="dago-vertical-track">'+rightTrack+'</div><div class="dago-vertical-track">'+rightTrack+'</div></div></div></div><div class="dago-preload-card"><h1>大國年代記</h1><p>正在預載入常山縣快取。必要檔案確認後即可進入遊戲。</p><div class="dago-preload-meter"><i id="dagoPreloadBar"></i></div><div id="dagoPreloadList" class="dago-preload-list"></div><p id="dagoPreloadMsg"><small>準備檢查資源。</small></p><div class="dago-preload-actions"><button id="dagoEnter" type="button" disabled>進入遊戲</button><button id="dagoRetry" type="button">重新讀取快取</button><button id="dagoBypass" type="button">略過快取直接進入</button></div></div>';
 document.body.appendChild(box);
 const list=document.getElementById('dagoPreloadList'),bar=document.getElementById('dagoPreloadBar'),msg=document.getElementById('dagoPreloadMsg'),enter=document.getElementById('dagoEnter'),retry=document.getElementById('dagoRetry'),bypass=document.getElementById('dagoBypass');
 const rows={};

@@ -1,28 +1,33 @@
 (()=>{
 'use strict';
-const VERSION='1.10.2-player-facing-scenario-select';
+const VERSION='1.11.0-changshan-year';
 const STORE='daGoScenarioSelection';
 const DEFAULT_SCENARIO_URL='assets/data/scenarios/xiaocheng-jiushi.json?v='+encodeURIComponent(VERSION);
 const $=id=>document.getElementById(id);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const DEFAULT_FEATURES=['在茶棚、驛舍、帳房與官署之間追索舊事。','從帳目、急信與傳聞中拼出暗線。','以選擇與後果推動名聲變化。','在城中人物的試探與回應裡決定立場。'];
+const DEFAULT_FEATURES=[
+  '在東門、客棧、市集、縣衙與河埠之間尋找活計。',
+  '從短工、人情與地方消息累積立足線索。',
+  '以疲勞、飢餓、精神與鎮定管理每日行動。',
+  '和常山縣人物往來，逐步打開更多去處。'
+];
 let scenarios=[];
 let selected=null;
 let entered=false;
 function addStyle(){
+  if(document.getElementById('scenarioSelectStyle'))return;
   const style=document.createElement('style');
+  style.id='scenarioSelectStyle';
   style.textContent=`
   #startForm.dago-wait-scenario{display:none!important;}
-  .scenario-select-panel{border:1px solid rgba(190,160,82,.72);background:linear-gradient(180deg,rgba(54,40,20,.52),rgba(15,15,18,.92));box-shadow:0 1rem 3rem rgba(0,0,0,.42);padding:1.25rem;margin:0 0 1.35rem;color:#ddd;position:relative;overflow:hidden;}
-  .scenario-select-panel:before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 50% 0%,rgba(211,170,66,.18),transparent 32%);pointer-events:none;}
+  .scenario-select-panel{border:1px solid rgba(190,160,82,.72);background:rgba(24,24,24,.96);box-shadow:0 1rem 3rem rgba(0,0,0,.42);padding:1.25rem;margin:0 0 1.35rem;color:#ddd;position:relative;overflow:hidden;}
   .scenario-select-inner{position:relative;z-index:1;}
-  .scenario-panel-title{font-family:'DFKai-SB','標楷體','BiauKai','KaiTi','STKaiti','PMingLiU',serif;color:#f1d176;font-size:1.25rem;margin:0 0 .75rem;letter-spacing:.08em;text-align:center;}
-  .scenario-title{font-family:'DFKai-SB','標楷體','BiauKai','KaiTi','STKaiti','PMingLiU',serif;color:#f1d176;font-size:1.55rem;margin:.4rem 0 .25rem;letter-spacing:.08em;text-align:center;}
+  .scenario-panel-title{font-family:'DFKai-SB','BiauKai','KaiTi','STKaiti','PMingLiU',serif;color:#f1d176;font-size:1.25rem;margin:0 0 .75rem;letter-spacing:.08em;text-align:center;}
+  .scenario-title{font-family:'DFKai-SB','BiauKai','KaiTi','STKaiti','PMingLiU',serif;color:#f1d176;font-size:1.55rem;margin:.4rem 0 .25rem;letter-spacing:.08em;text-align:center;}
   .scenario-subtitle{color:#cfc3a3;margin:.15rem 0 1rem;text-align:center;}
   .scenario-actions{display:flex;gap:.65rem;flex-wrap:wrap;margin:.9rem 0 1rem;align-items:center;}
   .scenario-actions button,.scenario-actions select{font:inherit;background:#342818;color:#f1e6c4;border:1px solid rgba(209,177,99,.75);padding:.48rem .7rem;}
   .scenario-actions button{cursor:pointer;}
-  .scenario-actions button:hover{background:#46351d;}
   .scenario-current{margin:.55rem 0;text-align:center;color:#e8dfc8;}
   .scenario-summary{border-top:1px solid rgba(209,177,99,.42);border-bottom:1px solid rgba(209,177,99,.28);padding:.85rem 0;margin:.75rem 0;}
   .scenario-summary p{line-height:1.9;margin:.35rem 0;}
@@ -35,29 +40,42 @@ function addStyle(){
   `;
   document.head.appendChild(style);
 }
-function safeSaveLocal(s){try{localStorage.setItem(STORE,JSON.stringify({scenario_code:s.scenario_code,scenario_name:s.scenario_name,loaded_at:new Date().toISOString()}))}catch{}}
+function fallbackScenario(){
+  return {
+    scenario_code:'changshan_year',
+    scenario_name:'常山縣一年',
+    scenario_subtitle:'大興十年天津郡常山縣',
+    intro:{
+      summary:'大興十年，你抵達天津郡常山縣。縣城不大，客棧、市集、縣衙、河埠與田里各有活計與消息。',
+      features:DEFAULT_FEATURES.slice()
+    }
+  };
+}
+function safeSaveLocal(s){
+  try{localStorage.setItem(STORE,JSON.stringify({scenario_code:s.scenario_code,scenario_name:s.scenario_name,loaded_at:new Date().toISOString()}))}catch{}
+}
 function normalizeScenario(x){
   if(!x||typeof x!=='object')throw new Error('劇本 JSON 格式錯誤');
-  const base={schema_version:'da_go_scenario_bundle_v1',scenario_code:'custom_'+Date.now(),scenario_name:'未命名劇本',scenario_subtitle:'自訂劇本',intro:{summary:'未提供簡介。',features:DEFAULT_FEATURES.slice()},time_span:{},scope:{},worldview:{},geography:{districts:[]},characters:[],plot:{main_threads:[]}};
+  const base=fallbackScenario();
   const s=Object.assign({},base,x);
   s.intro=Object.assign({},base.intro,x.intro||{});
   if(!Array.isArray(s.intro.features)||!s.intro.features.length)s.intro.features=DEFAULT_FEATURES.slice();
   return s;
 }
 function renderScenario(s){
-  const panel=$('scenarioSelectPanel'); if(!panel)return;
+  const panel=$('scenarioSelectPanel');
+  if(!panel||!s)return;
   const features=(s.intro?.features||DEFAULT_FEATURES).map(x=>`<li>${esc(x)}</li>`).join('');
-  panel.querySelector('#scenarioCurrentName').textContent=s.scenario_name||'未命名劇本';
+  panel.querySelector('#scenarioCurrentName').textContent=s.scenario_name||'常山縣一年';
   panel.querySelector('#scenarioDetail').innerHTML=`
     <h2 class="scenario-title">${esc(s.scenario_name)}</h2>
     <p class="scenario-subtitle">${esc(s.scenario_subtitle||'')}</p>
-    <section class="scenario-summary">
-      <p>${esc(s.intro?.summary||'未提供簡介。')}</p>
-    </section>
-    <article class="scenario-feature-card"><h3>劇本遊玩特色</h3><ul>${features}</ul></article>`;
+    <section class="scenario-summary"><p>${esc(s.intro?.summary||'')}</p></section>
+    <article class="scenario-feature-card"><h3>劇本內容</h3><ul>${features}</ul></article>`;
 }
 function installPanel(){
-  const startPanel=$('startPanel'), form=$('startForm'); if(!startPanel||!form||$('scenarioSelectPanel'))return;
+  const startPanel=$('startPanel'),form=$('startForm');
+  if(!startPanel||!form||$('scenarioSelectPanel'))return;
   form.classList.add('dago-wait-scenario');
   const panel=document.createElement('section');
   panel.id='scenarioSelectPanel';
@@ -65,13 +83,13 @@ function installPanel(){
   panel.innerHTML=`<div class="scenario-select-inner">
     <p class="scenario-panel-title">劇本選擇</p>
     <div class="scenario-actions">
-      <button type="button" id="scenarioInfoBtn">呈現劇本簡介</button>
-      <button type="button" id="scenarioImportBtn">輸入劇本</button>
-      <select id="scenarioSwitch" title="現有劇本切換"><option value="xiaocheng_jiushi">小城舊事</option></select>
+      <button type="button" id="scenarioInfoBtn">查看劇本摘要</button>
+      <button type="button" id="scenarioImportBtn">匯入劇本 JSON</button>
+      <select id="scenarioSwitch" title="切換劇本"><option value="changshan_year">常山縣一年</option></select>
       <button type="button" id="scenarioEnterBtn">進入劇本</button>
       <input id="scenarioImportInput" class="scenario-hidden-input" type="file" accept="application/json,.json">
     </div>
-    <p class="scenario-current">目前劇本：<b id="scenarioCurrentName">小城舊事</b></p>
+    <p class="scenario-current">目前劇本：<b id="scenarioCurrentName">常山縣一年</b></p>
     <div id="scenarioDetail"></div>
   </div>`;
   startPanel.insertBefore(panel,form);
@@ -82,14 +100,17 @@ function installPanel(){
   $('scenarioEnterBtn').onclick=enterScenario;
 }
 async function readImport(e){
-  const f=e.target.files&&e.target.files[0]; if(!f)return;
-  const text=await f.text();
+  const f=e.target.files&&e.target.files[0];
+  if(!f)return;
   try{
-    const s=normalizeScenario(JSON.parse(text));
+    const s=normalizeScenario(JSON.parse(await f.text()));
     scenarios=scenarios.filter(x=>x.scenario_code!==s.scenario_code).concat(s);
     selected=s;
     if(!$('scenarioSwitch').querySelector(`option[value="${CSS.escape(s.scenario_code)}"]`)){
-      const opt=document.createElement('option'); opt.value=s.scenario_code; opt.textContent=s.scenario_name; $('scenarioSwitch').appendChild(opt);
+      const opt=document.createElement('option');
+      opt.value=s.scenario_code;
+      opt.textContent=s.scenario_name;
+      $('scenarioSwitch').appendChild(opt);
     }
     $('scenarioSwitch').value=s.scenario_code;
     renderScenario(s);
@@ -100,27 +121,35 @@ function enterScenario(){
   entered=true;
   safeSaveLocal(selected);
   document.body.dataset.scenarioCode=selected.scenario_code;
-  const form=$('startForm'); if(form)form.classList.remove('dago-wait-scenario');
-  const panel=$('scenarioSelectPanel'); if(panel)panel.style.display='none';
+  const form=$('startForm');
+  if(form)form.classList.remove('dago-wait-scenario');
+  const panel=$('scenarioSelectPanel');
+  if(panel)panel.style.display='none';
   if(form&&!form.querySelector('[name="scenarioCode"]')){
     const note=document.createElement('input');
-    note.type='hidden'; note.name='scenarioCode'; note.value=selected.scenario_code;
+    note.type='hidden';
+    note.name='scenarioCode';
+    note.value=selected.scenario_code;
     form.appendChild(note);
   }
 }
 function patchRenownLevel(){
-  const select=document.querySelector('[name="renownLevel"]');
-  if(select){
-    select.value='1'; select.disabled=true;
-    const label=select.closest('label');
-    if(label&&!label.dataset.fixed){label.dataset.fixed='1';label.insertAdjacentHTML('afterend','<small class="field-help">創建角色時名聲經驗固定為 1；遊戲中依玩家行為變更。</small>')}
-  }
+  document.querySelectorAll('[name="renownLevel"]').forEach(input=>{
+    input.value='1';
+    if(input.tagName==='SELECT')input.disabled=true;
+    const label=input.closest('label');
+    if(label)label.hidden=true;
+  });
 }
 async function boot(){
   addStyle();
   installPanel();
   patchRenownLevel();
-  try{selected=normalizeScenario(await (await fetch(DEFAULT_SCENARIO_URL,{cache:'no-store'})).json())}catch{selected=normalizeScenario({scenario_code:'xiaocheng_jiushi',scenario_name:'小城舊事',scenario_subtitle:'大興二十年南京篇',intro:{summary:'雨後南京，舊帳、急信與遠方傳聞同時浮出水面。你將從城中人的言語、試探與沉默裡，追索一段被壓下的舊事。',features:DEFAULT_FEATURES.slice()}})}
+  try{
+    selected=normalizeScenario(await (await fetch(DEFAULT_SCENARIO_URL,{cache:'no-store'})).json());
+  }catch{
+    selected=normalizeScenario(fallbackScenario());
+  }
   scenarios=[selected];
   renderScenario(selected);
   const obs=new MutationObserver(()=>{if(!entered)installPanel();patchRenownLevel()});

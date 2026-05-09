@@ -1,4 +1,4 @@
-(() => {
+﻿(() => {
   "use strict";
 
   window.DaGoLegacyRuntime = Object.assign({}, window.DaGoLegacyRuntime || {}, {
@@ -10,7 +10,7 @@
   }
 
   const script = document.createElement("script");
-  script.src = "assets/game-runtime.js?v=1.10.11-role-rank-table";
+  script.src = "assets/game-runtime.js?v=1.11.0-changshan-year";
   script.dataset.loadedBy = "assets/game-playable-v2.js";
   document.body.appendChild(script);
 })();

@@ -1,60 +1,65 @@
 {
   "schema_version": "da_go_scenario_bundle_v1",
-  "scenario_code": "xiaocheng_jiushi",
-  "scenario_name": "小城舊事",
-  "scenario_subtitle": "",
+  "scenario_code": "changshan_year",
+  "scenario_name": "常山縣一年",
+  "scenario_subtitle": "大興十年天津郡常山縣",
   "time_span": {
     "era": "大興",
-    "year": 20,
-    "default_season": "autumn",
-    "start_date": "大興二十年九月九日"
+    "year": 10,
+    "default_season": "spring",
+    "start_date": "大興十年正月八日"
   },
   "scope": {
-    "player_area": "南京",
-    "restriction": "玩家活動限定南京。遠方地點以信件、帳目、傳聞、人物口述與旗標線索進入劇情。"
+    "player_area": "天津郡 常山縣",
+    "restriction": "玩家活動以常山縣為主，縣外資訊以書信、商旅、縣衙案卷與人物口述進入劇情。"
   },
   "intro": {
-    "summary": "雨後城中，舊帳、急信與遠方傳聞同時浮出水面。你將從城中人的言語、試探與沉默裡，追索一段被壓下的舊事。",
+    "summary": "大興十年，你抵達天津郡常山縣。縣城不大，客棧、市集、縣衙、河埠與田里各有活計與消息。",
     "features": [
-      "在茶棚、驛舍、帳房與官署之間追索舊事。",
-      "從帳目、急信與傳聞中拼出暗線。",
-      "以選擇與後果推動名聲變化。",
-      "在城中人物的試探與回應裡決定立場。"
+      "在東門、客棧、市集、縣衙與河埠之間尋找活計。",
+      "從短工、人情與地方消息累積立足線索。",
+      "以疲勞、飢餓、精神與鎮定管理每日行動。",
+      "和常山縣人物往來，逐步打開更多去處。"
     ],
-    "gm_note": "此劇本包為現有 da_go 南京篇劇情的範例封裝，可作為 SQL Server authoring workflow 與 da_go runtime 之間的交換格式。"
+    "gm_note": "研究者用隱藏設定：玩家需在此地找到工作並生活一年；一年內以 NPC 關係、短工、地方消息與突發事件形成分支，不在玩家端直接顯示。"
   },
   "worldview": {
     "title": "大國年代記",
-    "political_context": "大興二十年，南京表面平穩，商會帳目、驛路急信與門派傳聞正在城內暗流相接。",
-    "themes": ["舊事", "帳目", "信路", "門閥", "江湖遠訊"]
+    "political_context": "大興十年，天津郡常山縣位在水陸轉運與鄉里糧務交會處，縣衙、商旅、工坊與河埠各有消息來源。",
+    "themes": ["立足", "活計", "人情", "地方秩序", "長期生活"]
   },
   "geography": {
-    "city": "南京",
+    "city": "常山縣",
     "districts": [
-      {"code": "outer_gate", "name": "外郭城門", "locations": ["南京外城", "城門茶棚"]},
-      {"code": "outer_city", "name": "外城", "locations": ["驛舍", "秦淮河埠", "北街", "後巷", "街市", "借住小院"]},
-      {"code": "inner_city", "name": "內城", "locations": ["南市帳房", "西街書肆"]},
-      {"code": "outer_office", "name": "皇城外署", "locations": ["官署門廊"]}
+      {"code": "east_gate", "name": "東門", "locations": ["常山縣東門", "活計牌"]},
+      {"code": "market", "name": "市集", "locations": ["常山市集", "醫鋪", "工坊"]},
+      {"code": "office", "name": "縣衙", "locations": ["縣衙門廊", "舊案房"]},
+      {"code": "river", "name": "河埠", "locations": ["南河埠", "河岸小路"]},
+      {"code": "lodging", "name": "住處", "locations": ["借住小院", "客棧"]},
+      {"code": "field", "name": "田里", "locations": ["城外田埂", "水渠"]}
     ]
   },
   "characters": [
-    {"code": "npc_tea_master", "name": "茶博士", "role": "市井情報節點"},
-    {"code": "npc_post_runner", "name": "驛卒", "role": "北路官信節點"},
-    {"code": "npc_old_scribe", "name": "老書吏", "role": "官署與魏氏線索節點"},
-    {"code": "npc_boatman", "name": "船主", "role": "江夏糧船線索節點"},
-    {"code": "npc_accountant", "name": "帳房先生", "role": "南陽帳目線索節點"},
-    {"code": "npc_qingyi", "name": "青衣商旅", "role": "崑崙與南陽暗線節點"},
-    {"code": "npc_daotong", "name": "買紙道童", "role": "崑崙遠訊節點"}
+    {"code": "npc_liang_san", "name": "梁三", "role": "客棧跑堂，熟悉旅人去向。"},
+    {"code": "npc_yao_niang", "name": "姚娘", "role": "客棧掌櫃，掌握短租與欠帳消息。"},
+    {"code": "npc_chen_si", "name": "貨郎陳四", "role": "市集貨郎，知道各家近況。"},
+    {"code": "npc_zhao_he", "name": "趙禾", "role": "田里雇主，常招短工。"},
+    {"code": "npc_lao_zhou", "name": "老周", "role": "糧倉管事，掌握糧務與搬運。"},
+    {"code": "npc_lao_pei", "name": "老裴", "role": "河埠船工，熟悉水路與夜運。"},
+    {"code": "npc_tang_jian", "name": "唐簡", "role": "縣衙書吏，熟悉案卷。"},
+    {"code": "npc_lin_ling", "name": "林菱", "role": "醫鋪學徒，能治小傷小病。"},
+    {"code": "npc_a_yuan", "name": "阿芫", "role": "城隍廟賣香人，記人很準。"},
+    {"code": "npc_shen_bu", "name": "沈簿", "role": "縣衙簿書，偶爾查核戶籍。"}
   ],
   "plot": {
     "main_threads": [
-      {"code": "quest_south_ledger", "title": "南陽銀痕", "goal": "追查南合商會戳記、南陽帳目疑點與劉廷平舊名。"},
-      {"code": "quest_north_letter", "title": "銀川急信", "goal": "取得銀川急信線索、北路送信圖，並請馬客帶信。"},
-      {"code": "quest_kunlun_rumour", "title": "崑崙遠訊", "goal": "確認崑崙受襲傳聞、取得書肆信物，追查下山者去向。"}
+      {"code": "work_life", "title": "常山立足", "goal": "研究者隱藏目標：找工作並生活一年。"},
+      {"code": "npc_relations", "title": "地方人物", "goal": "透過短工、問訊與日常往來打開 NPC 關係。"},
+      {"code": "county_records", "title": "縣中舊案", "goal": "以縣衙、河埠與市場消息形成長期分支。"}
     ],
     "start_passage": "Gate"
   },
-  "runtime_bundle": "assets/data/dago-nanjing-v5-bundle.json",
+  "runtime_bundle": "assets/game-playable-v6.js",
   "trpg_corpus_targets": {
     "database": "TRPG_Corpus_DB",
     "authoring_schema": "dbo.DaGo_Authoring_Scenario_*",

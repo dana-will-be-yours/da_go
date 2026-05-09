@@ -1,0 +1,25 @@
+{
+  "bundle_format": "da_go_runtime_bundle_v1",
+  "bundle_version": "1.11.0-changshan-year",
+  "scenario": {
+    "code": "changshan_year",
+    "name": "常山縣一年",
+    "time": "大興十年",
+    "location": "天津郡 常山縣",
+    "start_passage": "Gate"
+  },
+  "locations": [
+    {"code": "Gate", "name": "常山縣東門", "type": "city_gate"},
+    {"code": "WorkBoard", "name": "活計牌", "type": "job_board"},
+    {"code": "Inn", "name": "客棧", "type": "lodging"},
+    {"code": "Market", "name": "市集", "type": "market"},
+    {"code": "Yamen", "name": "縣衙", "type": "government"},
+    {"code": "Dock", "name": "南河埠", "type": "harbour"},
+    {"code": "Lodging", "name": "借住小院", "type": "save_point"}
+  ],
+  "rules": {
+    "check_formula": "4D3+調整值+技能值 >= DC",
+    "collapse": "疲勞或飢餓過高時，行動後可能回到存檔點並扣除氣血。",
+    "hidden_goal": "研究者用：在此地找到工作生活一年。"
+  }
+}

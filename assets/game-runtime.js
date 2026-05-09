@@ -1,6 +1,6 @@
 (()=>{
 'use strict';
-const VERSION='1.10.11-role-rank-table';
+const VERSION='1.11.0-changshan-year';
 window.DaGoRuntimeManifest=Object.freeze({
   runtime_name:'da_go_unified_runtime',
   runtime_version:VERSION,

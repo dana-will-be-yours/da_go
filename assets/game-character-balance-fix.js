@@ -1,71 +1,89 @@
 (()=>{
 'use strict';
-const VERSION='1.10.11-role-rank-table';
+const VERSION='1.11.0-changshan-year';
 const STORE='daGoPlayV6';
 const RANKS=['戊','丁','丙','乙','甲'];
 const ROLE_ROWS=[
-{code:'wenxuan',group:'文人',name:'文選',axis:'mind',ranks:{戊:'初識選簿名目的文選',丁:'熟悉戶籍與薦牘的文選',丙:'能判讀官籍流轉的文選',乙:'可調度州縣名冊的文選',甲:'能憑一冊選簿牽動仕途的文選'}},
-{code:'literatus',group:'文人',name:'士子',axis:'mind',ranks:{戊:'初入學舍的士子',丁:'熟讀經義策問的士子',丙:'能在文會立論的士子',乙:'詩文與議論皆有人傳誦的士子',甲:'一篇文字足以改動士林風向的士子'}},
-{code:'copyist',group:'文人',name:'抄書人',axis:'mind',ranks:{戊:'初學校字的抄書人',丁:'能按時交卷的抄書人',丙:'可辨偽本與殘頁的抄書人',乙:'掌握坊間書路的抄書人',甲:'能以一卷孤本換來門路的抄書人'}},
-{code:'tutor',group:'文人',name:'塾師',axis:'mind',ranks:{戊:'初授蒙學的塾師',丁:'能管束一堂子弟的塾師',丙:'可替人梳理家學的塾師',乙:'受鄉里士族延請的塾師',甲:'足以培養一門聲望的塾師'}},
-{code:'poet',group:'文人',name:'詩客',axis:'mind',ranks:{戊:'初赴雅集的詩客',丁:'能在席上得句的詩客',丙:'詩名傳入坊巷的詩客',乙:'可憑詩牽起人脈的詩客',甲:'一首詩能令貴客改席的詩客'}},
-{code:'house',group:'門閥世家',name:'門閥子弟',axis:'mind',ranks:{戊:'剛能入族席的門閥子弟',丁:'熟悉家中禮數的門閥子弟',丙:'可替族中走動人情的門閥子弟',乙:'在親族與賓客間已有分量的門閥子弟',甲:'能牽動一族決議的門閥子弟'}},
-{code:'house_scion',group:'門閥世家',name:'門閥子弟',axis:'mind',ranks:{戊:'剛能入族席的門閥子弟',丁:'熟悉家中禮數的門閥子弟',丙:'可替族中走動人情的門閥子弟',乙:'在親族與賓客間已有分量的門閥子弟',甲:'能牽動一族決議的門閥子弟'}},
-{code:'court_official',group:'官員',name:'京官',axis:'mind',ranks:{戊:'初入朝班的京官',丁:'熟悉章奏門徑的京官',丙:'可主理一司文牘的京官',乙:'朝中多有同僚通問的京官',甲:'能參決部院大議的京官'}},
-{code:'local_official',group:'官員',name:'地方官',axis:'mind',ranks:{戊:'初任州縣的地方官',丁:'熟悉田稅刑名的地方官',丙:'能處置一方政務的地方官',乙:'府縣士紳多肯買帳的地方官',甲:'可調停郡縣大案的地方官'}},
-{code:'technical_official',group:'官員',name:'技官',axis:'tech',ranks:{戊:'初習營造度量的技官',丁:'能核算器物圖籍的技官',丙:'可獨立驗收工料的技官',乙:'掌一署工務名冊的技官',甲:'能以一圖改動工程成敗的技官'}},
-{code:'yamen',group:'兵吏衙差',name:'胥吏',axis:'tech',ranks:{戊:'初識公文格式的胥吏',丁:'能跑完一日差事的胥吏',丙:'可獨立辦案牘的胥吏',乙:'衙中上下皆認得門路的胥吏',甲:'一句話能改變案卷走向的胥吏'}},
-{code:'yamen_clerk',group:'兵吏衙差',name:'書吏',axis:'tech',ranks:{戊:'初識公文格式的書吏',丁:'能抄錄案牘的書吏',丙:'可獨立整理一房卷宗的書吏',乙:'衙中上下皆認得筆跡的書吏',甲:'一處批註能改變案卷走向的書吏'}},
-{code:'runner',group:'兵吏衙差',name:'差役',axis:'tech',ranks:{戊:'初跟班頭跑腿的差役',丁:'熟悉城中巷路的差役',丙:'能獨自傳拘與查訪的差役',乙:'街坊聽腳步便知來人的差役',甲:'可調動一班人手辦差的差役'}},
-{code:'constable',group:'兵吏衙差',name:'捕役',axis:'body',ranks:{戊:'初學拿人的捕役',丁:'能追索尋常盜案的捕役',丙:'可獨自押解重犯的捕役',乙:'黑白兩道皆知名號的捕役',甲:'能讓亡命徒聞風收手的捕役'}},
-{code:'soldier',group:'兵吏衙差',name:'兵戶',axis:'body',ranks:{戊:'初入伍籍的兵戶',丁:'能守一段城防的兵戶',丙:'可帶伍行軍的兵戶',乙:'有戰功與袍澤人望的兵戶',甲:'一聲號令能聚起軍心的兵戶'}},
-{code:'guard',group:'兵吏衙差',name:'衛士',axis:'body',ranks:{戊:'初持兵器值守的衛士',丁:'能看住一門一院的衛士',丙:'可護送人與物過街巷的衛士',乙:'貴家願托付近身安危的衛士',甲:'能以威名鎮住場面的衛士'}},
-{code:'urban_household',group:'坊郭戶',name:'坊郭戶',axis:'tech',ranks:{戊:'初在坊中立戶的坊郭戶',丁:'熟悉鄰里買賣的坊郭戶',丙:'可調停街坊細務的坊郭戶',乙:'一坊消息多會經手的坊郭戶',甲:'能讓坊市人情為己所用的坊郭戶'}},
-{code:'workshop',group:'坊郭戶',name:'作坊戶',axis:'tech',ranks:{戊:'初學手藝的作坊戶',丁:'能交付尋常活計的作坊戶',丙:'可承接大戶訂件的作坊戶',乙:'行內會主動問價的作坊戶',甲:'一件器物能定下行市的作坊戶'}},
-{code:'teahouse',group:'坊郭戶',name:'茶棚幫閒',axis:'tech',ranks:{戊:'初在茶棚添水的幫閒',丁:'聽得懂客人口風的幫閒',丙:'可把話頭引向所需處的幫閒',乙:'南北客人都肯透露消息的幫閒',甲:'一盞茶能換來整條線索的幫閒'}},
-{code:'market_broker',group:'坊郭戶',name:'市牙人',axis:'tech',ranks:{戊:'初識市價的市牙人',丁:'能替小商撮合買賣的市牙人',丙:'可核算貨路盈虧的市牙人',乙:'商戶願把暗價告知的市牙人',甲:'能憑一句估價牽動市面的市牙人'}},
-{code:'rural_farmer',group:'鄉村戶',name:'農戶',axis:'body',ranks:{戊:'初掌農具的農戶',丁:'能看懂天時地力的農戶',丙:'可支應一家田事的農戶',乙:'鄉里會請來評斷收成的農戶',甲:'能以糧路牽住一村生計的農戶'}},
-{code:'hunter',group:'鄉村戶',name:'獵戶',axis:'body',ranks:{戊:'初入山林的獵戶',丁:'能辨足跡與風向的獵戶',丙:'可獨自追捕猛獸的獵戶',乙:'山民願託付帶路的獵戶',甲:'能在山野間布下生路與死路的獵戶'}},
-{code:'fisher',group:'鄉村戶',name:'漁戶',axis:'body',ranks:{戊:'初學下網的漁戶',丁:'熟悉水口與潮聲的漁戶',丙:'可在夜水中辨認船影的漁戶',乙:'沿河船家願聽其判斷的漁戶',甲:'能借水路藏住一整條消息的漁戶'}},
-{code:'village_elder',group:'鄉村戶',name:'里正家人',axis:'mind',ranks:{戊:'初替里中跑文書的里正家人',丁:'熟悉戶口與田界的里正家人',丙:'可調停鄉里爭端的里正家人',乙:'縣中差人會先來問話的里正家人',甲:'能以鄉約改變一里走向的里正家人'}},
-{code:'strongman',group:'壯士',name:'壯士',axis:'body',ranks:{戊:'初憑氣力立足的壯士',丁:'能在街市打出名號的壯士',丙:'可獨自撐住一場衝突的壯士',乙:'道上人會讓三分的壯士',甲:'能以一身膽氣壓住群雄的壯士'}},
-{code:'escort',group:'壯士',name:'鏢客',axis:'body',ranks:{戊:'初隨鏢隊上路的鏢客',丁:'能護送尋常貨物的鏢客',丙:'可獨自押一段險路的鏢客',乙:'道上名聲響亮的鏢頭',甲:'一面鏢旗能讓山路開道的鏢客'}},
-{code:'dock_labor',group:'壯士',name:'埠頭力夫',axis:'body',ranks:{戊:'初在埠頭扛包的力夫',丁:'熟悉船期與貨色的力夫',丙:'可領一班人裝卸的力夫',乙:'船主會主動請托的力夫',甲:'能讓一座埠頭按其節奏行事的力夫'}},
-{code:'militia',group:'壯士',name:'團練',axis:'body',ranks:{戊:'初入鄉勇名冊的團練',丁:'能操持兵器與哨令的團練',丙:'可帶人巡守村道的團練',乙:'鄉里遇亂會先找來的團練',甲:'能把散戶聚成可用兵力的團練'}},
-{code:'wanderer',group:'遊手',name:'遊手',axis:'body',ranks:{戊:'初在街頭混跡的遊手',丁:'熟悉市井門道的遊手',丙:'可在黑白縫隙中辦事的遊手',乙:'遊歷四方百郡的豪傑',甲:'能讓江湖消息為己奔走的遊手'}},
-{code:'gambler',group:'遊手',name:'賭徒',axis:'tech',ranks:{戊:'初識牌骰的賭徒',丁:'能看出桌上手勢的賭徒',丙:'可在局中保住本錢的賭徒',乙:'賭坊會暗中留意的賭徒',甲:'能以一局輸贏換來人心的賭徒'}},
-{code:'vagrant',group:'遊手',name:'浪人',axis:'body',ranks:{戊:'初離戶籍的浪人',丁:'懂得避開盤查的浪人',丙:'可在陌生城中尋到落腳處的浪人',乙:'多地暗門都有人相識的浪人',甲:'能讓追索者失去方向的浪人'}},
-{code:'broker',group:'遊手',name:'掮客',axis:'tech',ranks:{戊:'初替人傳話的掮客',丁:'能替兩邊牽線的掮客',丙:'可判斷一樁交易真假分量的掮客',乙:'各路人馬都肯留一句話的掮客',甲:'能以一個引薦改變局面的掮客'}},
-{code:'merchant',group:'商旅',name:'行商',axis:'mind',ranks:{戊:'初背貨上路的行商',丁:'熟悉一條貨路的行商',丙:'可獨自談成遠途買賣的行商',乙:'各地牙行皆認得招牌的行商',甲:'能以貨流牽動城中物價的行商'}},
-{code:'medic',group:'醫戶',name:'坊郭醫',axis:'tech',ranks:{戊:'初識方書藥名的坊郭醫',丁:'能處置尋常病痛的坊郭醫',丙:'可獨立診治疑難外傷的坊郭醫',乙:'坊間病家會連夜相請的坊郭醫',甲:'能憑一帖藥方救回聲望與性命的坊郭醫'}},
-{code:'artist',group:'伎藝戶',name:'伎伶俳優',axis:'tech',ranks:{戊:'初登小席的伎伶俳優',丁:'能唱念一折拿手戲的伎伶俳優',丙:'可帶動滿座情緒的伎伶俳優',乙:'貴客願專程來看的伎伶俳優',甲:'一場演出能改變眾人立場的伎伶俳優'}},
-{code:'disciple',group:'江湖門派',name:'門派弟子',axis:'body',ranks:{戊:'初拜山門的門派弟子',丁:'能守住本門規矩的門派弟子',丙:'直系弟子',乙:'可受命下山辦事的門派弟子',甲:'能以一人聲名牽動門派聲望的門派弟子'}}
+{code:'court_official',group:'官員',name:'京官',ranks:{戊:'初入京署，熟悉公文名目。',丁:'能辨章程，知道衙署門路。',丙:'見過朝中文移，說話自帶官樣。',乙:'有可查任歷，人情往來更廣。',甲:'門路深厚，尋常書吏不敢輕慢。'}},
+{code:'local_official',group:'官員',name:'地方官',ranks:{戊:'懂縣鄉規矩，能問出地方小事。',丁:'熟悉里甲戶籍，會看人情輕重。',丙:'能調停鄉里糾紛，地方人願給薄面。',乙:'熟悉錢糧刑名，辦事更有章法。',甲:'地方聲望高，縣中人多知其名。'}},
+{code:'technical_official',group:'官員',name:'技官',ranks:{戊:'會看器物帳目，懂基本工料。',丁:'能辨工期與用料虛實。',丙:'能指揮小型修造與核算。',乙:'熟悉水利、倉儲或器械規程。',甲:'技藝與官署資歷兼備，難被匠人糊弄。'}},
+{code:'yamen_clerk',group:'兵吏衙差',name:'書吏',ranks:{戊:'能抄案卷，認得常見官文。',丁:'知道案卷歸處，查找不致迷路。',丙:'能從舊案裡找出疑點。',乙:'熟悉縣衙人事，懂誰能說話。',甲:'筆札老練，一眼能看出文書破綻。'}},
+{code:'runner',group:'兵吏衙差',name:'差役',ranks:{戊:'腿腳勤快，能跑縣城短路。',丁:'認得街巷鋪戶，能帶話送信。',丙:'知道差務暗規，能避開麻煩。',乙:'各處熟面孔不少，探問更便利。',甲:'縣城風聲常先一步入耳。'}},
+{code:'constable',group:'兵吏衙差',name:'捕役',ranks:{戊:'會拿人看守，身手比常人硬。',丁:'懂盤問與搜查，能看出可疑腳印。',丙:'能處理街面衝突，敢近身制敵。',乙:'熟悉盜案與夜禁，追查更快。',甲:'街面惡徒多知其手段。'}},
+{code:'soldier',group:'兵吏衙差',name:'兵戶',ranks:{戊:'受過操練，會用短兵。',丁:'能守夜巡邏，遇事不易慌。',丙:'熟悉隊列與口令，敢接硬差。',乙:'行伍經驗老到，能看出戰陣門道。',甲:'軍中舊名仍有人記得。'}},
+{code:'urban_household',group:'坊郭戶',name:'坊郭戶',ranks:{戊:'熟悉坊巷日用，知道誰家開門。',丁:'能在鋪戶間打聽價錢。',丙:'街坊信任略增，能借到小物。',乙:'熟悉市井人情，買賣話更順。',甲:'坊郭消息流通，許多事瞞不過你。'}},
+{code:'workshop',group:'坊郭戶',name:'作坊戶',ranks:{戊:'會做粗活，認得常見工具。',丁:'能修補簡單器物。',丙:'懂材料好壞，能接小件工活。',乙:'能看懂匠作安排，議價更準。',甲:'工坊中有名聲，難題也有人來問。'}},
+{code:'teahouse',group:'坊郭戶',name:'茶棚幫閒',ranks:{戊:'會端茶招呼，聽得到碎話。',丁:'知道客人喜惡，能套出閒談。',丙:'能辨旅人來路，消息更雜。',乙:'茶棚熟客願多說幾句。',甲:'人來人往的風聲常落在你耳中。'}},
+{code:'market_broker',group:'坊郭戶',name:'市牙人',ranks:{戊:'懂買賣開價，知道常見行規。',丁:'能估貨物粗價。',丙:'會牽線成交，知道誰缺貨。',乙:'能看出帳面與實價差距。',甲:'市場人脈厚，買賣消息來得快。'}},
+{code:'rural_farmer',group:'鄉村戶',name:'農戶',ranks:{戊:'會做田活，耐得日曬。',丁:'知道時令與作物收成。',丙:'能分辨地力水勢。',乙:'熟悉鄉村人情與糧價。',甲:'鄉里信服，田間消息易得。'}},
+{code:'hunter',group:'鄉村戶',name:'獵戶',ranks:{戊:'認得獸徑，會用短矛或弓弩。',丁:'能循跡尋人尋物。',丙:'山林夜路更有把握。',乙:'能判斷伏藏與逃竄方向。',甲:'野外經驗老到，常能先察危險。'}},
+{code:'fisher',group:'鄉村戶',name:'漁戶',ranks:{戊:'熟悉水性，會看河面。',丁:'能駕小舟，懂魚汛。',丙:'知道碼頭與河埠規矩。',乙:'可沿水路打聽消息。',甲:'水上人脈深，船家多願通報。'}},
+{code:'village_elder',group:'鄉村戶',name:'里正家人',ranks:{戊:'知道里甲名冊與鄰里關係。',丁:'能進出村中公事。',丙:'可替人說合小爭端。',乙:'鄉里長輩願聽其言。',甲:'村中舊事、人名、債務多能說清。'}},
+{code:'literatus',group:'文人',name:'士子',ranks:{戊:'讀過經史，能作短札。',丁:'能辨典故與文義。',丙:'談吐有書卷氣，易入文人席。',乙:'文章可取，士林有人識得。',甲:'名聲在外，文會與官門皆可遞話。'}},
+{code:'copyist',group:'文人',name:'抄書人',ranks:{戊:'字跡端正，能抄短卷。',丁:'能校對錯字與缺頁。',丙:'熟悉書鋪、案牘、帳冊格式。',乙:'能辨不同筆跡與改痕。',甲:'抄校老練，藏書人也願託付。'}},
+{code:'tutor',group:'文人',name:'塾師',ranks:{戊:'能教孩童識字。',丁:'懂啟蒙與訓誡。',丙:'能用典故勸人。',乙:'鄉紳家中可入座。',甲:'教學名聲足，家長與學生多信任。'}},
+{code:'poet',group:'文人',name:'詩客',ranks:{戊:'能吟短句，席間不怯。',丁:'懂唱和規矩。',丙:'可用詩酒結交。',乙:'風雅名聲可傳入客棧茶肆。',甲:'一首詩可換來門路與人情。'}},
+{code:'strongman',group:'壯士',name:'壯士',ranks:{戊:'力氣勝常人，能搬扛重物。',丁:'敢擋粗暴爭端。',丙:'出手有章法，街面人會掂量。',乙:'能帶人做硬差。',甲:'勇名傳開，尋常挑釁會先退半步。'}},
+{code:'escort',group:'壯士',name:'鏢客',ranks:{戊:'懂護送規矩，會看路面。',丁:'能護一段短途。',丙:'熟悉鏢局口令與行話。',乙:'遇匪不慌，可安排前後照應。',甲:'鏢路聲望足，行商願托重物。'}},
+{code:'dock_labor',group:'壯士',name:'埠頭力夫',ranks:{戊:'會扛包上船，耐得潮濕辛勞。',丁:'熟悉碼頭腳夫規矩。',丙:'能辨貨箱去向。',乙:'碼頭人願報一兩句實話。',甲:'水陸搬運門路熟，貨物流向難瞞。'}},
+{code:'militia',group:'壯士',name:'團練',ranks:{戊:'會守寨巡邏。',丁:'懂鄉兵器械與口令。',丙:'能召集幾個熟人壯膽。',乙:'熟悉保甲防務。',甲:'鄉勇信服，遇亂可聚人自守。'}},
+{code:'wanderer',group:'遊手',name:'遊手',ranks:{戊:'熟悉街面縫隙，知道何處可歇。',丁:'能躲開尋常盤查。',丙:'知道江湖閒話與黑市小路。',乙:'能在灰色地帶找人。',甲:'無名路數很多，消息來得刁鑽。'}},
+{code:'gambler',group:'遊手',name:'賭徒',ranks:{戊:'懂賭桌規矩。',丁:'能看出簡單手法。',丙:'能從牌桌聽出欠債與恩怨。',乙:'賭坊人會留神你的手。',甲:'輸贏背後的人情債也看得清。'}},
+{code:'vagrant',group:'遊手',name:'浪人',ranks:{戊:'能湊合過夜，熟悉破屋巷尾。',丁:'會尋便宜飯食。',丙:'知道誰收留人、誰趕人。',乙:'能靠臨時人情渡過難關。',甲:'街巷底層消息多半瞞不住你。'}},
+{code:'broker',group:'遊手',name:'掮客',ranks:{戊:'會替人傳話。',丁:'能撮合小買賣。',丙:'知道誰欠誰人情。',乙:'能把消息換成實利。',甲:'縣城暗線廣，交易前後多有耳目。'}},
+{code:'house_scion',group:'其他身分',name:'門閥子弟',ranks:{戊:'家名可提，但分量有限。',丁:'能借到些許門第薄面。',丙:'懂門第禮數，不易失儀。',乙:'家中舊交可幫一次忙。',甲:'門第名望可開不少門。'}},
+{code:'merchant',group:'其他身分',name:'行商',ranks:{戊:'會看貨價與旅費。',丁:'懂契約與欠條。',丙:'知道商路風險。',乙:'商旅同道願通消息。',甲:'貨路、人脈、信用三者皆有積累。'}},
+{code:'medic',group:'其他身分',name:'坊郭醫',ranks:{戊:'會辨常見病傷。',丁:'能處理小傷寒熱。',丙:'懂藥材真偽與禁忌。',乙:'病家願請你入門。',甲:'醫名漸起，疑難病人也會來尋。'}},
+{code:'artist',group:'其他身分',name:'伎伶俳優',ranks:{戊:'能唱念娛席。',丁:'會察言觀色。',丙:'能在席間引話。',乙:'常出入宴飲與市井場合。',甲:'一場演出可換消息、人情與賞錢。'}},
+{code:'disciple',group:'其他身分',name:'門派弟子',ranks:{戊:'認得江湖禮數。',丁:'能報師門名號。',丙:'懂門派往來與禁忌。',乙:'同道願多聽一句。',甲:'江湖聲名已成，門派舊交可用。'}}
 ];
-const ROLE_TABLE=Object.freeze(Object.fromEntries(ROLE_ROWS.map(row=>[row.code,Object.freeze({...row,ranks:Object.freeze(row.ranks)})])));
-const ROLE=Object.freeze(Object.fromEntries(ROLE_ROWS.map(row=>[row.code,[row.name,row.axis]])));
-const ATTR={inner:'body',outer:'body',light:'body',swim:'body',climb:'body',pierce:'body',slash:'body',strike:'body',sense:'body',sleight:'tech',craft:'tech',appraise:'tech',medicine:'tech',pharma:'tech',ride:'tech',hide:'tech',observe:'tech',listen:'tech',smell:'tech',office:'tech',animal:'tech',threat:'tech',art:'tech',elegance:'tech',appearance:'mind',resource:'mind',wealth:'mind',court:'mind',jianghu:'mind',geo:'mind',nature:'mind',history:'mind',religion:'mind',study:'mind',will:'mind',language:'mind',social:'mind',empathy:'mind',speech:'mind'};
-const BONUS={guard:{slash:1,pierce:1},soldier:{slash:1,pierce:1},constable:{strike:1,slash:1},strongman:{strike:2},escort:{slash:2,pierce:1},wanderer:{slash:1,light:1},disciple:{strike:1,slash:1},hunter:{pierce:1},militia:{slash:1,pierce:1},dock_labor:{strike:1,outer:1},vagrant:{strike:1}};
-const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const ROLE_TABLE=Object.freeze(Object.fromEntries(ROLE_ROWS.map(row=>[row.code,Object.freeze({
+  group:row.group,
+  name:row.name,
+  戊:row.ranks.戊,
+  丁:row.ranks.丁,
+  丙:row.ranks.丙,
+  乙:row.ranks.乙,
+  甲:row.ranks.甲
+})])));
 function clamp(n,a,b){return Math.max(a,Math.min(b,Number(n)||0))}
 function rankName(n){return RANKS[clamp(n,1,5)-1]}
-function phrase(code,n){const row=ROLE_TABLE[code];const rank=rankName(n);return row?.ranks?.[rank]||`${rank}等${row?.name||code}`}
-function publicTable(){const out={};for(const row of ROLE_ROWS){out[row.code]={group:row.group,name:row.name,戊:row.ranks.戊,丁:row.ranks.丁,丙:row.ranks.丙,乙:row.ranks.乙,甲:row.ranks.甲}}return out}
-function count(arr){const out={};arr.forEach(code=>{out[code]=(out[code]||0)+1});return out}
-function roleKey(st){return (st.player?.roles||[]).join('|')}
-function selectedRows(st){return Object.entries(count(st.player?.roles||[])).map(([code,n])=>({code,name:ROLE_TABLE[code]?.name||code,rank:rankName(n),phrase:phrase(code,n)}))}
-function attrMod(sum){sum=Number(sum)||0;if(sum<=0)return-2;if(sum===1)return-1;if(sum<=3)return 0;if(sum<=5)return 1;if(sum<=8)return 2;if(sum<=11)return 3;if(sum<=15)return 4;if(sum<=19)return 5;return 6}
-function add(st,k,v){st.skills=st.skills||{};st.skills[k]=clamp((Number(st.skills[k])||0)+v,-3,5)}
-function recalc(st){const sums={body:0,tech:0,mind:0};Object.entries(st.skills||{}).forEach(([k,v])=>{sums[ATTR[k]||'mind']+=Number(v)||0});st.attrSums=sums;st.attrs={body:attrMod(sums.body),tech:attrMod(sums.tech),mind:attrMod(sums.mind)}}
-function applyOnce(st,key){if(st.balanceFixRoleKey===key)return;Object.entries(count(st.player?.roles||[])).forEach(([code])=>{Object.entries(BONUS[code]||{}).forEach(([skill,value])=>add(st,skill,value))});st.balanceFixRoleKey=key}
-function fix(st){if(!st||typeof st!=='object')return st;const key=roleKey(st);applyOnce(st,key);Object.keys(st.skills||{}).forEach(k=>{st.skills[k]=clamp(st.skills[k],-3,5)});recalc(st);st.roleRankShortPhrases=selectedRows(st);st.roleRankPhraseTableVersion=VERSION;st.balanceFixVersion=VERSION;return st}
-function preview(){const box=document.getElementById('buildPreview');if(!box)return;const roles=[...document.querySelectorAll('#startForm [name="roles"]')].map(x=>x.value);const rows=Object.entries(count(roles)).map(([code,n])=>`<li><b>${esc(ROLE_TABLE[code]?.name||code)}(${rankName(n)})</b>：${esc(phrase(code,n))}</li>`);const sp=document.querySelector('#startForm [name="specialOrigin"]:checked');const extra=sp&&sp.value!=='none'?`<li><b>${esc(sp.parentElement?.textContent?.trim()||'特殊身世')}</b>：${esc(sp.parentElement?.textContent?.trim()||'特殊身世')}</li>`:'';box.innerHTML=`<h3>身分品級參照</h3><p>已載入 ${ROLE_ROWS.length} 個身分 × 5 個品級短句。</p><ul>${rows.join('')}${extra}</ul>`}
-function install(){const f=document.getElementById('startForm');if(!f||f.dataset.balanceFix===VERSION)return false;f.dataset.balanceFix=VERSION;f.addEventListener('change',preview,true);f.addEventListener('submit',()=>setTimeout(()=>{try{localStorage.setItem(STORE,JSON.stringify(fix(JSON.parse(localStorage.getItem(STORE)||'{}'))))}catch{}},20),true);const random=document.getElementById('randomizeCharacter');if(random)random.addEventListener('click',()=>setTimeout(preview,30),true);preview();return true}
+function count(roles){const out={};(roles||[]).forEach(code=>{out[code]=(out[code]||0)+1});return out}
+function selectedRows(st){return Object.entries(count(st?.player?.roles)).map(([code,n])=>{
+  const row=ROLE_TABLE[code]||{name:code};
+  const rank=rankName(n);
+  return {code,name:row.name,rank,phrase:row[rank]||''};
+})}
+function fix(st){
+  if(!st||typeof st!=='object')return st;
+  if(st.skills)Object.keys(st.skills).forEach(k=>{st.skills[k]=clamp(st.skills[k],-3,5)});
+  if(st.player)st.player.renownLevel=1;
+  if(st.renown)st.renown.level=1;
+  st.roleRankShortPhrases=selectedRows(st);
+  st.roleRankPhraseTableVersion=VERSION;
+  st.balanceFixVersion=VERSION;
+  return st;
+}
+function read(){try{return JSON.parse(localStorage.getItem(STORE)||'{}')}catch{return {}}}
+function write(st){try{localStorage.setItem(STORE,JSON.stringify(st))}catch{}}
+function installFormPulse(){
+  const form=document.getElementById('startForm');
+  if(form&&!form.dataset.rankPhrasePulse){
+    form.dataset.rankPhrasePulse=VERSION;
+    form.dispatchEvent(new Event('change',{bubbles:true}));
+  }
+}
 window.DaGoRoleRankPhraseRows=Object.freeze(ROLE_ROWS.map(row=>Object.freeze({...row,ranks:Object.freeze({...row.ranks})})));
-window.DaGoRoleRankPhraseTable=Object.freeze(publicTable());
-window.DaGoCharacterBalanceFix=Object.freeze({version:VERSION,roleCount:ROLE_ROWS.length,rankCount:RANKS.length});
+window.DaGoRoleRankPhraseTable=ROLE_TABLE;
+window.DaGoCharacterBalanceFix=Object.freeze({version:VERSION,roleCount:ROLE_ROWS.length,rankCount:RANKS.length,bonusPolicy:'no-extra-starting-bonus'});
 const oldSet=localStorage.setItem.bind(localStorage);
-if(!localStorage.__daGoBalanceFixV1111){Object.defineProperty(localStorage,'__daGoBalanceFixV1111',{value:1});localStorage.setItem=function(k,v){if(k===STORE){try{v=JSON.stringify(fix(JSON.parse(v)))}catch{}}return oldSet(k,v)}}
+if(!localStorage.__daGoBalanceFixV1110Changshan){
+  Object.defineProperty(localStorage,'__daGoBalanceFixV1110Changshan',{value:1});
+  localStorage.setItem=function(k,v){if(k===STORE){try{v=JSON.stringify(fix(JSON.parse(v)))}catch{}}return oldSet(k,v)};
+}
+const st=read();
+if(Object.keys(st).length)write(fix(st));
 let tries=0;
-const timer=setInterval(()=>{tries++;if(install()||tries>60)clearInterval(timer)},250);
-install();
+const timer=setInterval(()=>{tries++;installFormPulse();if(tries>20)clearInterval(timer)},250);
+installFormPulse();
 })();
