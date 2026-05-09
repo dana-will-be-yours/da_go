@@ -12,37 +12,41 @@
       <article id="passage" class="passage">
         <section id="startPanel" class="start-panel">
           <h1>大國年代記</h1>
-          <p class="version">TRPG corpus playable sandbox</p>
+          <p class="version">文字沙盒測試版</p>
           <form id="startForm" class="start-form">
             <label>角色名字
               <input id="playerName" name="playerName" type="text" value="旅人" maxlength="16" autocomplete="off">
             </label>
             <fieldset>
-              <legend>角色職能</legend>
-              <label><input type="radio" name="role" value="scribe" checked> 書吏線人</label>
-              <label><input type="radio" name="role" value="wanderer"> 江湖遊士</label>
-              <label><input type="radio" name="role" value="merchant"> 商旅耳目</label>
-              <label><input type="radio" name="role" value="medic"> 醫館學徒</label>
+              <legend>身體</legend>
+              <div class="field-group"><span>性別</span><label><input type="radio" name="gender" value="female" checked> 女</label><label><input type="radio" name="gender" value="male"> 男</label><label><input type="radio" name="gender" value="undisclosed"> 未定</label></div>
+              <div class="field-group"><span>高矮</span><label><input type="radio" name="height" value="short"> 矮</label><label><input type="radio" name="height" value="average" checked> 中等</label><label><input type="radio" name="height" value="tall"> 高</label></div>
+              <div class="field-group"><span>胖瘦體型</span><label><input type="radio" name="build" value="slender" checked> 纖瘦</label><label><input type="radio" name="build" value="balanced"> 勻稱</label><label><input type="radio" name="build" value="strong"> 健壯</label><label><input type="radio" name="build" value="soft"> 豐潤</label></div>
+              <div class="field-group"><span>身體線條</span><label><input type="radio" name="bodyLine" value="straight" checked> 直線</label><label><input type="radio" name="bodyLine" value="soft_curve"> 柔和</label><label><input type="radio" name="bodyLine" value="firm"> 結實</label></div>
+              <div class="field-group"><span>膚色</span><label><input type="radio" name="skinTone" value="pale" checked> 白皙</label><label><input type="radio" name="skinTone" value="wheat"> 小麥</label><label><input type="radio" name="skinTone" value="bronze"> 古銅</label><label><input type="radio" name="skinTone" value="deep"> 深褐</label></div>
             </fieldset>
             <fieldset>
-              <legend>出身</legend>
-              <label><input type="radio" name="origin" value="nanjing" checked> 南京</label>
-              <label><input type="radio" name="origin" value="north"> 北路</label>
-              <label><input type="radio" name="origin" value="south"> 南市</label>
-              <label><input type="radio" name="origin" value="wudu"> 五毒</label>
+              <legend>頭部</legend>
+              <div class="field-group"><span>面容儀態</span><label><input type="radio" name="face" value="clear" checked> 清秀</label><label><input type="radio" name="face" value="upright"> 端正</label><label><input type="radio" name="face" value="sharp"> 銳利</label><label><input type="radio" name="face" value="gentle"> 溫雅</label></div>
+              <div class="field-group"><span>瞳色</span><label><input type="radio" name="eyeColor" value="black" checked> 黑瞳</label><label><input type="radio" name="eyeColor" value="brown"> 褐瞳</label><label><input type="radio" name="eyeColor" value="amber"> 琥珀瞳</label><label><input type="radio" name="eyeColor" value="gray"> 灰瞳</label></div>
+              <div class="field-group"><span>髮色</span><label><input type="radio" name="hairColor" value="black" checked> 黑髮</label><label><input type="radio" name="hairColor" value="dark_brown"> 深褐髮</label><label><input type="radio" name="hairColor" value="tea"> 茶褐髮</label><label><input type="radio" name="hairColor" value="silver"> 銀灰髮</label></div>
+              <div class="field-group"><span>頭髮長度</span><label><input type="radio" name="hairLength" value="short" checked> 短髮</label><label><input type="radio" name="hairLength" value="shoulder"> 及肩</label><label><input type="radio" name="hairLength" value="long"> 長髮</label><label><input type="radio" name="hairLength" value="bound"> 束髮</label></div>
             </fieldset>
             <fieldset>
-              <legend>特質</legend>
-              <label><input type="radio" name="trait" value="calm" checked> 冷靜</label>
-              <label><input type="radio" name="trait" value="streetwise"> 熟路</label>
-              <label><input type="radio" name="trait" value="silver_tongue"> 善談</label>
-              <label><input type="radio" name="trait" value="sturdy"> 耐勞</label>
+              <legend>性格與背景</legend>
+              <div class="field-group"><span>身分</span><label><input type="radio" name="role" value="scribe" checked> 書吏線人</label><label><input type="radio" name="role" value="wanderer"> 江湖遊士</label><label><input type="radio" name="role" value="merchant"> 商旅耳目</label><label><input type="radio" name="role" value="medic"> 醫館學徒</label></div>
+              <div class="field-group"><span>出身地</span><label><input type="radio" name="origin" value="nanjing" checked> 南京</label><label><input type="radio" name="origin" value="north"> 北路</label><label><input type="radio" name="origin" value="south"> 南市</label><label><input type="radio" name="origin" value="wudu"> 五毒</label></div>
+              <div class="field-group"><span>性格</span><label><input type="radio" name="trait" value="calm" checked> 冷靜</label><label><input type="radio" name="trait" value="streetwise"> 熟路</label><label><input type="radio" name="trait" value="silver_tongue"> 善談</label><label><input type="radio" name="trait" value="sturdy"> 耐勞</label></div>
+              <div class="field-group"><span>身分品級</span><label><input type="radio" name="rank" value="commoner" checked> 平民</label><label><input type="radio" name="rank" value="poor"> 寒門</label><label><input type="radio" name="rank" value="gentry"> 士族旁支</label><label><input type="radio" name="rank" value="merchant_house"> 商戶</label></div>
+              <div class="field-group"><span>屬性點配置</span><label><input type="radio" name="attributePlan" value="balanced" checked> 均衡</label><label><input type="radio" name="attributePlan" value="body"> 體魄</label><label><input type="radio" name="attributePlan" value="mind"> 心智</label><label><input type="radio" name="attributePlan" value="social"> 社交</label><label><input type="radio" name="attributePlan" value="travel"> 探索</label></div>
+              <div class="field-group"><span>特殊身世</span><label><input type="radio" name="specialOrigin" value="none" checked> 無</label><label><input type="radio" name="specialOrigin" value="north_contact"> 北路舊識</label><label><input type="radio" name="specialOrigin" value="south_patron"> 南市庇護</label><label><input type="radio" name="specialOrigin" value="wudu_debt"> 五毒舊債</label><label><input type="radio" name="specialOrigin" value="office_file"> 官署文書</label></div>
             </fieldset>
             <fieldset>
-              <legend>難度</legend>
-              <label><input type="radio" name="difficulty" value="relaxed"> 寬鬆</label>
-              <label><input type="radio" name="difficulty" value="standard" checked> 標準</label>
-              <label><input type="radio" name="difficulty" value="pressure"> 壓力</label>
+              <legend>遊戲設置</legend>
+              <div class="field-group"><span>起始時節</span><label><input type="radio" name="startSeason" value="spring"> 春</label><label><input type="radio" name="startSeason" value="summer"> 夏</label><label><input type="radio" name="startSeason" value="autumn" checked> 秋</label><label><input type="radio" name="startSeason" value="winter"> 冬</label></div>
+              <div class="field-group"><span>遊戲模式</span><label><input type="radio" name="gameMode" value="story"> 劇情</label><label><input type="radio" name="gameMode" value="standard" checked> 標準</label><label><input type="radio" name="gameMode" value="survival"> 生存</label></div>
+              <div class="field-group"><span>難度</span><label><input type="radio" name="difficulty" value="relaxed"> 寬鬆</label><label><input type="radio" name="difficulty" value="standard" checked> 標準</label><label><input type="radio" name="difficulty" value="pressure"> 壓力</label></div>
+              <div class="field-group"><span>檢定</span><label><input type="checkbox" name="showCheckRate" checked> 顯示技能檢定成功率</label></div>
             </fieldset>
             <fieldset>
               <legend>文字外觀</legend>
@@ -51,7 +55,10 @@
               <label><input type="radio" name="textStyle" value="night"> 夜讀</label>
               <label><input type="radio" name="textStyle" value="large"> 大字</label>
             </fieldset>
-            <button id="startButton" type="submit">開始遊戲</button>
+            <div class="start-actions">
+              <button id="randomizeCharacter" type="button">隨機化</button>
+              <button id="startButton" type="submit">開始遊戲</button>
+            </div>
           </form>
         </section>
 
@@ -73,7 +80,7 @@
       <header id="title" role="banner">
         <div id="story-banner"></div>
         <h1 id="story-title">大國年代記</h1>
-        <div id="story-subtitle">TRPG Corpus Sandbox</div>
+        <div id="story-subtitle">文字沙盒</div>
       </header>
 
       <nav id="ui-actions">
@@ -105,6 +112,6 @@
     </section>
   </div>
 
-  <script src="assets/game-corpus.js"></script>
+  <script src="assets/game-runtime.js?v=1.4.3-character-rest"></script>
 </body>
 </html>

@@ -152,6 +152,29 @@ fieldset label {
   margin: .2em 1em .2em 0;
 }
 
+.field-group {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .2em .35em;
+  border-bottom: 1px solid var(--dol-border-soft);
+  padding: .35em 0;
+}
+
+.field-group:last-child {
+  border-bottom: 0;
+}
+
+.field-group > span {
+  min-width: 6em;
+  color: var(--dol-muted);
+  font-size: .92em;
+}
+
+.field-group label {
+  margin: .1em .85em .1em 0;
+}
+
 fieldset input {
   width: auto;
   min-height: auto;
@@ -161,6 +184,17 @@ fieldset input {
   width: fit-content;
   min-width: 10em;
   justify-self: center;
+}
+
+.start-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: .6em;
+}
+
+.start-actions button {
+  min-width: 8em;
 }
 
 #ui-bar {

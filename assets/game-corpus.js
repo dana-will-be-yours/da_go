@@ -1,7 +1,7 @@
-const STORAGE_KEY = "daGoCorpusRpgStateV3";
-const SAVE_KEY = "daGoCorpusRpgManualSaveV3";
-const MANIFEST_KEY = "daGoCorpusWorldManifestV2";
-const ENGINE_VERSION = "1.2.0-playable-sandbox";
+const STORAGE_KEY = "daGoCorpusRpgStateV4";
+const SAVE_KEY = "daGoCorpusRpgManualSaveV4";
+const MANIFEST_KEY = "daGoCorpusWorldManifestV3";
+const ENGINE_VERSION = "1.4.3-character-rest";
 
 const VALID_UTTERANCE_FUNCTIONS = new Set([
   "narration",
@@ -35,7 +35,21 @@ const labels = {
   roles: { scribe: "書吏線人", wanderer: "江湖遊士", merchant: "商旅耳目", medic: "醫館學徒" },
   origins: { nanjing: "南京", north: "北路", south: "南市", wudu: "五毒" },
   traits: { calm: "冷靜", streetwise: "熟路", silver_tongue: "善談", sturdy: "耐勞" },
-  difficulties: { relaxed: "寬鬆", standard: "標準", pressure: "壓力" }
+  difficulties: { relaxed: "寬鬆", standard: "標準", pressure: "壓力" },
+  genders: { female: "女", male: "男", undisclosed: "未定" },
+  heights: { short: "矮", average: "中等", tall: "高" },
+  builds: { slender: "纖瘦", balanced: "勻稱", strong: "健壯", soft: "豐潤" },
+  bodyLines: { straight: "直線", soft_curve: "柔和", firm: "結實" },
+  skinTones: { pale: "白皙", wheat: "小麥", bronze: "古銅", deep: "深褐" },
+  faces: { clear: "清秀", upright: "端正", sharp: "銳利", gentle: "溫雅" },
+  eyeColors: { black: "黑瞳", brown: "褐瞳", amber: "琥珀瞳", gray: "灰瞳" },
+  hairColors: { black: "黑髮", dark_brown: "深褐髮", tea: "茶褐髮", silver: "銀灰髮" },
+  hairLengths: { short: "短髮", shoulder: "及肩", long: "長髮", bound: "束髮" },
+  ranks: { commoner: "平民", poor: "寒門", gentry: "士族旁支", merchant_house: "商戶" },
+  attributePlans: { balanced: "均衡配點", body: "體魄配點", mind: "心智配點", social: "社交配點", travel: "探索配點" },
+  specialOrigins: { none: "無特殊身世", north_contact: "北路舊識", south_patron: "南市庇護", wudu_debt: "五毒舊債", office_file: "官署文書" },
+  seasons: { spring: "春", summer: "夏", autumn: "秋", winter: "冬" },
+  modes: { story: "劇情", standard: "標準", survival: "生存" }
 };
 
 const fallbackRandomEvents = [
@@ -143,7 +157,7 @@ const fallbackPassages = {
     text: [
       "雨才停。南京城門外的石道帶著水光，驛卒牽馬穿過人群，文書被油紙裹得嚴實。",
       "{{name}}站在門洞陰影下。北境兵事、崑崙舊路、南陽商旅與案卷房傳言同時湧入。",
-      "這裡是主樞紐。你可以反覆調查、工作、購物、休息與回到資料庫札記。"
+      "這裡是主樞紐。你可以反覆調查、工作、購物、休息與回到客舍札記。"
     ],
     choices: [
       ch("往驛站查看北方文書", "Relay", "action", { spirit: -2, fatigue: 2 }, { smm: 1, tms: 2, traceability: 4 }, { skill: "archive", dc: 7, item: "驛站木牌" }),
@@ -151,7 +165,7 @@ const fallbackPassages = {
       ch("沿秦淮河找南方商旅", "River", "action", { spirit: -1, fatigue: 3 }, { smm: 1, tms: 3, traceability: 2 }, { skill: "travel", dc: 6 }),
       ch("去南市買補給", "Market", "action", { fatigue: 1 }, { tms: 1 }),
       ch("找短工換錢", "Work", "action", { spirit: -3, fatigue: 8, hunger: 6, coin: 4 }, { tms: 1 }, { note: "短工讓角色獲得行動資源。" }),
-      ch("打開資料庫札記", "Codex", "summary", { composure: 1 }, { smm: 2, tms: 2, traceability: 4 })
+      ch("打開客舍札記", "Codex", "summary", { composure: 1 }, { smm: 2, tms: 2, traceability: 4 })
     ]
   },
   Relay: {
@@ -253,15 +267,15 @@ const fallbackPassages = {
   },
   Archive: {
     code: "SCN-GAME-012", title: "封口編號", time: "午後", location: "南京驛站", tags: ["trace", "data"],
-    text: ["封口編號可以把消息接回文袋來源。這種小資料能讓後續訪談、逐字稿與決策記錄有共同索引。", "你把編號抄下，又補上時間、地點、來源與疑點。", "這是資料庫介入的核心：讓敘事能被查回。"],
+    text: ["封口編號可以把消息接回文袋來源。這種小札記能讓後續追查時找得到人與地。", "你把編號抄下，又補上時間、地點、來源與疑點。", "這份索引能讓線索從茶棚、驛站與案卷房彼此接上。"],
     choices: [
-      ch("整理成資料庫札記", "Codex", "summary", { composure: 2 }, { smm: 3, tms: 4, traceability: 8 }, { item: "來源索引卡", flag: "source_index" }),
+      ch("整理成客舍札記", "Codex", "summary", { composure: 2 }, { smm: 3, tms: 4, traceability: 8 }, { item: "來源索引卡", flag: "source_index" }),
       ch("回驛站", "Relay", "action", { suspicion: 1 }, { traceability: 1 })
     ]
   },
   Codex: {
-    code: "SCN-GAME-013", title: "資料庫札記", time: "整理時", location: "客舍桌前", tags: ["database", "SMM", "TMS"],
-    text: ["桌上有三疊紙：人物對照、地點索引、決策理由。每一疊都對應 SQL Server 匯入欄位。", "目前取得的物品與紀錄會在左欄顯示。開發者面板可匯出 utterance、scene、decision 與事件。", "這一頁模擬資料面板，資料結構保留研究用途。"],
+    code: "SCN-GAME-013", title: "客舍札記", time: "整理時", location: "客舍桌前", tags: ["journal", "route"],
+    text: ["桌上有三疊紙：人物對照、地點索引、決策理由。你把白日聽見的名字按先後順序壓平。", "目前取得的物品與紀錄會在左欄顯示。若要追新路線，先把札記補到能交代來龍去脈。", "這一頁只處理角色手上的線索。"],
     choices: [
       ch("回夜宿札記", "Night", "summary", { composure: 2 }, { smm: 3, tms: 3, traceability: 5 }),
       ch("回南京城門", "Gate", "action", {}, { traceability: 1 }),
@@ -272,7 +286,7 @@ const fallbackPassages = {
     code: "SCN-GAME-014", title: "夜宿札記", time: "亥時", location: "南京客舍", tags: ["rest", "route"],
     text: ["夜裡，客舍窗紙被風吹得發響。{{name}}把白日收來的名字、路線與案卷放在桌上。", "南京只是開局。崑崙、銀川、五毒、南陽與雙孤單人線，都會從這些札記裡展開。", "你可以休息、保存，或讓札記生成較長的可匯出劇情軌跡。"],
     choices: [
-      ch("休息到天明", "Gate", "action", { spirit: 18, composure: 8, fatigue: -35, hunger: 12, suspicion: -1 }, { smm: 1, tms: 1, traceability: 2 }, { note: "休息降低疲勞，但飢餓上升。" }),
+      ch("休息", "Gate", "rest", {}, { smm: 1, tms: 1, traceability: 2 }, { rest: true }),
       ch("下一日往北路追銀川", "NorthRoad", "decision", { spirit: -2, composure: 2 }, { smm: 3, tms: 3, traceability: 5 }),
       ch("下一日查南陽與五毒", "South", "decision", { spirit: -1, composure: 1 }, { smm: 3, tms: 4, traceability: 5 }),
       ch("生成二十四輪札記", "AutoEnd", "summary", { composure: 2 }, { smm: 6, tms: 6, traceability: 8 }, { autoRun: true }),
@@ -297,7 +311,7 @@ function enhanceFallbackPassages(passages) {
     tags: ["map", "sandbox"],
     text: [
       "你把今日能去的地方寫成一張簡表。每個地點都會消耗時間，也可能改變注目、飢餓、疲勞與名聲。",
-      "核心目標：取得三條以上有效線索，整理成可回寫 trpg-corpus 的結案札記。",
+      "核心目標：取得三條以上有效線索，整理成能交代人、事、地的結案札記。",
       "若注目、疲勞或飢餓失控，部分調查會被鎖住。"
     ],
     choices: [
@@ -319,7 +333,7 @@ function enhanceFallbackPassages(passages) {
     text: [
       "結案至少需要三種材料：北路關卡、PC 名字對照、南陽路引、案卷摘記、來源索引卡。",
       "高品質結案需要保持注目低於二十五，並且保留至少一文錢或一份補給。",
-      "結案後會輸出完整 playlog，供資料庫回寫與後續分析。"
+      "結案後可以繼續補線索，或回客舍休息進入下一日。"
     ],
     choices: [
       ch("回行動地圖", "TownMap", "summary", {}, { smm: 1 }),
@@ -362,11 +376,11 @@ function enhanceFallbackPassages(passages) {
     text: [
       "你把線索壓成四欄：人物、地點、事件、來源。每一欄都能回到一段遊玩紀錄。",
       "這份札記已達到最小結案門檻。若要提高品質，可以重開一輪，降低注目並補齊更多來源。",
-      "現在可打開開發者面板匯出 JSON，將 playlog 回寫到 trpg-corpus。"
+      "結案後仍可補線索、休息，或重開新一日。"
     ],
     choices: [
       ch("回南京行動地圖繼續補線索", "TownMap", "summary", { composure: 2 }, { smm: 2, tms: 2, traceability: 2 }),
-      ch("夜宿後開始新一日", "Night", "action", { fatigue: -20, hunger: 8, spirit: 8 }, { smm: 1, traceability: 2 })
+      ch("休息後開始新一日", "Night", "rest", {}, { smm: 1, traceability: 2 }, { rest: true })
     ]
   };
 
@@ -422,7 +436,13 @@ let eventPools = normalizeEventPools(activeManifest.event_pools);
 
 const defaultState = {
   started: false, passage: "Gate", turnNo: 0, utteranceNo: 0, day: 1, hour: 6,
-  player: { name: "旅人", player_code: "PLAYER-LOCAL", member_code: "TM-LOCAL", character_code: "PC-LOCAL", textStyle: "standard", role: "scribe", origin: "nanjing", trait: "calm", difficulty: "standard" },
+  player: {
+    name: "旅人", player_code: "PLAYER-LOCAL", member_code: "TM-LOCAL", character_code: "PC-LOCAL", textStyle: "standard",
+    role: "scribe", origin: "nanjing", trait: "calm", difficulty: "standard",
+    gender: "female", height: "average", build: "slender", bodyLine: "straight", skinTone: "pale",
+    face: "clear", eyeColor: "black", hairColor: "black", hairLength: "short",
+    rank: "commoner", attributePlan: "balanced", specialOrigin: "none", startSeason: "autumn", gameMode: "standard"
+  },
   stats: { spirit: 50, composure: 50, coin: 12, suspicion: 0, fatigue: 0, hunger: 0, heat: 0, reputation: 20 },
   skills: { inquiry: 1, archive: 1, influence: 1, travel: 1 },
   dev: { smm: 50, tms: 50, traceability: 50 },
@@ -430,13 +450,14 @@ const defaultState = {
   eventMemory: { counts: {}, dayCounts: {}, cooldownUntil: {} },
   feedbackSeen: {},
   auto: { generated: 0, limit: 24, completed: false }, lastEvent: "",
-  options: { numberedLinks: true, randomEvents: true }
+  options: { numberedLinks: true, randomEvents: true, showCheckRate: true }
 };
 
 let state = loadState();
 const $ = (id) => document.getElementById(id);
 
 $("startForm").addEventListener("submit", startGame);
+$("randomizeCharacter").addEventListener("click", randomizeCharacterForm);
 $("closeOverlay").addEventListener("click", closeOverlay);
 document.querySelectorAll("[data-action]").forEach((button) => button.addEventListener("click", () => handleAction(button.dataset.action, button.dataset.panel)));
 document.addEventListener("keyup", handleHotkey);
@@ -533,7 +554,7 @@ function addFallbackChoices(output) {
   const keys = Object.keys(output);
   keys.forEach((key, index) => {
     if (!output[key].choices.length && !output[key].is_terminal) {
-      output[key].choices.push(ch("前往下一段資料", keys[index + 1] || keys[0], "decision", [], { traceability: 1 }));
+      output[key].choices.push(ch("前往下一段", keys[index + 1] || keys[0], "decision", [], { traceability: 1 }));
     }
   });
 }
@@ -544,7 +565,7 @@ function normalizeChoices(choices, currentKey) {
     const parsedChoice = parseJsonIfString(choice);
     const check = parseJsonIfString(parsedChoice.check || parsedChoice.skill_check || parsedChoice.skill_check_json || {});
     const extra = Object.assign({}, parsedChoice.extra || {});
-    ["item", "note", "flag", "req", "autoRun", "on_success", "success_effects", "on_failure", "failure_effects"].forEach((key) => {
+    ["item", "note", "flag", "req", "autoRun", "rest", "on_success", "success_effects", "on_failure", "failure_effects"].forEach((key) => {
       if (parsedChoice[key] !== undefined) extra[key] = parsedChoice[key];
     });
     return Object.assign(ch(
@@ -780,8 +801,23 @@ function startGame(event) {
       role: String(form.get("role") || "scribe"),
       origin: String(form.get("origin") || "nanjing"),
       trait: String(form.get("trait") || "calm"),
-      difficulty: String(form.get("difficulty") || "standard")
-    }
+      difficulty: String(form.get("difficulty") || "standard"),
+      gender: String(form.get("gender") || "female"),
+      height: String(form.get("height") || "average"),
+      build: String(form.get("build") || "slender"),
+      bodyLine: String(form.get("bodyLine") || "straight"),
+      skinTone: String(form.get("skinTone") || "pale"),
+      face: String(form.get("face") || "clear"),
+      eyeColor: String(form.get("eyeColor") || "black"),
+      hairColor: String(form.get("hairColor") || "black"),
+      hairLength: String(form.get("hairLength") || "short"),
+      rank: String(form.get("rank") || "commoner"),
+      attributePlan: String(form.get("attributePlan") || "balanced"),
+      specialOrigin: String(form.get("specialOrigin") || "none"),
+      startSeason: String(form.get("startSeason") || "autumn"),
+      gameMode: String(form.get("gameMode") || "standard")
+    },
+    options: { showCheckRate: form.get("showCheckRate") === "on" }
   });
   state.turnNo = 0;
   state.utteranceNo = 0;
@@ -792,61 +828,143 @@ function startGame(event) {
   render();
 }
 
+function randomizeCharacterForm() {
+  const form = $("startForm");
+  [
+    "gender", "height", "build", "bodyLine", "skinTone", "face", "eyeColor", "hairColor", "hairLength",
+    "role", "origin", "trait", "rank", "attributePlan", "specialOrigin", "startSeason", "gameMode", "difficulty", "textStyle"
+  ].forEach((name) => {
+    const inputs = Array.from(form.querySelectorAll(`input[name="${name}"]`));
+    if (!inputs.length) return;
+    const picked = inputs[Math.floor(Math.random() * inputs.length)];
+    picked.checked = true;
+  });
+}
+
 function applyCharacterCreation() {
-  const role = state.player.role || "scribe";
-  const origin = state.player.origin || "nanjing";
-  const trait = state.player.trait || "calm";
-  const difficulty = state.player.difficulty || "standard";
+  const seasonStart = {
+    spring: { hour: 7, note: "春季開局：雨水讓街路難行，案卷房較早開門。", effects: { fatigue: 1 }, skills: { archive: 1 } },
+    summer: { hour: 5, note: "夏季開局：天亮較早，炎熱會提高注目。", effects: { heat: 2, hunger: 1 }, skills: { travel: 1 } },
+    autumn: { hour: 6, note: "秋季開局：南京風乾，路線與人名都容易追。", effects: { composure: 2 }, skills: { inquiry: 1 } },
+    winter: { hour: 7, note: "冬季開局：寒意拖慢行程，客舍更容易取得消息。", effects: { fatigue: 2, suspicion: -1 }, skills: { influence: 1 } }
+  };
+  const packages = {
+    role: {
+      scribe: { skills: { archive: 1 }, dev: { traceability: 6 }, item: "來源索引卡", note: "書吏線人開局：案卷能力提高，取得來源索引卡。" },
+      wanderer: { skills: { travel: 1 }, effects: { spirit: 8, fatigue: -4 }, item: "舊路草圖", note: "江湖遊士開局：行路能力提高，身體負擔較低。" },
+      merchant: { skills: { inquiry: 1 }, effects: { coin: 5, reputation: 3 }, item: "商旅名帖", note: "商旅耳目開局：探問能力提高，旅費較足。" },
+      medic: { skills: { influence: 1 }, effects: { hunger: -4, fatigue: -6, composure: 4 }, item: "醒神藥", note: "醫館學徒開局：鎮定提高，疲勞與飢餓較低。" }
+    },
+    origin: {
+      north: { dev: { smm: 3 }, note: "北路出身：你更容易辨認銀川與關卡線索。" },
+      south: { effects: { coin: 2 }, note: "南市出身：你熟悉商旅口音與市集價格。" },
+      wudu: { dev: { tms: 3 }, note: "五毒出身：你知道南方藥箋與山門稱呼。" },
+      nanjing: { effects: { reputation: 1 }, note: "南京出身：你知道城門、茶舍與案卷房的日常節奏。" }
+    },
+    trait: {
+      calm: { effects: { composure: 8 }, note: "冷靜特質：壓力來時較不容易失序。" },
+      streetwise: { effects: { suspicion: -2, heat: -1 }, note: "熟路特質：你知道何時轉巷，何時停步。" },
+      silver_tongue: { skills: { influence: 1 }, note: "善談特質：交涉起點提高。" },
+      sturdy: { effects: { fatigue: -10, spirit: 4 }, note: "耐勞特質：疲勞累積較慢。" }
+    },
+    rank: {
+      poor: { effects: { coin: -2, suspicion: -1 }, skills: { travel: 1 }, note: "寒門身分：金錢少，但你熟悉低聲交易。" },
+      commoner: { effects: { coin: 1 }, note: "平民身分：不惹眼，也不容易被拒於門外。" },
+      gentry: { effects: { reputation: 5, suspicion: 2 }, skills: { archive: 1 }, note: "士族旁支：名帖好用，注目也較高。" },
+      merchant_house: { effects: { coin: 6, heat: 1 }, skills: { inquiry: 1 }, note: "商戶身分：盤纏足，商路消息較多。" }
+    },
+    attributePlan: {
+      body: { effects: { spirit: 6, fatigue: -6 }, skills: { travel: 1 }, note: "體魄配點：精神與行路提高。" },
+      mind: { effects: { composure: 6 }, skills: { archive: 1 }, note: "心智配點：鎮定與案卷提高。" },
+      social: { effects: { reputation: 4, suspicion: -1 }, skills: { influence: 1 }, note: "社交配點：名聲與交涉提高。" },
+      travel: { effects: { spirit: 3, fatigue: -3 }, skills: { inquiry: 1, travel: 1 }, note: "探索配點：探問與行路提高。" },
+      balanced: { effects: { spirit: 2, composure: 2 }, note: "均衡配點：精神與鎮定略升。" }
+    },
+    specialOrigin: {
+      north_contact: { item: "北路舊識名單", flag: "north_contact", skills: { inquiry: 1 }, note: "特殊身世：北路舊識可引出軍路消息。" },
+      south_patron: { item: "南市保書", flag: "south_patron", effects: { coin: 2, reputation: 2 }, note: "特殊身世：南市庇護讓初期買賣更順。" },
+      wudu_debt: { item: "五毒欠條", flag: "wudu_debt", effects: { suspicion: 1 }, skills: { influence: 1 }, note: "特殊身世：五毒舊債帶來線索，也帶來風險。" },
+      office_file: { item: "官署文書副本", flag: "office_file", skills: { archive: 1 }, dev: { traceability: 4 }, note: "特殊身世：官署文書讓案卷線更早展開。" },
+      none: { note: "無特殊身世：初期牽連較少。" }
+    },
+    body: {
+      short: { effects: { suspicion: -1 }, note: "身形較矮：混入人群時較不醒目。" },
+      tall: { effects: { reputation: 1, heat: 1 }, note: "身形較高：容易被記住。" },
+      strong: { effects: { spirit: 4, fatigue: -5 }, note: "體型健壯：長路與工作較不吃力。" },
+      soft: { effects: { composure: 2, reputation: 1 }, note: "體型豐潤：儀態親和，交談壓力略低。" },
+      slender: { skills: { travel: 1 }, note: "體型纖瘦：穿街過巷較靈活。" },
+      balanced: { effects: { spirit: 1, composure: 1 }, note: "體型勻稱：精神與鎮定略升。" },
+      firm: { effects: { fatigue: -3 }, note: "線條結實：疲勞壓力略降。" },
+      straight: { effects: { heat: -1 }, note: "線條直線：衣裝簡潔，街上注目略降。" },
+      soft_curve: { effects: { reputation: 1 }, note: "線條柔和：初見印象較親近。" }
+    },
+    face: {
+      clear: { effects: { suspicion: -1 }, note: "面容清秀：初見時較不易引來敵意。" },
+      upright: { effects: { reputation: 2 }, note: "面容端正：人們較願意聽你說完。" },
+      sharp: { skills: { inquiry: 1 }, note: "面容銳利：探問時更容易抓住細節。" },
+      gentle: { effects: { composure: 2 }, note: "面容溫雅：鎮定略升。" }
+    },
+    gameMode: {
+      story: { effects: { coin: 6, heat: -2, hunger: -6, fatigue: -6 }, note: "劇情模式：資源較寬，適合追劇情線。" },
+      survival: { effects: { coin: -4, heat: 3, hunger: 8, fatigue: 6 }, note: "生存模式：資源壓力提高，休息與補給更常被使用。" },
+      standard: { note: "標準模式：資源、事件與檢定維持預設值。" }
+    },
+    difficulty: {
+      relaxed: { effects: { coin: 4, heat: -3, suspicion: -2 }, note: "寬鬆難度：初期阻力降低。" },
+      pressure: { effects: { coin: -4, heat: 4, hunger: 8, fatigue: 6 }, note: "壓力難度：初期阻力提高。" },
+      standard: { note: "標準難度：依一般規則開始。" }
+    }
+  };
 
-  if (role === "scribe") {
-    state.skills.archive += 1;
-    applyDev({ traceability: 6 });
-    addUnique(state.items, "來源索引卡");
-    addNote("書吏線人開局：案卷能力提高，取得來源索引卡。");
-  }
-  if (role === "wanderer") {
-    state.skills.travel += 1;
-    applyEffects({ spirit: 8, fatigue: -4 });
-    addUnique(state.items, "舊路草圖");
-    addNote("江湖遊士開局：行路能力提高，身體負擔較低。");
-  }
-  if (role === "merchant") {
-    state.skills.inquiry += 1;
-    applyEffects({ coin: 5, reputation: 3 });
-    addUnique(state.items, "商旅名帖");
-    addNote("商旅耳目開局：探問能力提高，旅費較足。");
-  }
-  if (role === "medic") {
-    state.skills.influence += 1;
-    applyEffects({ hunger: -4, fatigue: -6, composure: 4 });
-    addUnique(state.items, "醒神藥");
-    addNote("醫館學徒開局：鎮定提高，疲勞與飢餓較低。");
-  }
+  const start = seasonStart[state.player.startSeason] || seasonStart.autumn;
+  state.hour = start.hour;
+  applyCreationPackage(start);
+  [
+    ["role", state.player.role],
+    ["origin", state.player.origin],
+    ["trait", state.player.trait],
+    ["rank", state.player.rank],
+    ["attributePlan", state.player.attributePlan],
+    ["specialOrigin", state.player.specialOrigin],
+    ["body", state.player.height],
+    ["body", state.player.build],
+    ["body", state.player.bodyLine],
+    ["face", state.player.face],
+    ["gameMode", state.player.gameMode],
+    ["difficulty", state.player.difficulty]
+  ].forEach(([group, key]) => applyCreationPackage(packages[group] && packages[group][key]));
 
-  if (origin === "north") {
-    applyDev({ smm: 3 });
-    addNote("北路出身：你更容易辨認銀川與關卡線索。");
-  }
-  if (origin === "south") {
-    applyEffects({ coin: 2 });
-    addNote("南市出身：你熟悉商旅口音與市集價格。");
-  }
-  if (origin === "wudu") {
-    applyDev({ tms: 3 });
-    addNote("五毒出身：你知道南方藥箋與山門稱呼。");
-  }
-
-  if (trait === "calm") applyEffects({ composure: 8 });
-  if (trait === "streetwise") applyEffects({ suspicion: -2, heat: -1 });
-  if (trait === "silver_tongue") state.skills.influence += 1;
-  if (trait === "sturdy") applyEffects({ fatigue: -10, spirit: 4 });
-
-  if (difficulty === "relaxed") applyEffects({ coin: 4, heat: -3, suspicion: -2 });
-  if (difficulty === "pressure") applyEffects({ coin: -4, heat: 4, hunger: 8, fatigue: 6 });
+  addNote(`外觀：${describeAppearance()}。`);
 
   Object.keys(state.skills).forEach((key) => {
     state.skills[key] = clamp(Number(state.skills[key] || 0), 0, 9);
   });
+}
+
+function applyCreationPackage(pkg) {
+  if (!pkg) return;
+  applyEffects(pkg.effects);
+  applyDev(pkg.dev);
+  Object.keys(pkg.skills || {}).forEach((key) => {
+    state.skills[key] = Number(state.skills[key] || 0) + Number(pkg.skills[key] || 0);
+  });
+  if (pkg.item) addUnique(state.items, pkg.item);
+  if (pkg.flag) state.flags[pkg.flag] = true;
+  if (pkg.note) addNote(pkg.note);
+}
+
+function describeAppearance() {
+  return [
+    labels.genders[state.player.gender],
+    labels.heights[state.player.height],
+    labels.builds[state.player.build],
+    labels.bodyLines[state.player.bodyLine],
+    labels.skinTones[state.player.skinTone],
+    labels.faces[state.player.face],
+    labels.eyeColors[state.player.eyeColor],
+    labels.hairColors[state.player.hairColor],
+    labels.hairLengths[state.player.hairLength]
+  ].filter(Boolean).join("、");
 }
 
 function render() {
@@ -864,21 +982,31 @@ function renderPassage() {
   $("passageText").innerHTML = p.text.map((line) => `<p>${esc(applyVars(line))}</p>`).join("") + (state.lastEvent ? `<p class="system-line">${esc(state.lastEvent)}</p>` : "");
   $("choiceList").innerHTML = p.choices.map((choice, index) => renderChoice(choice, index)).join("");
   $("choiceList").querySelectorAll("button[data-choice]").forEach((button) => button.addEventListener("click", () => choose(Number(button.dataset.choice))));
-  $("passageFooter").innerHTML = `<span>Engine ${esc(ENGINE_VERSION)}</span><span class="footer-tags">${(p.tags || []).map((tag) => `<b>${esc(tag)}</b>`).join(" ")}</span>`;
+  $("passageFooter").innerHTML = `<span>${esc(p.location)} / 第 ${esc(state.day)} 日 ${esc(formatClock())}</span>`;
 }
 
 function renderChoice(choice, index) {
   const prefix = state.options.numberedLinks ? `${index + 1}. ` : "";
-  const meta = choice.skill ? ` <span class="choice-meta">[${esc(labels.skills[choice.skill] || choice.skill)} ${choice.dc || 6}]</span>` : "";
+  const meta = choice.skill ? ` <span class="choice-meta">[${esc(labels.skills[choice.skill] || choice.skill)} ${choice.dc || 6}${state.options.showCheckRate ? ` / ${estimateCheckChance(choice)}%` : ""}]</span>` : "";
   return `<button type="button" class="link-internal" data-choice="${index}">${esc(prefix + choice.text)}${meta}</button>`;
 }
 
 function renderSidebar() {
   const p = getPassage();
-  const manifestSource = activeManifest.metadata && activeManifest.metadata.source ? activeManifest.metadata.source : "fallback";
-  const format = activeManifest.bundle_format || activeManifest.manifest_format || "fallback";
   const progress = progressSummary();
-  $("overviewBox").innerHTML = `<div class="overview-list"><p><span>角色</span><span>${esc(state.player.name)}</span></p><p><span>職能</span><span>${esc(labels.roles[state.player.role] || state.player.role)}</span></p><p><span>地點</span><span>${esc(p.location)}</span></p><p><span>日期</span><span>第 ${state.day} 日 ${formatClock()}</span></p><p><span>行動</span><span>${state.turnNo || 0}</span></p><p><span>線索</span><span>${progress.count}/${progress.required}</span></p><p><span>資料</span><span>${esc(manifestSource)}</span></p><p><span>格式</span><span>${esc(format)}</span></p></div>`;
+  $("overviewBox").innerHTML = `<div class="overview-list"><p><span>角色</span><span>${esc(state.player.name)}</span></p><p><span>身分</span><span>${esc(labels.roles[state.player.role] || state.player.role)}</span></p><p><span>模式</span><span>${esc(labels.modes[state.player.gameMode] || state.player.gameMode)}</span></p><p><span>地點</span><span>${esc(p.location)}</span></p><p><span>日期</span><span>第 ${state.day} 日 ${formatClock()}</span></p><p><span>行動</span><span>${state.turnNo || 0}</span></p><p><span>線索</span><span>${progress.count}/${progress.required}</span></p></div>`;
+}
+
+function estimateCheckChance(choice) {
+  if (!choice.skill) return 100;
+  const dc = Number(choice.dc || 6);
+  const burden = Math.floor((state.stats.fatigue + state.stats.hunger + state.stats.suspicion + state.stats.heat) / 40);
+  const fixed = 3 + (state.skills[choice.skill] || 0) * 2 + Math.floor(state.dev.traceability / 30) - burden;
+  let success = 0;
+  for (let roll = 1; roll <= 6; roll += 1) {
+    if (roll + fixed >= dc) success += 1;
+  }
+  return Math.round((success / 6) * 100);
 }
 
 function progressSummary() {
@@ -967,6 +1095,14 @@ function choose(index) {
     showChoiceBlocked(choice, p);
     return;
   }
+  if (choice.rest) {
+    openRestPanel(choice, p);
+    return;
+  }
+  performChoice(choice, p);
+}
+
+function performChoice(choice, p, context) {
   applyEffects(p.on_exit);
   const actionTurnNo = nextActionTurnNo();
   const outcome = resolveChoice(choice);
@@ -978,17 +1114,68 @@ function choose(index) {
     choice_text: choice.text,
     to_scene: choice.to,
     outcome,
+    rest_plan: context && context.rest ? context.rest : null,
     created_at: new Date().toISOString()
   });
   applyChoice(choice, outcome);
   if (choice.autoRun) runAutoLoops();
   state.passage = outcome === "partial" && choice.failure_passage_code ? choice.failure_passage_code : choice.to;
-  advanceTime(choice.kind);
+  if (context && context.rest) {
+    applyRestPlan(context.rest);
+  } else {
+    advanceTime(choice.kind);
+  }
   maybeRandomEvent("after_choice");
   enterPassage(getPassage(), actionTurnNo);
   checkThresholdFeedback();
   saveState();
   render();
+}
+
+function openRestPanel(choice, scene) {
+  const options = buildRestOptions();
+  openOverlay("休息至何時", `<p>現在是第 ${esc(state.day)} 日 ${esc(formatClock())}。休息會推進時間，降低疲勞並提高精神，飢餓也會上升。</p><div class="developer-actions">${options.map((option, index) => `<button type="button" data-rest-option="${index}">${esc(option.label)}<span class="choice-meta"> ${option.hours} 小時</span></button>`).join("")}</div>`);
+  $("overlayContent").querySelectorAll("[data-rest-option]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const plan = options[Number(button.dataset.restOption)];
+      closeOverlay();
+      performChoice(choice, scene, { rest: plan });
+    });
+  });
+}
+
+function buildRestOptions() {
+  return [
+    { label: "小睡兩小時", hours: 2 },
+    { label: "休息四小時", hours: 4 },
+    restUntil("清晨", 6),
+    restUntil("正午", 12),
+    restUntil("黃昏", 18),
+    restUntil("入夜", 22)
+  ];
+}
+
+function restUntil(label, targetHour) {
+  let hours = Number(targetHour) - Number(state.hour || 0);
+  if (hours <= 0) hours += 24;
+  return { label: `休息到${label}`, hours, targetHour };
+}
+
+function applyRestPlan(plan) {
+  const hours = clamp(Number(plan.hours || 1), 1, 24);
+  const dayBefore = state.day;
+  advanceClock(hours);
+  applyEffects({
+    spirit: Math.min(36, hours * 4),
+    composure: Math.min(28, hours * 3),
+    fatigue: -Math.min(70, hours * 8),
+    hunger: Math.ceil(hours * 1.5),
+    suspicion: hours >= 6 ? -1 : 0,
+    heat: hours >= 8 ? -1 : 0
+  });
+  applyNeedsPressure();
+  if (state.day > dayBefore) runRuntimeEvent("daily");
+  addNote(`${plan.label}：休息 ${hours} 小時，現在是第 ${state.day} 日 ${formatClock()}。`);
 }
 
 function showChoiceBlocked(choice, scene) {
@@ -1276,7 +1463,7 @@ function makeAutoPassage(loopNo) {
     time: `第${loopNo}輪`,
     location: seed.location,
     tags: ["auto", "route"],
-    text: [`${seed.location}的線索被重新抄入札記。`, `${state.player.name}把人物、地點、時間與來源排成同一列。`, `這是第 ${loopNo} 輪長線延伸，會留下 scene、event 與 utterance。`],
+    text: [`${seed.location}的線索被重新抄入札記。`, `${state.player.name}把人物、地點、時間與來源排成同一列。`, `這是第 ${loopNo} 輪長線延伸，會留下完整遊玩紀錄。`],
     choices: [ch(`整理${seed.title}`, next, "summary", { composure: 1, fatigue: 1 }, { smm: 2, tms: 2, traceability: 4 }, { item: seed.item, note: seed.note }), ch("暫停輪迴，回夜宿札記", "Night", "decision", { composure: 1 }, { traceability: 2 })]
   };
 }
@@ -1287,8 +1474,8 @@ function makeAutoEnd() {
     title: "長線札記收束",
     time: "長線收束",
     location: "南京客舍",
-    tags: ["export", "end"],
-    text: [`${state.player.name}把長線札記疊在桌上。`, `目前已生成 ${state.auto.generated}/${state.auto.limit} 輪自動劇情。`, "可繼續遊玩，也可打開開發者面板匯出 JSON。"],
+    tags: ["ending", "route"],
+    text: [`${state.player.name}把長線札記疊在桌上。`, `目前已生成 ${state.auto.generated}/${state.auto.limit} 輪自動劇情。`, "可繼續遊玩，也可由研究者面板處理紀錄。"],
     choices: [ch("回南京城門重新入局", "Gate", "decision", { spirit: 2, composure: 2 }, { smm: 1, tms: 1, traceability: 2 }), ch("回夜宿札記", "Night", "summary", { composure: 2 }, { traceability: 2 }), ch("從第一輪手動重走", "Auto-1", "decision", { spirit: -1 }, { traceability: 2 })]
   };
 }
@@ -1379,11 +1566,43 @@ function openSidePanel(panel) {
   if (panel === "options") return openSettings();
   if (panel === "saves") return openSavesPanel();
   if (panel === "researcher") return openResearcherPanel();
-  openDeveloper();
+  openJournalPanel();
 }
 
 function openAttributesPanel() {
-  openOverlay("屬性", `<div class="panel-grid"><section><h3>狀態</h3>${["spirit", "composure", "suspicion", "fatigue", "hunger", "heat", "reputation"].map((key) => statMeter(labels.stats[key], state.stats[key], key)).join("")}<div class="panel-list"><p><span>錢</span><span>${esc(state.stats.coin)}</span></p></div></section><section><h3>技能</h3><div class="panel-list">${Object.keys(labels.skills).map((key) => `<p><span>${esc(labels.skills[key])}</span><span>${esc(state.skills[key])}</span></p>`).join("")}</div><h3>研究指標</h3><div class="panel-list"><p><span>SMM</span><span>${esc(state.dev.smm)}</span></p><p><span>TMS</span><span>${esc(state.dev.tms)}</span></p><p><span>追溯</span><span>${esc(state.dev.traceability)}</span></p></div></section></div>`);
+  openOverlay("屬性", `<div class="panel-grid"><section><h3>狀態</h3>${["spirit", "composure", "suspicion", "fatigue", "hunger", "heat", "reputation"].map((key) => statMeter(labels.stats[key], state.stats[key], key)).join("")}<div class="panel-list"><p><span>錢</span><span>${esc(state.stats.coin)}</span></p></div></section><section><h3>技能</h3><div class="panel-list">${Object.keys(labels.skills).map((key) => `<p><span>${esc(labels.skills[key])}</span><span>${esc(state.skills[key])}</span></p>`).join("")}</div><h3>回饋</h3><div class="panel-list">${attributeFeedbackRows()}</div></section></div>`);
+}
+
+function attributeFeedbackRows() {
+  const rows = [];
+  if (state.stats.fatigue >= 75) rows.push(["疲勞", "長途行動與檢定更吃力"]);
+  if (state.stats.hunger >= 70) rows.push(["飢餓", "休息前最好先補給"]);
+  if (state.stats.heat >= 25) rows.push(["注目", "官署與驛站風險提高"]);
+  if (state.stats.reputation >= 45) rows.push(["名聲", "可換取更多協助"]);
+  if (state.stats.spirit <= 15) rows.push(["精神", "冒險行動更容易失誤"]);
+  if (state.stats.composure >= 70) rows.push(["鎮定", "談判與整理線索更有餘裕"]);
+  return profileRows(rows.length ? rows : [["目前", "狀態仍可控制"]]);
+}
+
+function profileRows(rows) {
+  return rows.map(([label, value]) => `<p><span>${esc(label)}</span><span>${esc(value || "")}</span></p>`).join("");
+}
+
+function researcherRuntimeRows() {
+  const runtimeManifest = window.DaGoRuntimeManifest || {};
+  const manifestSource = activeManifest.metadata && activeManifest.metadata.source ? activeManifest.metadata.source : "fallback";
+  const format = activeManifest.bundle_format || activeManifest.manifest_format || "fallback";
+  return profileRows([
+    ["Engine", ENGINE_VERSION],
+    ["Runtime", runtimeManifest.runtime_version || "local"],
+    ["Source", manifestSource],
+    ["Format", format],
+    ["Utterance", state.utterances.length],
+    ["Events", state.events.length],
+    ["SMM", state.dev.smm],
+    ["TMS", state.dev.tms],
+    ["追溯", state.dev.traceability]
+  ]);
 }
 
 function openSocialPanel() {
@@ -1398,7 +1617,7 @@ function openSocialPanel() {
 }
 
 function openTraitsPanel() {
-  openOverlay("特質", `<div class="panel-list"><p><span>名字</span><span>${esc(state.player.name)}</span></p><p><span>職能</span><span>${esc(labels.roles[state.player.role] || state.player.role)}</span></p><p><span>出身</span><span>${esc(labels.origins[state.player.origin] || state.player.origin)}</span></p><p><span>特質</span><span>${esc(labels.traits[state.player.trait] || state.player.trait)}</span></p><p><span>難度</span><span>${esc(labels.difficulties[state.player.difficulty] || state.player.difficulty)}</span></p></div><h3>物品</h3><div class="panel-list">${state.items.map((item) => `<p><span>${esc(item)}</span><span>持有</span></p>`).join("") || "<p><span>物品</span><span>無</span></p>"}</div>`);
+  openOverlay("特質", `<div class="panel-grid"><section><h3>身體</h3><div class="panel-list">${profileRows([["性別", labels.genders[state.player.gender]], ["身高", labels.heights[state.player.height]], ["體型", labels.builds[state.player.build]], ["線條", labels.bodyLines[state.player.bodyLine]], ["膚色", labels.skinTones[state.player.skinTone]]])}</div></section><section><h3>頭部</h3><div class="panel-list">${profileRows([["面容", labels.faces[state.player.face]], ["瞳色", labels.eyeColors[state.player.eyeColor]], ["髮色", labels.hairColors[state.player.hairColor]], ["髮長", labels.hairLengths[state.player.hairLength]]])}</div></section><section><h3>背景</h3><div class="panel-list">${profileRows([["名字", state.player.name], ["身分", labels.roles[state.player.role] || state.player.role], ["出身", labels.origins[state.player.origin] || state.player.origin], ["品級", labels.ranks[state.player.rank] || state.player.rank], ["特質", labels.traits[state.player.trait] || state.player.trait], ["配點", labels.attributePlans[state.player.attributePlan] || state.player.attributePlan], ["身世", labels.specialOrigins[state.player.specialOrigin] || state.player.specialOrigin]])}</div></section><section><h3>遊戲</h3><div class="panel-list">${profileRows([["時節", labels.seasons[state.player.startSeason] || state.player.startSeason], ["模式", labels.modes[state.player.gameMode] || state.player.gameMode], ["難度", labels.difficulties[state.player.difficulty] || state.player.difficulty], ["成功率", state.options.showCheckRate ? "顯示" : "隱藏"]])}</div></section></div><h3>物品</h3><div class="panel-list">${state.items.map((item) => `<p><span>${esc(item)}</span><span>持有</span></p>`).join("") || "<p><span>物品</span><span>無</span></p>"}</div>`);
 }
 
 function openJournalPanel() {
@@ -1409,8 +1628,7 @@ function openJournalPanel() {
 
 function openStatsPanel() {
   const progress = progressSummary();
-  openOverlay("統計", `<div class="panel-list"><p><span>Engine</span><span>${esc(ENGINE_VERSION)}</span></p><p><span>行動回合</span><span>${esc(state.turnNo || 0)}</span></p><p><span>語料發言</span><span>${esc(state.utteranceNo || state.utterances.length)}</span></p><p><span>事件</span><span>${esc(state.events.length)}</span></p><p><span>已得線索</span><span>${progress.count}/${progress.required}</span></p><p><span>日期</span><span>第 ${esc(state.day)} 日 ${esc(formatClock())}</span></p><p><span>自動札記</span><span>${esc(state.auto.generated)}/${esc(state.auto.limit)}</span></p></div><p><button id="openDeveloperPanel" type="button">開發者輸出</button></p>`);
-  $("openDeveloperPanel").addEventListener("click", openDeveloper);
+  openOverlay("統計", `<div class="panel-list"><p><span>行動回合</span><span>${esc(state.turnNo || 0)}</span></p><p><span>已得線索</span><span>${progress.count}/${progress.required}</span></p><p><span>日期</span><span>第 ${esc(state.day)} 日 ${esc(formatClock())}</span></p><p><span>自動札記</span><span>${esc(state.auto.generated)}/${esc(state.auto.limit)}</span></p><p><span>模式</span><span>${esc(labels.modes[state.player.gameMode] || state.player.gameMode)}</span></p><p><span>難度</span><span>${esc(labels.difficulties[state.player.difficulty] || state.player.difficulty)}</span></p></div>`);
 }
 
 function openAchievementsPanel() {
@@ -1427,22 +1645,23 @@ function openAchievementsPanel() {
 }
 
 function openSavesPanel() {
-  openOverlay("存檔", `<div class="developer-actions"><button id="panelSave" type="button">保存</button><button id="panelLoad" type="button">載入</button><button id="panelRestart" type="button">重來</button><button id="panelExport" type="button">下載 JSON</button></div><p>保存與載入使用瀏覽器 localStorage。JSON 可匯出後交給 trpg-corpus 匯入。</p>`);
+  openOverlay("存檔", `<div class="developer-actions"><button id="panelSave" type="button">保存</button><button id="panelLoad" type="button">載入</button><button id="panelRestart" type="button">重來</button><button id="panelExport" type="button">下載備份</button></div><p>保存與載入使用瀏覽器 localStorage。備份檔只保存目前遊戲狀態。</p>`);
   $("panelSave").addEventListener("click", () => {
     localStorage.setItem(SAVE_KEY, JSON.stringify(state));
     openOverlay("存檔", "<p>已保存到瀏覽器 localStorage。</p>");
   });
   $("panelLoad").addEventListener("click", loadManualSave);
   $("panelRestart").addEventListener("click", restartGame);
-  $("panelExport").addEventListener("click", () => downloadJson(buildCorpus()));
+  $("panelExport").addEventListener("click", () => downloadText("da_go_save.json", JSON.stringify(state, null, 2), "application/json;charset=utf-8"));
 }
 
 function openResearcherPanel() {
   const code = `USR-${Date.now()}`;
-  openOverlay("研究者劇情", `<div class="editor-grid"><label>段落代碼<input id="storyCode" type="text" value="${esc(code)}"></label><label>標題<input id="storyTitle" type="text" value="研究者新增段落"></label><label>地點<input id="storyLocation" type="text" value="${esc(getPassage().location || "南京")}"></label><label>時間<input id="storyTime" type="text" value="研究者輸入"></label><label>選項文字<input id="storyChoiceText" type="text" value="回到南京城門"></label><label>選項目標<input id="storyChoiceTarget" type="text" value="Gate"></label></div><label>劇情正文<textarea id="storyBody">請在此輸入研究者編寫的劇情。每一行會保存成 passage 文字。</textarea></label><label>Corpus API<input id="storyApiUrl" type="url" value="http://localhost:8787/api/researcher-stories"></label><div class="editor-actions"><button id="addStoryPassage" type="button">加入本機遊戲</button><button id="sendStoryToCorpus" type="button">送入 trpg-corpus</button><button id="downloadStoryBundle" type="button">下載劇情 JSON</button></div><div id="researcherResult" class="feedback-list"></div>`);
+  openOverlay("研究者劇情", `<div class="panel-list">${researcherRuntimeRows()}</div><div class="editor-grid"><label>段落代碼<input id="storyCode" type="text" value="${esc(code)}"></label><label>標題<input id="storyTitle" type="text" value="研究者新增段落"></label><label>地點<input id="storyLocation" type="text" value="${esc(getPassage().location || "南京")}"></label><label>時間<input id="storyTime" type="text" value="研究者輸入"></label><label>選項文字<input id="storyChoiceText" type="text" value="回到南京城門"></label><label>選項目標<input id="storyChoiceTarget" type="text" value="Gate"></label></div><label>劇情正文<textarea id="storyBody">請在此輸入研究者編寫的劇情。每一行會保存成 passage 文字。</textarea></label><label>Corpus API<input id="storyApiUrl" type="url" value="http://localhost:8787/api/researcher-stories"></label><div class="editor-actions"><button id="addStoryPassage" type="button">加入本機遊戲</button><button id="sendStoryToCorpus" type="button">送入 trpg-corpus</button><button id="downloadStoryBundle" type="button">下載劇情 JSON</button><button id="openDeveloperPanel" type="button">研究資料輸出</button></div><div id="researcherResult" class="feedback-list"></div>`);
   $("addStoryPassage").addEventListener("click", addResearcherPassage);
   $("sendStoryToCorpus").addEventListener("click", sendResearcherStory);
   $("downloadStoryBundle").addEventListener("click", () => downloadText(`da_go_researcher_story_${$("storyCode").value.trim() || code}.json`, JSON.stringify(buildResearcherStoryPayload(), null, 2), "application/json;charset=utf-8"));
+  $("openDeveloperPanel").addEventListener("click", openDeveloper);
 }
 
 function buildResearcherStoryPayload() {
@@ -1580,11 +1799,12 @@ function resetStateForManifest() {
 }
 
 function openSettings() {
-  openOverlay("設定", `<div class="settings-grid"><label>文字外觀<select id="settingTextStyle">${Object.keys(labels.styles).map((key) => `<option value="${key}" ${state.player.textStyle === key ? "selected" : ""}>${labels.styles[key]}</option>`).join("")}</select></label><label class="checkline"><input type="checkbox" id="settingNumbered" ${state.options.numberedLinks ? "checked" : ""}> 選項編號</label><label class="checkline"><input type="checkbox" id="settingRandom" ${state.options.randomEvents ? "checked" : ""}> 隨機街頭事件</label></div><p><button type="button" id="applySettings">套用</button></p>`);
+  openOverlay("設定", `<div class="settings-grid"><label>文字外觀<select id="settingTextStyle">${Object.keys(labels.styles).map((key) => `<option value="${key}" ${state.player.textStyle === key ? "selected" : ""}>${labels.styles[key]}</option>`).join("")}</select></label><label class="checkline"><input type="checkbox" id="settingNumbered" ${state.options.numberedLinks ? "checked" : ""}> 選項編號</label><label class="checkline"><input type="checkbox" id="settingRandom" ${state.options.randomEvents ? "checked" : ""}> 隨機街頭事件</label><label class="checkline"><input type="checkbox" id="settingCheckRate" ${state.options.showCheckRate ? "checked" : ""}> 顯示技能檢定成功率</label></div><p><button type="button" id="applySettings">套用</button></p>`);
   $("applySettings").addEventListener("click", () => {
     state.player.textStyle = $("settingTextStyle").value;
     state.options.numberedLinks = $("settingNumbered").checked;
     state.options.randomEvents = $("settingRandom").checked;
+    state.options.showCheckRate = $("settingCheckRate").checked;
     saveState();
     closeOverlay();
     render();
@@ -1593,7 +1813,7 @@ function openSettings() {
 
 function openDeveloper() {
   const data = buildCorpus();
-  openOverlay("開發者 / TRPG Corpus", `<div class="dev-grid"><p><strong>Engine</strong><span>${ENGINE_VERSION}</span></p><p><strong>Utterance</strong><span>${state.utterances.length}</span></p><p><strong>Events</strong><span>${state.events.length}</span></p><p><strong>SMM</strong><span>${state.dev.smm}</span></p><p><strong>TMS</strong><span>${state.dev.tms}</span></p><p><strong>追溯</strong><span>${state.dev.traceability}</span></p></div><div class="developer-actions"><button id="copyJson" type="button">複製 JSON</button><button id="downloadJson" type="button">下載 JSON</button><button id="downloadCsv" type="button">下載 staging CSV</button></div><section class="settings-grid"><label>Runtime bundle / manifest JSON<input id="manifestFile" type="file" accept="application/json,.json"></label><label>Runtime API URL<input id="manifestUrl" type="url" value="http://localhost:8787/api/runtime-bundle?project_code=${esc(corpusConfig.project_code)}&team_code=${esc(corpusConfig.team_code)}"></label><button id="loadManifestUrl" type="button">讀取資料</button><button id="clearManifest" type="button">清除資料</button></section><details open><summary>輸出預覽</summary><pre>${esc(JSON.stringify(data, null, 2))}</pre></details>`);
+  openOverlay("研究資料 / TRPG Corpus", `<div class="dev-grid"><p><strong>Engine</strong><span>${ENGINE_VERSION}</span></p><p><strong>Utterance</strong><span>${state.utterances.length}</span></p><p><strong>Events</strong><span>${state.events.length}</span></p><p><strong>SMM</strong><span>${state.dev.smm}</span></p><p><strong>TMS</strong><span>${state.dev.tms}</span></p><p><strong>追溯</strong><span>${state.dev.traceability}</span></p></div><div class="developer-actions"><button id="copyJson" type="button">複製 JSON</button><button id="downloadJson" type="button">下載 JSON</button><button id="downloadCsv" type="button">下載 staging CSV</button></div><section class="settings-grid"><label>Runtime bundle / manifest JSON<input id="manifestFile" type="file" accept="application/json,.json"></label><label>Runtime API URL<input id="manifestUrl" type="url" value="http://localhost:8787/api/runtime-bundle?project_code=${esc(corpusConfig.project_code)}&team_code=${esc(corpusConfig.team_code)}"></label><button id="loadManifestUrl" type="button">讀取資料</button><button id="clearManifest" type="button">清除資料</button></section><details open><summary>輸出預覽</summary><pre>${esc(JSON.stringify(data, null, 2))}</pre></details>`);
   $("copyJson").addEventListener("click", () => navigator.clipboard && navigator.clipboard.writeText(JSON.stringify(data, null, 2)));
   $("downloadJson").addEventListener("click", () => downloadJson(data));
   $("downloadCsv").addEventListener("click", () => downloadText(`da_go_${corpusConfig.session_code}_stg_utterance_import.csv`, toCsv(data.stg_Utterance_Import), "text/csv;charset=utf-8"));

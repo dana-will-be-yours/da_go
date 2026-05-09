@@ -1,6 +1,6 @@
 # da_go
 
-`da_go` 是《大國年代記》的單人網頁文字遊戲。開局時間為大興二十年八月，地點為南京。玩家輸入角色名字，選擇職能、出身、特質、難度與文字外觀後即可開始。
+`da_go` 是《大國年代記》的單人網頁文字遊戲。開局地點為南京。玩家輸入角色名字，設定身體、頭部、性格背景、起始時節、遊戲模式、難度與文字外觀後即可開始。
 
 ## 開啟
 
@@ -23,21 +23,23 @@ GitHub Pages 入口會轉到 `game.html`。
 
 ## 遊戲內容
 
-- 開場：大興二十年八月，南京。
+- 開場：南京，可由開局表單選擇春、夏、秋、冬。
 - 形式：DOL 式左欄、passage 文字、藍色文字選項。
 - Runtime：可讀取 `da_go_runtime_bundle_v1`，內容含 passage、choice、state、NPC 關係與 event pool。
-- 選項：支援條件檢查與效果套用，例如金錢、疲勞、旗標、物品、技能與 NPC 關係。
+- 選項：支援條件檢查與效果套用，例如金錢、疲勞、旗標、物品、技能與 NPC 關係；條件不足會在玩家選擇後顯示原因。
 - 事件：選項後可依 event pool 觸發額外事件，並保存冷卻、每日次數與 playlog。
 - 沙盒：預設內容含南京行動地圖、結案條件、醫館、短工、南市、官署、北路、夜宿與結案札記。
 - 壓力：飢餓、疲勞、疑心與注目會影響檢定，失控時會把玩家迫回客舍休整。
+- 休息：夜宿時會打開休息至何時選單，可選小睡、清晨、正午、黃昏或入夜，時間與狀態會同步結算。
+- 開局：身體、頭部、身分品級、配點、特殊身世、遊戲模式與技能檢定成功率顯示都可設定，並提供隨機化按鈕。
 - 左欄：屬性、社交、特質、日誌、統計、成就、選項、存檔與研究者面板採點選後開啟。
 - 研究者：可在遊戲內新增 passage、choice 與正文，並送到 `trpg-corpus-sqlserver` 的 `/api/researcher-stories`。
 - 夜宿札記可自動輪迴延伸 100 次，生成事件與 utterance。
-- SMM、TMS、追溯、Team/PC 對照、JSON 匯出放在「統計 > 開發者輸出」。
+- SMM、TMS、追溯、Team/PC 對照、JSON 匯出放在「研究者 > 研究資料輸出」。
 
 ## TRPG Corpus 對接
 
-開發者面板可匯入兩種 JSON：
+研究者面板可匯入兩種 JSON：
 
 - `da_go_runtime_bundle_v1`：由 `trpg-corpus-sqlserver` 的 `dbo.usp_Export_DaGo_Runtime_Bundle` 或 `/api/runtime-bundle` 產生，前端優先使用。
 - `da_go_world_manifest_v1`：舊資料格式，前端仍會轉成可遊玩的 passage。
@@ -67,4 +69,4 @@ http://localhost:8080/docs/sample-runtime-bundle.json
 - PC 楚服 / 楚璃詩：Player 南瓜
 - PC 花瓊瑤：Player 佐拉
 
-`【大國年代記】正史足跡` 視為同一個 Team 的 TRPG 產出。da_go 遊玩過程會累積 utterance，並可透過「開發者」面板匯出 JSON，供 `trpg-corpus-sqlserver` 匯入。
+`【大國年代記】正史足跡` 視為同一個 Team 的 TRPG 產出。da_go 遊玩過程會累積 utterance，並可透過「研究者 > 研究資料輸出」匯出 JSON，供 `trpg-corpus-sqlserver` 匯入。
