@@ -1,6 +1,6 @@
 (()=>{
 'use strict';
-const VERSION='1.9.2-preload-cache-safe';
+const VERSION='1.9.3-authoring-pages';
 const CACHE_NAME='da_go_runtime_'+VERSION;
 const ASSETS=[
   ['assets/game-screen.css','介面樣式',1,''],
@@ -9,7 +9,7 @@ const ASSETS=[
   ['assets/game-playable-v6.js','南京篇規則引擎',1,'identity-rank-attr-formula'],
   ['assets/data/dago-nanjing-v5-bundle.json','南京資料包',0,'json']
 ];
-window.DaGoRuntimeManifest=Object.freeze({runtime_name:'da_go_unified_runtime',runtime_version:VERSION,active_engine:'assets/game-playable-v6.js',preload_gate:'assets/game-preload-cache.js',target_database:'TRPG_Corpus_DB',export_format:'da_go_playlog_json_v2',staging_target:'stg.DaGo_PlayLog_Import -> stg.Utterance_Import',canonical_runtime:'assets/game-playable-v6.js',cache_name:CACHE_NAME});
+window.DaGoRuntimeManifest=Object.freeze({runtime_name:'da_go_unified_runtime',runtime_version:VERSION,active_engine:'assets/game-playable-v6.js',preload_gate:'assets/game-preload-cache.js',target_database:'TRPG_Corpus_DB',export_format:'da_go_playlog_json_v2',staging_target:'stg.DaGo_PlayLog_Import -> stg.Utterance_Import',canonical_runtime:'assets/game-playable-v6.js',cache_name:CACHE_NAME,authoring_page:'https://dana-will-be-yours.github.io/trpg-corpus-sqlserver/web/dago-authoring.html'});
 const css=document.createElement('style');
 css.textContent="#story,#ui-bar{visibility:hidden}body.dago-ready #story,body.dago-ready #ui-bar{visibility:visible}.dago-preload{position:fixed;z-index:9999;inset:0;display:grid;place-items:center;background:#111;color:#eee;font-family:Verdana,Arial,'Microsoft JhengHei',sans-serif}.dago-preload-card{width:min(42rem,92vw);border:1px solid #555;background:#222;padding:1.2rem}.dago-preload h1{margin:0 0 .25rem;color:#ffd700;font-size:1.45rem}.dago-preload p{margin:.35rem 0;color:#bbb}.dago-preload-list{display:grid;gap:.35rem;margin:1rem 0}.dago-preload-row{display:flex;justify-content:space-between;gap:1rem;border-bottom:1px solid #444;padding:.35rem 0}.dago-preload-row span{color:#bbb;text-align:right}.dago-preload-row.ok span{color:#8ee88e}.dago-preload-row.bad span{color:#ff8989}.dago-preload-row.warn span{color:#ffd700}.dago-preload-meter{height:.65rem;border:1px solid #555;background:#111;margin:.75rem 0}.dago-preload-meter i{display:block;height:100%;width:0;background:#68a0ff}.dago-preload-actions{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:1rem}.dago-preload button{font:inherit;background:#333;color:#eee;border:1px solid #666;padding:.45rem .8rem;cursor:pointer}.dago-preload button:disabled{opacity:.45}.dago-preload small{color:#888}";
 document.head.appendChild(css);
