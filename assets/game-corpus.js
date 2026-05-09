@@ -1,7 +1,7 @@
 const STORAGE_KEY = "daGoCorpusRpgStateV4";
 const SAVE_KEY = "daGoCorpusRpgManualSaveV4";
 const MANIFEST_KEY = "daGoCorpusWorldManifestV3";
-const ENGINE_VERSION = "1.4.3-character-rest";
+const ENGINE_VERSION = "1.4.4-sidebar-status";
 
 const VALID_UTTERANCE_FUNCTIONS = new Set([
   "narration",
@@ -994,7 +994,7 @@ function renderChoice(choice, index) {
 function renderSidebar() {
   const p = getPassage();
   const progress = progressSummary();
-  $("overviewBox").innerHTML = `<div class="overview-list"><p><span>角色</span><span>${esc(state.player.name)}</span></p><p><span>身分</span><span>${esc(labels.roles[state.player.role] || state.player.role)}</span></p><p><span>模式</span><span>${esc(labels.modes[state.player.gameMode] || state.player.gameMode)}</span></p><p><span>地點</span><span>${esc(p.location)}</span></p><p><span>日期</span><span>第 ${state.day} 日 ${formatClock()}</span></p><p><span>行動</span><span>${state.turnNo || 0}</span></p><p><span>線索</span><span>${progress.count}/${progress.required}</span></p></div>`;
+  $("overviewBox").innerHTML = `<div class="overview-list"><p><span>角色</span><span>${esc(state.player.name)}</span></p><p><span>身分</span><span>${esc(labels.roles[state.player.role] || state.player.role)}</span></p><p><span>模式</span><span>${esc(labels.modes[state.player.gameMode] || state.player.gameMode)}</span></p><p><span>地點</span><span>${esc(p.location)}</span></p><p><span>日期</span><span>第 ${state.day} 日 ${formatClock()}</span></p><p><span>行動</span><span>${state.turnNo || 0}</span></p><p><span>線索</span><span>${progress.count}/${progress.required}</span></p></div><h3 class="sidebar-subtitle">狀態</h3><div class="sidebar-status">${sidebarStatusRows()}</div>`;
 }
 
 function estimateCheckChance(choice) {
@@ -1007,6 +1007,13 @@ function estimateCheckChance(choice) {
     if (roll + fixed >= dc) success += 1;
   }
   return Math.round((success / 6) * 100);
+}
+
+function sidebarStatusRows() {
+  return ["spirit", "composure", "fatigue", "hunger", "heat", "suspicion"].map((key) => {
+    const value = clamp(Number(state.stats[key] || 0), 0, 100);
+    return `<div class="sidebar-meter"><p><span>${esc(labels.stats[key])}</span><span>${value}</span></p><b><i style="width:${value}%"></i></b></div>`;
+  }).join("");
 }
 
 function progressSummary() {

@@ -295,6 +295,41 @@ fieldset input {
   text-align: right;
 }
 
+.sidebar-subtitle {
+  margin: 1em 0 .5em;
+  border-top: 1px solid var(--dol-border-soft);
+  padding-top: .75em;
+  color: var(--dol-gold);
+  font-size: .95em;
+}
+
+.sidebar-status {
+  display: grid;
+  gap: .55em;
+}
+
+.sidebar-meter p {
+  display: flex;
+  justify-content: space-between;
+  gap: .75em;
+  margin: 0 0 .18em;
+  color: var(--dol-muted);
+  font-size: .86em;
+}
+
+.sidebar-meter b {
+  display: block;
+  height: .4em;
+  border: 1px solid var(--dol-border-soft);
+  background: var(--dol-black);
+}
+
+.sidebar-meter i {
+  display: block;
+  height: 100%;
+  background: var(--dol-link);
+}
+
 .stat-name {
   display: flex;
   justify-content: space-between;

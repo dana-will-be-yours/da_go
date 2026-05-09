@@ -3,7 +3,7 @@
 
   window.DaGoRuntimeManifest = Object.freeze({
     runtime_name: "da_go_unified_runtime",
-    runtime_version: "1.4.3-character-rest",
+    runtime_version: "1.4.4-sidebar-status",
     active_engine: "assets/game-corpus.js",
     target_database: "TRPG_Corpus_DB",
     export_format: "da_go_playlog_json_v2",

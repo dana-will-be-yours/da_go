@@ -2,7 +2,23 @@
 
 `da_go` 是《大國年代記》的單人網頁文字遊戲。開局地點為南京。玩家輸入角色名字，設定身體、頭部、性格背景、起始時節、遊戲模式、難度與文字外觀後即可開始。
 
-## 開啟
+## 公開頁
+
+GitHub Pages：
+
+```text
+https://dana-will-be-yours.github.io/da_go/game.html
+```
+
+若要避開瀏覽器快取，可在網址後加上版本參數：
+
+```text
+https://dana-will-be-yours.github.io/da_go/game.html?v=<commit-or-version>
+```
+
+目前頁面由 `game.html` 載入 `assets/game-runtime.js`，再載入主要遊戲檔 `assets/game-corpus.js`。
+
+## 本機開啟
 
 ```text
 C:\Users\sun\Documents\New project\da_go\game.html
@@ -19,8 +35,6 @@ python -m http.server 8080
 http://localhost:8080/game.html
 ```
 
-GitHub Pages 入口會轉到 `game.html`。
-
 ## 遊戲內容
 
 - 開場：南京，可由開局表單選擇春、夏、秋、冬。
@@ -32,10 +46,20 @@ GitHub Pages 入口會轉到 `game.html`。
 - 壓力：飢餓、疲勞、疑心與注目會影響檢定，失控時會把玩家迫回客舍休整。
 - 休息：夜宿時會打開休息至何時選單，可選小睡、清晨、正午、黃昏或入夜，時間與狀態會同步結算。
 - 開局：身體、頭部、身分品級、配點、特殊身世、遊戲模式與技能檢定成功率顯示都可設定，並提供隨機化按鈕。
-- 左欄：屬性、社交、特質、日誌、統計、成就、選項、存檔與研究者面板採點選後開啟。
+- 左欄：概覽下方常駐精神、鎮定、疲勞、飢餓、注目、疑心簡表；詳細屬性、社交、特質、日誌、統計、成就、選項、存檔與研究者面板採點選後開啟。
 - 研究者：可在遊戲內新增 passage、choice 與正文，並送到 `trpg-corpus-sqlserver` 的 `/api/researcher-stories`。
 - 夜宿札記可自動輪迴延伸 100 次，生成事件與 utterance。
 - SMM、TMS、追溯、Team/PC 對照、JSON 匯出放在「研究者 > 研究資料輸出」。
+
+## 程式入口
+
+- `game.html`：公開頁與本機入口。
+- `assets/game-runtime.js`：統一載入入口，保留版本與來源清單。
+- `assets/game-corpus.js`：主要遊戲邏輯，含 passage、選項、狀態、休息、研究者面板與 JSON 匯出。
+- `assets/game-direct.js`、`assets/game-dol.js`：舊入口相容檔，會導向 `assets/game-runtime.js`。
+- `assets/game-screen.css`：DOL 式文字頁與左欄樣式。
+- `docs/sample-runtime-bundle.json`：本機測試資料。
+- `da_goTRPG遊戲運作指南.docx`：目前 GitHub 主線保存的操作文件。
 
 ## TRPG Corpus 對接
 
@@ -44,16 +68,18 @@ GitHub Pages 入口會轉到 `game.html`。
 - `da_go_runtime_bundle_v1`：由 `trpg-corpus-sqlserver` 的 `dbo.usp_Export_DaGo_Runtime_Bundle` 或 `/api/runtime-bundle` 產生，前端優先使用。
 - `da_go_world_manifest_v1`：舊資料格式，前端仍會轉成可遊玩的 passage。
 
+研究者資料送出端點：
+
+```text
+POST http://localhost:8787/api/researcher-stories
+POST http://localhost:8787/api/dago-playlogs
+POST http://localhost:8787/api/dago-game-runs
+```
+
 本機 API 範例：
 
 ```text
 http://localhost:8787/api/runtime-bundle?project_code=DAGUO&team_code=DAGUO-T01&session_code=DA20-CORPUS-RPG-001
-```
-
-研究者劇情送出端點：
-
-```text
-http://localhost:8787/api/researcher-stories
 ```
 
 本機靜態測試資料：
