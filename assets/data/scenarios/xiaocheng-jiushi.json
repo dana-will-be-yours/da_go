@@ -1,0 +1,64 @@
+{
+  "schema_version": "da_go_scenario_bundle_v1",
+  "scenario_code": "xiaocheng_jiushi",
+  "scenario_name": "小城舊事",
+  "scenario_subtitle": "大興二十年南京篇",
+  "time_span": {
+    "era": "大興",
+    "year": 20,
+    "default_season": "autumn",
+    "start_date": "大興二十年九月九日"
+  },
+  "scope": {
+    "player_area": "南京",
+    "restriction": "玩家活動限定南京。遠方地點以信件、帳目、傳聞、人物口述與旗標線索進入劇情。"
+  },
+  "intro": {
+    "summary": "雨後的南京外城，驛舍、茶棚、南市帳房與官署門廊同時浮出異樣。南陽帳目、銀川急信與崑崙遠訊彼此交錯，玩家只能在南京城內追索舊事的痕跡。",
+    "features": [
+      "南京限定探索",
+      "市井傳聞與官署線索交錯",
+      "帳目、急信、門派消息三線並進",
+      "4D3 技能檢定與失敗回饋",
+      "可輸出 TRPG Corpus playlog JSON"
+    ],
+    "gm_note": "此劇本包為現有 da_go 南京篇劇情的範例封裝，可作為 SQL Server authoring workflow 與 da_go runtime 之間的交換格式。"
+  },
+  "worldview": {
+    "title": "大國年代記",
+    "political_context": "大興二十年，南京表面平穩，商會帳目、驛路急信與門派傳聞正在城內暗流相接。",
+    "themes": ["舊事", "帳目", "信路", "門閥", "江湖遠訊"]
+  },
+  "geography": {
+    "city": "南京",
+    "districts": [
+      {"code": "outer_gate", "name": "外郭城門", "locations": ["南京外城", "城門茶棚"]},
+      {"code": "outer_city", "name": "外城", "locations": ["驛舍", "秦淮河埠", "北街", "後巷", "街市", "借住小院"]},
+      {"code": "inner_city", "name": "內城", "locations": ["南市帳房", "西街書肆"]},
+      {"code": "outer_office", "name": "皇城外署", "locations": ["官署門廊"]}
+    ]
+  },
+  "characters": [
+    {"code": "npc_tea_master", "name": "茶博士", "role": "市井情報節點"},
+    {"code": "npc_post_runner", "name": "驛卒", "role": "北路官信節點"},
+    {"code": "npc_old_scribe", "name": "老書吏", "role": "官署與魏氏線索節點"},
+    {"code": "npc_boatman", "name": "船主", "role": "江夏糧船線索節點"},
+    {"code": "npc_accountant", "name": "帳房先生", "role": "南陽帳目線索節點"},
+    {"code": "npc_qingyi", "name": "青衣商旅", "role": "崑崙與南陽暗線節點"},
+    {"code": "npc_daotong", "name": "買紙道童", "role": "崑崙遠訊節點"}
+  ],
+  "plot": {
+    "main_threads": [
+      {"code": "quest_south_ledger", "title": "南陽銀痕", "goal": "追查南合商會戳記、南陽帳目疑點與劉廷平舊名。"},
+      {"code": "quest_north_letter", "title": "銀川急信", "goal": "取得銀川急信線索、北路送信圖，並請馬客帶信。"},
+      {"code": "quest_kunlun_rumour", "title": "崑崙遠訊", "goal": "確認崑崙受襲傳聞、取得書肆信物，追查下山者去向。"}
+    ],
+    "start_passage": "Gate"
+  },
+  "runtime_bundle": "assets/data/dago-nanjing-v5-bundle.json",
+  "trpg_corpus_targets": {
+    "database": "TRPG_Corpus_DB",
+    "authoring_schema": "dbo.DaGo_Authoring_Scenario_*",
+    "playlog_import": "stg.DaGo_PlayLog_Import -> stg.Utterance_Import -> dbo.Utterance"
+  }
+}
