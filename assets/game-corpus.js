@@ -1,7 +1,7 @@
-const STORAGE_KEY = "daGoCorpusRpgStateV2";
-const SAVE_KEY = "daGoCorpusRpgManualSaveV2";
-const MANIFEST_KEY = "daGoCorpusWorldManifestV1";
-const ENGINE_VERSION = "1.0.0-runtime-bundle";
+const STORAGE_KEY = "daGoCorpusRpgStateV3";
+const SAVE_KEY = "daGoCorpusRpgManualSaveV3";
+const MANIFEST_KEY = "daGoCorpusWorldManifestV2";
+const ENGINE_VERSION = "1.1.0-playable-sandbox";
 
 const VALID_UTTERANCE_FUNCTIONS = new Set([
   "narration",
@@ -29,7 +29,7 @@ let corpusConfig = {
 };
 
 const labels = {
-  stats: { spirit: "精神", composure: "鎮定", suspicion: "疑心", fatigue: "疲勞", hunger: "飢餓", coin: "錢" },
+  stats: { spirit: "精神", composure: "鎮定", suspicion: "疑心", fatigue: "疲勞", hunger: "飢餓", heat: "注目", reputation: "名聲", coin: "錢" },
   skills: { inquiry: "探問", archive: "案卷", influence: "交涉", travel: "行路" },
   styles: { standard: "標準", scroll: "書卷", night: "夜讀", large: "大字" }
 };
@@ -53,6 +53,85 @@ const fallbackRouteCycle = [
 function ch(text, to, kind, effects, dev, extra) {
   return Object.assign({ text, to, kind, effects: effects || {}, dev: dev || {} }, extra || {});
 }
+
+const fallbackEventPools = [
+  {
+    id: "city_after_choice",
+    name: "南京街頭事件",
+    trigger: "after_choice",
+    entries: [
+      {
+        event_id: "EV_CITY_PATROL",
+        title: "巡丁盤問",
+        text: "巡丁攔下你，問你為何反覆打聽北路文書。",
+        weight: 3,
+        cooldown_turns: 4,
+        max_triggers_per_day: 2,
+        conditions: [{ path: "stats.suspicion", op: ">=", value: 8 }],
+        effects: [
+          { op: "add", path: "stats.heat", value: 3 },
+          { op: "add", path: "stats.composure", value: -2 },
+          { op: "note", value: "注目上升。若注目太高，官署行動會變難。" }
+        ]
+      },
+      {
+        event_id: "EV_CITY_RUMOUR",
+        title: "茶棚耳語",
+        text: "有人提到一份被押往案卷房的北路封文。",
+        weight: 4,
+        cooldown_turns: 3,
+        max_triggers_per_day: 1,
+        effects: [
+          { op: "add", path: "dev.smm", value: 2 },
+          { op: "add", path: "dev.traceability", value: 2 },
+          { op: "note", value: "北路封文可能接往魏無忌案卷。" }
+        ]
+      },
+      {
+        event_id: "EV_BODY_WARNING",
+        title: "身體負擔",
+        text: "你站起身時眼前一黑，飢餓與疲勞拖慢了判斷。",
+        weight: 4,
+        cooldown_turns: 2,
+        max_triggers_per_day: 2,
+        conditions: [{ any: [{ path: "stats.hunger", op: ">=", value: 55 }, { path: "stats.fatigue", op: ">=", value: 65 }] }],
+        effects: [
+          { op: "add", path: "stats.spirit", value: -4 },
+          { op: "add", path: "stats.composure", value: -2 }
+        ]
+      },
+      {
+        event_id: "EV_HELPFUL_SCRIBE",
+        title: "書吏提醒",
+        text: "一名書吏提醒你補上消息來源，免得回寫資料時失去脈絡。",
+        weight: 2,
+        cooldown_turns: 5,
+        max_triggers_per_day: 1,
+        conditions: [{ path: "dev.traceability", op: "<", value: 72 }],
+        effects: [
+          { op: "add", path: "dev.traceability", value: 5 },
+          { op: "add", path: "stats.reputation", value: 1 }
+        ]
+      }
+    ]
+  },
+  {
+    id: "night_pressure",
+    name: "夜間壓力",
+    trigger: "daily",
+    entries: [
+      {
+        event_id: "EV_NIGHT_COST",
+        title: "夜宿開銷",
+        text: "客舍收走一文錢。你若身無分文，隔日精神會下降。",
+        weight: 1,
+        cooldown_turns: 0,
+        max_triggers_per_day: 1,
+        effects: [{ op: "add", path: "stats.coin", value: -1 }]
+      }
+    ]
+  }
+];
 
 const fallbackPassages = {
   Gate: {
@@ -198,6 +277,105 @@ const fallbackPassages = {
   }
 };
 
+function enhanceFallbackPassages(passages) {
+  passages.Gate.choices.unshift(
+    ch("查看今日目標與地圖", "TownMap", "summary", {}, { smm: 2, traceability: 2 })
+  );
+  passages.Gate.choices.push(
+    ch("檢查結案條件", "GoalBoard", "summary", { composure: 1 }, { smm: 3, tms: 2, traceability: 3 })
+  );
+
+  passages.TownMap = {
+    code: "SCN-GAME-100",
+    title: "南京行動地圖",
+    time: "街市開放",
+    location: "南京",
+    tags: ["map", "sandbox"],
+    text: [
+      "你把今日能去的地方寫成一張簡表。每個地點都會消耗時間，也可能改變注目、飢餓、疲勞與名聲。",
+      "核心目標：取得三條以上有效線索，整理成可回寫 trpg-corpus 的結案札記。",
+      "若注目、疲勞或飢餓失控，部分調查會被鎖住。"
+    ],
+    choices: [
+      ch("城門與茶棚：便宜打聽", "Tea", "question", { hunger: 1 }, { smm: 2, traceability: 2 }),
+      ch("驛站與北街：查北路文書", "Relay", "action", { fatigue: 2 }, { tms: 2, traceability: 3 }),
+      ch("南市：購物、短工、商旅", "Market", "action", { hunger: 1 }, { tms: 2 }),
+      ch("官署案卷房：高風險高收益", "Yamen", "decision", { heat: 1 }, { smm: 2, traceability: 4 }, { conditions: [{ path: "stats.heat", op: "<", value: 18 }] }),
+      ch("醫館：降低疲勞與飢餓", "Clinic", "action", {}, { tms: 1 }),
+      ch("客舍：休息與保存進度", "Night", "summary", {}, { smm: 1, tms: 1 })
+    ]
+  };
+
+  passages.GoalBoard = {
+    code: "SCN-GAME-101",
+    title: "結案條件",
+    time: "整理時",
+    location: "客舍桌前",
+    tags: ["goal", "progress"],
+    text: [
+      "結案至少需要三種材料：北路關卡、PC 名字對照、南陽路引、案卷摘記、來源索引卡。",
+      "高品質結案需要保持注目低於二十五，並且保留至少一文錢或一份補給。",
+      "結案後會輸出完整 playlog，供資料庫回寫與後續分析。"
+    ],
+    choices: [
+      ch("回行動地圖", "TownMap", "summary", {}, { smm: 1 }),
+      ch("整理線索，嘗試結案", "FinalReport", "summary", { composure: 4 }, { smm: 5, tms: 5, traceability: 8 }, {
+        conditions: [{
+          op: "at_least_flags",
+          count: 3,
+          flags: ["weifen_lead", "pc_crosswalk", "south_pass", "wuji_dossier", "source_index"]
+        }]
+      }),
+      ch("先去找更可靠的來源", "Archive", "action", { fatigue: 1 }, { traceability: 3 })
+    ]
+  };
+
+  passages.Clinic = {
+    code: "SCN-GAME-102",
+    title: "城南醫館",
+    time: "午後",
+    location: "南京城南",
+    tags: ["rest", "clinic"],
+    text: [
+      "醫館門口排著雨後受寒的人。你可以花錢買藥，也可以幫忙整理藥櫃換一碗熱湯。",
+      "這裡提供低風險恢復，但會消耗白日時段。",
+      "若飢餓或疲勞已經太高，先處理身體狀態會讓後續檢定更可靠。"
+    ],
+    choices: [
+      ch("買一包醒神藥", "Clinic", "purchase", { coin: -3, fatigue: -24, spirit: 8 }, { tms: 1 }, { req: { coin: 3 }, item: "醒神藥", note: "疲勞下降，精神回升。" }),
+      ch("幫忙整理藥櫃換熱湯", "Clinic", "action", { fatigue: 4, hunger: -18, coin: 1 }, { tms: 2, traceability: 1 }, { note: "熱湯讓飢餓下降。" }),
+      ch("向醫師問五毒舊傷", "South", "question", { coin: -1, suspicion: 1 }, { smm: 2, tms: 3, traceability: 3 }, { skill: "inquiry", dc: 8, flag: "poison_clue", note: "醫師提到五毒舊傷與南陽路線。" }),
+      ch("回行動地圖", "TownMap", "summary", {}, { smm: 1 })
+    ]
+  };
+
+  passages.FinalReport = {
+    code: "SCN-GAME-103",
+    title: "結案札記",
+    time: "深夜",
+    location: "南京客舍",
+    tags: ["ending", "export"],
+    text: [
+      "你把線索壓成四欄：人物、地點、事件、來源。每一欄都能回到一段遊玩紀錄。",
+      "這份札記已達到最小結案門檻。若要提高品質，可以重開一輪，降低注目並補齊更多來源。",
+      "現在可打開開發者面板匯出 JSON，將 playlog 回寫到 trpg-corpus。"
+    ],
+    choices: [
+      ch("回南京行動地圖繼續補線索", "TownMap", "summary", { composure: 2 }, { smm: 2, tms: 2, traceability: 2 }),
+      ch("夜宿後開始新一日", "Night", "action", { fatigue: -20, hunger: 8, spirit: 8 }, { smm: 1, traceability: 2 })
+    ]
+  };
+
+  passages.Yamen.choices.unshift(
+    ch("先交出來源索引卡降低盤問", "Yamen", "summary", { heat: -5, suspicion: -2, composure: 2 }, { traceability: 5 }, { req: { item: "來源索引卡" }, note: "書吏認可你的資料來源格式。" })
+  );
+  passages.Night.choices.unshift(
+    ch("查看結案條件", "GoalBoard", "summary", { composure: 1 }, { smm: 3, tms: 2 })
+  );
+}
+
+enhanceFallbackPassages(fallbackPassages);
+
 const defaultManifest = {
   manifest_format: "da_go_world_manifest_v1",
   bundle_format: "da_go_runtime_bundle_v1",
@@ -207,10 +385,19 @@ const defaultManifest = {
   },
   config: corpusConfig,
   world_state: { start_passage: "Gate", day: 1, hour: 6, location: "南京" },
-  states: [],
+  states: [
+    { key: "stats.spirit", group: "stats", type: "number", default: "50", min: 0, max: 100, label: "精神" },
+    { key: "stats.composure", group: "stats", type: "number", default: "50", min: 0, max: 100, label: "鎮定" },
+    { key: "stats.suspicion", group: "stats", type: "number", default: "0", min: 0, max: 100, label: "疑心" },
+    { key: "stats.fatigue", group: "stats", type: "number", default: "0", min: 0, max: 100, label: "疲勞" },
+    { key: "stats.hunger", group: "stats", type: "number", default: "0", min: 0, max: 100, label: "飢餓" },
+    { key: "stats.heat", group: "stats", type: "number", default: "0", min: 0, max: 100, label: "注目" },
+    { key: "stats.reputation", group: "stats", type: "number", default: "20", min: 0, max: 100, label: "名聲" },
+    { key: "stats.coin", group: "stats", type: "number", default: "12", min: -99, max: 999, label: "錢" }
+  ],
   passages: fallbackPassages,
   random_events: fallbackRandomEvents,
-  event_pools: [],
+  event_pools: fallbackEventPools,
   relationship_defs: [],
   route_cycle: fallbackRouteCycle,
   characters: [],
@@ -232,7 +419,7 @@ let eventPools = normalizeEventPools(activeManifest.event_pools);
 const defaultState = {
   started: false, passage: "Gate", turnNo: 0, day: 1, hour: 6,
   player: { name: "旅人", player_code: "PLAYER-LOCAL", member_code: "TM-LOCAL", character_code: "PC-LOCAL", textStyle: "standard" },
-  stats: { spirit: 50, composure: 50, coin: 12, suspicion: 0, fatigue: 0, hunger: 0 },
+  stats: { spirit: 50, composure: 50, coin: 12, suspicion: 0, fatigue: 0, hunger: 0, heat: 0, reputation: 20 },
   skills: { inquiry: 1, archive: 1, influence: 1, travel: 1 },
   dev: { smm: 50, tms: 50, traceability: 50 },
   items: ["素布行囊"], notes: ["大興二十年八月，南京。"], flags: {}, relations: {}, utterances: [], events: [], narrated: {},
@@ -622,19 +809,32 @@ function renderSidebar() {
   const p = getPassage();
   const manifestSource = activeManifest.metadata && activeManifest.metadata.source ? activeManifest.metadata.source : "fallback";
   const format = activeManifest.bundle_format || activeManifest.manifest_format || "fallback";
+  const progress = progressSummary();
   const relationLines = Object.keys(state.relations || {}).slice(0, 3).map((code) => {
     const relation = state.relations[code] || {};
     return `<p>${esc(code)}：信任 ${esc(relation.trust == null ? 0 : relation.trust)}，好感 ${esc(relation.favor == null ? 0 : relation.favor)}</p>`;
   }).join("");
-  $("characterBox").innerHTML = `<p><strong>${esc(state.player.name)}</strong></p><p>地點：${esc(p.location)}</p><p>第 ${state.day} 日，${formatClock()}</p><p>資料：${esc(manifestSource)}</p><p>格式：${esc(format)}</p><p>風格：${esc(labels.styles[state.player.textStyle] || "標準")}</p>${relationLines}`;
-  $("statusBox").innerHTML = ["spirit", "composure", "suspicion", "fatigue", "hunger"].map((key) => statMeter(labels.stats[key], state.stats[key], key)).join("") + `<div class="wallet">錢：${esc(state.stats.coin)}</div><div class="skill-grid">${Object.keys(labels.skills).map((key) => `<span>${esc(labels.skills[key])} ${esc(state.skills[key])}</span>`).join("")}</div>`;
+  $("characterBox").innerHTML = `<p><strong>${esc(state.player.name)}</strong></p><p>地點：${esc(p.location)}</p><p>第 ${state.day} 日，${formatClock()}</p><p>線索：${progress.count}/${progress.required}</p><p>資料：${esc(manifestSource)}</p><p>格式：${esc(format)}</p><p>風格：${esc(labels.styles[state.player.textStyle] || "標準")}</p>${relationLines}`;
+  $("statusBox").innerHTML = ["spirit", "composure", "suspicion", "fatigue", "hunger", "heat", "reputation"].map((key) => statMeter(labels.stats[key], state.stats[key], key)).join("") + `<div class="wallet">錢：${esc(state.stats.coin)}</div><div class="skill-grid">${Object.keys(labels.skills).map((key) => `<span>${esc(labels.skills[key])} ${esc(state.skills[key])}</span>`).join("")}</div>`;
   $("itemBox").innerHTML = state.items.slice(0, 9).map((item) => `<p><strong>${esc(item)}</strong></p>`).join("") || "<p>無</p>";
-  $("noteBox").innerHTML = state.notes.slice(0, 9).map((note) => `<p>${esc(note)}</p>`).join("") || "<p>無</p>";
+  $("noteBox").innerHTML = progress.lines.map((line) => `<p><strong>${esc(line)}</strong></p>`).join("") + (state.notes.slice(0, 7).map((note) => `<p>${esc(note)}</p>`).join("") || "<p>無</p>");
+}
+
+function progressSummary() {
+  const checks = [
+    ["北路關卡", "weifen_lead"],
+    ["PC 名字對照", "pc_crosswalk"],
+    ["南陽路引", "south_pass"],
+    ["魏無忌案卷", "wuji_dossier"],
+    ["來源索引卡", "source_index"]
+  ];
+  const lines = checks.map(([label, flag]) => `${state.flags[flag] ? "已得" : "未得"}：${label}`);
+  return { count: checks.filter(([, flag]) => !!state.flags[flag]).length, required: 3, lines };
 }
 
 function statMeter(label, value, key) {
   const number = clamp(Number(value || 0), 0, 100);
-  const color = key === "suspicion" ? "red" : key === "fatigue" || key === "hunger" ? "gold" : key === "spirit" ? "blue" : "green";
+  const color = key === "suspicion" || key === "heat" ? "red" : key === "fatigue" || key === "hunger" ? "gold" : key === "spirit" ? "blue" : "green";
   return `<div class="stat-name"><span>${esc(label)}</span><span>${number}</span></div><div class="meter ${color}"><span style="width:${number}%"></span></div>`;
 }
 
@@ -643,8 +843,11 @@ function canChoose(choice) {
   if (choice.conditions && choice.conditions.length && !evaluateConditions(choice.conditions)) return false;
   if (choice.req) {
     if (choice.req.item && !state.items.includes(choice.req.item)) return false;
+    if (Array.isArray(choice.req.items) && choice.req.items.some((item) => !state.items.includes(item))) return false;
     if (choice.req.flag && !state.flags[choice.req.flag]) return false;
+    if (Array.isArray(choice.req.flags) && choice.req.flags.some((flag) => !state.flags[flag])) return false;
     if (choice.req.coin && state.stats.coin < choice.req.coin) return false;
+    if (choice.req.stat && Number(getPath(state, choice.req.stat.path)) < Number(choice.req.stat.min || 0)) return false;
   }
   return true;
 }
@@ -652,8 +855,11 @@ function canChoose(choice) {
 function lockReason(choice) {
   if (choice.req) {
     if (choice.req.item) return ` 需物品：${choice.req.item}`;
+    if (Array.isArray(choice.req.items)) return ` 需物品：${choice.req.items.join("、")}`;
     if (choice.req.flag) return ` 需旗標：${choice.req.flag}`;
+    if (Array.isArray(choice.req.flags)) return ` 需旗標：${choice.req.flags.join("、")}`;
     if (choice.req.coin) return ` 需錢：${choice.req.coin}`;
+    if (choice.req.stat) return ` 需${choice.req.stat.path}達 ${choice.req.stat.min || 0}`;
   }
   return " 條件不足";
 }
@@ -666,6 +872,10 @@ function evaluateCondition(condition) {
   if (condition.all) return normalizeConditionList(condition.all).every(evaluateCondition);
   if (condition.any) return normalizeConditionList(condition.any).some(evaluateCondition);
   if (condition.not) return !evaluateCondition(condition.not);
+  if (condition.op === "at_least_flags") {
+    const flags = Array.isArray(condition.flags) ? condition.flags : [];
+    return flags.filter((flag) => !!state.flags[flag]).length >= Number(condition.count || 1);
+  }
   if (condition.op === "has_item") return state.items.includes(condition.value || condition.item);
   if (condition.op === "not_has_item") return !state.items.includes(condition.value || condition.item);
   const path = condition.path || condition.key;
@@ -716,15 +926,18 @@ function choose(index) {
 
 function resolveChoice(choice) {
   if (!choice.skill) return "none";
-  const burden = Math.floor((state.stats.fatigue + state.stats.hunger + state.stats.suspicion) / 35);
-  const score = 5 + (state.skills[choice.skill] || 0) * 2 + Math.floor(state.dev.traceability / 25) - burden;
+  const burden = Math.floor((state.stats.fatigue + state.stats.hunger + state.stats.suspicion + state.stats.heat) / 40);
+  const roll = 1 + Math.floor(Math.random() * 6);
+  const score = roll + 3 + (state.skills[choice.skill] || 0) * 2 + Math.floor(state.dev.traceability / 30) - burden;
   const success = score >= (choice.dc || 6);
   if (success) {
     state.skills[choice.skill] = clamp((state.skills[choice.skill] || 0) + 1, 0, 9);
     applyDev({ smm: 1, tms: 1, traceability: 1 });
+    addNote(`檢定 ${labels.skills[choice.skill] || choice.skill}：${score}/${choice.dc || 6}，成功。`);
     return "success";
   }
-  applyEffects({ composure: -2, suspicion: 1 });
+  applyEffects({ composure: -3, suspicion: 2, heat: 1 });
+  addNote(`檢定 ${labels.skills[choice.skill] || choice.skill}：${score}/${choice.dc || 6}，代價上升。`);
   return "partial";
 }
 
@@ -806,8 +1019,11 @@ function applyDev(dev) {
 
 function advanceTime(kind) {
   const delta = kind === "action" ? 2 : kind === "decision" ? 2 : kind === "question" ? 2 : 1;
+  const dayBefore = state.day;
   advanceClock(delta);
   applyEffects({ hunger: 1, fatigue: 1 });
+  applyNeedsPressure();
+  if (state.day > dayBefore) runRuntimeEvent("daily");
 }
 
 function advanceClock(hours) {
@@ -845,6 +1061,26 @@ function maybeRandomEvent(trigger) {
     to_scene: state.passage,
     created_at: new Date().toISOString()
   });
+}
+
+function applyNeedsPressure() {
+  if (state.stats.hunger >= 85) {
+    applyEffects({ spirit: -6, composure: -3, fatigue: 4 });
+    addNote("飢餓過高，行動品質下降。");
+  }
+  if (state.stats.fatigue >= 90) {
+    applyEffects({ spirit: -8, composure: -4, suspicion: 1 });
+    addNote("疲勞過高，檢定負擔增加。");
+  }
+  if (state.stats.heat >= 35) {
+    applyEffects({ suspicion: 2, composure: -2 });
+    addNote("注目偏高，官署與驛站行動風險增加。");
+  }
+  if (state.stats.spirit <= 5 || state.stats.composure <= 5) {
+    state.passage = "Night";
+    applyEffects({ fatigue: 8, hunger: 5 });
+    addNote("精神或鎮定見底，你被迫回客舍休整。");
+  }
 }
 
 function runRuntimeEvent(trigger) {

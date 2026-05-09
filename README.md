@@ -28,6 +28,8 @@ GitHub Pages 入口會轉到 `game.html`。
 - Runtime：可讀取 `da_go_runtime_bundle_v1`，內容含 passage、choice、state、NPC 關係與 event pool。
 - 選項：支援條件檢查與效果套用，例如金錢、疲勞、旗標、物品、技能與 NPC 關係。
 - 事件：選項後可依 event pool 觸發額外事件，並保存冷卻、每日次數與 playlog。
+- 沙盒：預設內容含南京行動地圖、結案條件、醫館、短工、南市、官署、北路、夜宿與結案札記。
+- 壓力：飢餓、疲勞、疑心與注目會影響檢定，失控時會把玩家迫回客舍休整。
 - 一般遊玩畫面只顯示角色、狀態、物品、紀錄與劇情文字。
 - 夜宿札記可自動輪迴延伸 100 次，生成事件與 utterance。
 - SMM、TMS、追溯、Team/PC 對照、JSON 匯出放在「開發者」面板。
