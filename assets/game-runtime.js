@@ -1,1 +1,25 @@
-(()=>{window.DaGoRuntimeManifest=Object.freeze({runtime_name:'da_go_unified_runtime',runtime_version:'1.10.4',active_engine:'assets/game-preload-cache.js',canonical_runtime:'assets/game-playable-v6.js',cache_gate:true});const add=(src,onload)=>{const s=document.createElement('script');s.src=src;s.dataset.loadedBy='game-runtime';if(onload)s.onload=onload;document.body.appendChild(s)};add('assets/game-preload-cache.js?v=1.9.11',()=>{add('assets/preload-sidebar-density-fix.js?v=1.9.14');add('assets/scenario-select.js?v=1.10.2');add('assets/game-rules-ui-fix.js?v=1.10.3');add('assets/game-character-balance-fix.js?v=1.10.4')})})();
+(()=>{
+'use strict';
+const VERSION='1.10.11-role-rank-table';
+window.DaGoRuntimeManifest=Object.freeze({
+  runtime_name:'da_go_unified_runtime',
+  runtime_version:VERSION,
+  active_engine:'assets/game-playable-v6.js',
+  canonical_runtime:'assets/game-playable-v6.js',
+  cache_gate:false,
+  role_rank_table:'assets/game-character-balance-fix.js',
+  authoring_page:'https://dana-will-be-yours.github.io/trpg-corpus-sqlserver/web/dago-authoring.html'
+});
+const scripts=[
+  'assets/game-v6-hotfix.js',
+  'assets/game-playable-v6.js',
+  'assets/preload-sidebar-density-fix.js',
+  'assets/scenario-select.js',
+  'assets/game-rules-ui-fix.js',
+  'assets/game-character-balance-fix.js'
+];
+try{if(new URLSearchParams(location.search).has('reset'))localStorage.removeItem('daGoPlayV6')}catch{}
+function alreadyLoaded(src){return !!document.querySelector(`script[src^="${src.replace(/"/g,'\\"')}"]`)}
+function add(src){return new Promise(resolve=>{if(alreadyLoaded(src))return resolve();const s=document.createElement('script');s.src=src+'?v='+encodeURIComponent(VERSION);s.dataset.loadedBy='game-runtime';s.onload=resolve;s.onerror=resolve;document.body.appendChild(s)})}
+(async()=>{for(const src of scripts)await add(src);document.body.classList.add('dago-ready')})();
+})();

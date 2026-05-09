@@ -10,7 +10,7 @@
   }
 
   const script = document.createElement("script");
-  script.src = "assets/game-runtime.js?v=1.9.3-authoring-pages";
+  script.src = "assets/game-runtime.js?v=1.10.11-role-rank-table";
   script.dataset.loadedBy = "assets/game-corpus.js";
   document.body.appendChild(script);
 })();

@@ -1,6 +1,6 @@
 (()=>{
 'use strict';
-const VERSION='1.9.11-readable-slow-sidebars';
+const VERSION='1.10.11-role-rank-table';
 const CACHE_NAME='da_go_runtime_'+VERSION;
 const ASSETS=[['assets/game-screen.css','介面樣式',1,''],['assets/game-v4.css','卡片與地圖樣式',1,''],['assets/game-v6-hotfix.js','角色建立修正',1,'ROLE_GROUPS'],['assets/game-playable-v6.js','南京篇規則引擎',1,'identity-rank-attr-formula'],['assets/data/dago-nanjing-v5-bundle.json','南京資料包',0,'json']];
 const SCROLL_LINES=[
@@ -22,7 +22,7 @@ const SCROLL_LINES=[
 '說道兒女情長，那便是滾滾的滄浪，哪怕身死魂亡，也無法阻擋。',
 '是這樣相同的明天可遠航，但有逝者在昨日永遠的駐足不前。'
 ];
-window.DaGoRuntimeManifest=Object.freeze({runtime_name:'da_go_unified_runtime',runtime_version:VERSION,active_engine:'assets/game-playable-v6.js',preload_gate:'assets/game-preload-cache.js',target_database:'TRPG_Corpus_DB',export_format:'da_go_playlog_json_v2',staging_target:'stg.DaGo_PlayLog_Import -> stg.Utterance_Import',canonical_runtime:'assets/game-playable-v6.js',cache_name:CACHE_NAME,authoring_page:'https://dana-will-be-yours.github.io/trpg-corpus-sqlserver/web/dago-authoring.html'});
+window.DaGoRuntimeManifest=Object.freeze({runtime_name:'da_go_unified_runtime',runtime_version:VERSION,active_engine:'assets/game-playable-v6.js',preload_gate:'assets/game-preload-cache.js',target_database:'TRPG_Corpus_DB',export_format:'da_go_playlog_json_v2',staging_target:'stg.DaGo_PlayLog_Import -> stg.Utterance_Import',canonical_runtime:'assets/game-playable-v6.js',cache_name:CACHE_NAME,role_rank_table:'assets/game-character-balance-fix.js',authoring_page:'https://dana-will-be-yours.github.io/trpg-corpus-sqlserver/web/dago-authoring.html'});
 function esc(t){return String(t).replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]))}
 function shuffle(a){const b=a.slice();for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]]}return b}
 function makeColumn(seed){return shuffle(seed).join('　　')}

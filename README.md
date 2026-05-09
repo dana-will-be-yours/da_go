@@ -15,7 +15,7 @@ https://dana-will-be-yours.github.io/da_go/game.html
 目前建議驗證網址：
 
 ```text
-https://dana-will-be-yours.github.io/da_go/game.html?v=1.9.4
+https://dana-will-be-yours.github.io/da_go/game.html?v=1.10.11-role-rank-table
 ```
 
 若要避開瀏覽器快取，可在網址後加上版本參數：
@@ -27,19 +27,20 @@ https://dana-will-be-yours.github.io/da_go/game.html?v=<version-or-commit>
 ## 目前版本
 
 ```text
-Runtime: 1.9.4-preload-scroll-atmosphere
+Runtime: 1.10.11-role-rank-table
 入口：assets/game-runtime.js
-快取讀取頁：assets/game-preload-cache.js
+相容快取讀取頁：assets/game-preload-cache.js
 角色建立補丁：assets/game-v6-hotfix.js
+身分品級表與角色補值：assets/game-character-balance-fix.js
 主遊戲引擎：assets/game-playable-v6.js
 資料包：assets/data/dago-nanjing-v5-bundle.json
 ```
 
-`game.html` 會先載入 `assets/game-runtime.js`，再進入快取讀取頁。快取讀取頁完成必要檔案檢查後，玩家可按「進入遊戲」啟動遊戲主體。
+`game.html` 會載入 `assets/game-runtime.js`，公開頁直接進入劇本與角色建立流程。`assets/game-preload-cache.js` 保留給舊連結與快取測試，不再是公開頁必要步驟。
 
-## 進入遊戲前快取畫面
+## 相容快取畫面
 
-`assets/game-preload-cache.js` 負責建立全螢幕快取讀取介面。它會檢查並嘗試快取下列資源：
+`assets/game-preload-cache.js` 可建立全螢幕快取讀取介面。它會檢查並嘗試快取下列資源：
 
 ```text
 assets/game-screen.css
@@ -55,7 +56,7 @@ assets/data/dago-nanjing-v5-bundle.json
 
 ```text
 冷色、半透明黑底、細線外框
-文字由上往下穩定移動
+文字由上往下等速移動
 速度為 72s linear infinite
 pointer-events: none，不干擾按鈕操作
 進入遊戲時與 preload overlay 一起移除
@@ -75,7 +76,7 @@ python -m http.server 8080
 ```
 
 ```text
-http://localhost:8080/game.html?v=1.9.4
+http://localhost:8080/game.html?v=1.10.11-role-rank-table
 ```
 
 ## 遊戲內容
@@ -97,6 +98,7 @@ DOL 式左欄、passage 文字與藍色文字選項
 角色建立
 五組身分選擇
 重複身分換算分項品級
+36 個身分 × 5 個品級短句完整表
 正 / 邪 / 奇名聲
 4D3 技能檢定
 失敗回饋
@@ -138,6 +140,8 @@ DOL 式左欄、passage 文字與藍色文字選項
 ```
 
 每個身分提供固定技能組。重複選擇同一身分時，該身分技能組會逐次累加。
+
+`assets/game-character-balance-fix.js` 內含 `DaGoRoleRankPhraseTable`，目前寫入 36 個身分與戊、丁、丙、乙、甲五級短句。角色建立預覽與屬性面板會讀取同一份表，避免角色建立、存檔與面板各自維護不同文字。
 
 ## 身分分類
 
@@ -226,13 +230,14 @@ game.html                              公開頁與本機入口
 assets/game-runtime.js                 統一載入入口
 assets/game-preload-cache.js           快取讀取頁、垂直捲動文字背景
 assets/game-v6-hotfix.js               角色建立補丁與門派背景限制
+assets/game-character-balance-fix.js   身分品級完整短句表、角色補值與屬性重算
 assets/game-playable-v6.js             主要遊戲引擎
 assets/game-screen.css                 DOL 式文字頁與左欄樣式
 assets/game-v4.css                     卡片、地圖與面板樣式
 assets/data/dago-nanjing-v5-bundle.json 南京資料包
 ```
 
-舊入口檔案仍保留作為相容或參考，但公開頁目前以 `game-runtime.js` 為唯一入口。
+舊入口檔案仍保留供相容或參考，但公開頁目前以 `game-runtime.js` 為唯一入口。
 
 ## TRPG Corpus 對接
 
