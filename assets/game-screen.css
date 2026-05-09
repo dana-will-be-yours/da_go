@@ -49,13 +49,15 @@ body[data-text-style="large"] {
 
 button,
 input,
-select {
+select,
+textarea {
   font: inherit;
 }
 
 button,
 input,
-select {
+select,
+textarea {
   border: 1px solid var(--dol-border);
   background: var(--dol-panel-light);
   color: var(--dol-text);
@@ -73,16 +75,23 @@ button:hover {
 }
 
 input,
-select {
+select,
+textarea {
   width: 100%;
   min-height: 2.3em;
   padding: .3em .45em;
 }
 
 input:focus,
-select:focus {
+select:focus,
+textarea:focus {
   outline: 0;
   border-color: var(--dol-muted);
+}
+
+textarea {
+  min-height: 7em;
+  resize: vertical;
 }
 
 #story {
@@ -100,7 +109,7 @@ select:focus {
 }
 
 .start-panel {
-  max-width: 38em;
+  max-width: 44em;
   margin: 4em auto 0;
   text-align: center;
 }
@@ -192,11 +201,23 @@ fieldset input {
 #ui-actions {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: .4em;
+  gap: 0;
   margin: 1em 0;
+  border-top: 1px solid var(--dol-border);
+  border-left: 1px solid var(--dol-border);
 }
 
-#ui-actions button:last-child {
+#ui-actions button {
+  min-height: 2.6em;
+  border-top: 0;
+  border-left: 0;
+  border-right: 1px solid var(--dol-border);
+  border-bottom: 1px solid var(--dol-border);
+  background: var(--dol-panel);
+  font-weight: bold;
+}
+
+#ui-actions .panel-wide {
   grid-column: 1 / -1;
 }
 
@@ -220,6 +241,24 @@ fieldset input {
 
 .sidebar-list strong {
   color: var(--dol-text);
+}
+
+.overview-list {
+  display: grid;
+  gap: .45em;
+}
+
+.overview-list p {
+  display: flex;
+  justify-content: space-between;
+  gap: .8em;
+  margin: 0;
+  color: var(--dol-muted);
+}
+
+.overview-list span:last-child {
+  color: var(--dol-text);
+  text-align: right;
 }
 
 .stat-name {
@@ -267,6 +306,19 @@ fieldset input {
   display: grid;
   gap: .25em;
   margin-top: 1.1em;
+}
+
+.choice-hint {
+  display: block;
+  margin-top: .2em;
+  color: var(--dol-muted);
+  font-size: .86em;
+}
+
+.system-line {
+  border-left: 3px solid var(--dol-gold);
+  padding-left: .75em;
+  color: var(--dol-gold);
 }
 
 .link-internal {
@@ -335,6 +387,43 @@ fieldset input {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(14em, 1fr));
   gap: .8em;
+}
+
+.panel-grid,
+.editor-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(15em, 1fr));
+  gap: .8em;
+}
+
+.panel-list,
+.feedback-list {
+  display: grid;
+  gap: .45em;
+  margin: .5em 0 1em;
+}
+
+.panel-list p,
+.feedback-list p {
+  display: flex;
+  justify-content: space-between;
+  gap: 1em;
+  margin: 0;
+  border-bottom: 1px solid var(--dol-border-soft);
+  padding: .35em 0;
+}
+
+.panel-list span:last-child,
+.feedback-list span:last-child {
+  color: var(--dol-text);
+  text-align: right;
+}
+
+.editor-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .5em;
+  margin: 1em 0;
 }
 
 .checkline {

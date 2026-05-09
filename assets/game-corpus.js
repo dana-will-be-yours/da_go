@@ -1,7 +1,7 @@
 const STORAGE_KEY = "daGoCorpusRpgStateV3";
 const SAVE_KEY = "daGoCorpusRpgManualSaveV3";
 const MANIFEST_KEY = "daGoCorpusWorldManifestV2";
-const ENGINE_VERSION = "1.1.0-playable-sandbox";
+const ENGINE_VERSION = "1.2.0-playable-sandbox";
 
 const VALID_UTTERANCE_FUNCTIONS = new Set([
   "narration",
@@ -31,7 +31,11 @@ let corpusConfig = {
 const labels = {
   stats: { spirit: "精神", composure: "鎮定", suspicion: "疑心", fatigue: "疲勞", hunger: "飢餓", heat: "注目", reputation: "名聲", coin: "錢" },
   skills: { inquiry: "探問", archive: "案卷", influence: "交涉", travel: "行路" },
-  styles: { standard: "標準", scroll: "書卷", night: "夜讀", large: "大字" }
+  styles: { standard: "標準", scroll: "書卷", night: "夜讀", large: "大字" },
+  roles: { scribe: "書吏線人", wanderer: "江湖遊士", merchant: "商旅耳目", medic: "醫館學徒" },
+  origins: { nanjing: "南京", north: "北路", south: "南市", wudu: "五毒" },
+  traits: { calm: "冷靜", streetwise: "熟路", silver_tongue: "善談", sturdy: "耐勞" },
+  difficulties: { relaxed: "寬鬆", standard: "標準", pressure: "壓力" }
 };
 
 const fallbackRandomEvents = [
@@ -417,13 +421,14 @@ let relationshipDefinitions = normalizeRelationshipDefs(activeManifest.relations
 let eventPools = normalizeEventPools(activeManifest.event_pools);
 
 const defaultState = {
-  started: false, passage: "Gate", turnNo: 0, day: 1, hour: 6,
-  player: { name: "旅人", player_code: "PLAYER-LOCAL", member_code: "TM-LOCAL", character_code: "PC-LOCAL", textStyle: "standard" },
+  started: false, passage: "Gate", turnNo: 0, utteranceNo: 0, day: 1, hour: 6,
+  player: { name: "旅人", player_code: "PLAYER-LOCAL", member_code: "TM-LOCAL", character_code: "PC-LOCAL", textStyle: "standard", role: "scribe", origin: "nanjing", trait: "calm", difficulty: "standard" },
   stats: { spirit: 50, composure: 50, coin: 12, suspicion: 0, fatigue: 0, hunger: 0, heat: 0, reputation: 20 },
   skills: { inquiry: 1, archive: 1, influence: 1, travel: 1 },
   dev: { smm: 50, tms: 50, traceability: 50 },
   items: ["素布行囊"], notes: ["大興二十年八月，南京。"], flags: {}, relations: {}, utterances: [], events: [], narrated: {},
   eventMemory: { counts: {}, dayCounts: {}, cooldownUntil: {} },
+  feedbackSeen: {},
   auto: { generated: 0, limit: 24, completed: false }, lastEvent: "",
   options: { numberedLinks: true, randomEvents: true }
 };
@@ -433,7 +438,7 @@ const $ = (id) => document.getElementById(id);
 
 $("startForm").addEventListener("submit", startGame);
 $("closeOverlay").addEventListener("click", closeOverlay);
-document.querySelectorAll("[data-action]").forEach((button) => button.addEventListener("click", () => handleAction(button.dataset.action)));
+document.querySelectorAll("[data-action]").forEach((button) => button.addEventListener("click", () => handleAction(button.dataset.action, button.dataset.panel)));
 document.addEventListener("keyup", handleHotkey);
 render();
 
@@ -715,7 +720,7 @@ function applyRelationshipDefaults(targetState) {
 
 function mergeState(base, incoming) {
   const n = Object.assign({}, base, incoming || {});
-  ["player", "stats", "skills", "dev", "auto", "options", "flags", "relations", "narrated"].forEach((k) => { n[k] = Object.assign({}, base[k], incoming && incoming[k] ? incoming[k] : {}); });
+  ["player", "stats", "skills", "dev", "auto", "options", "flags", "relations", "narrated", "feedbackSeen"].forEach((k) => { n[k] = Object.assign({}, base[k], incoming && incoming[k] ? incoming[k] : {}); });
   n.eventMemory = {
     counts: Object.assign({}, base.eventMemory.counts, incoming && incoming.eventMemory ? incoming.eventMemory.counts : {}),
     dayCounts: Object.assign({}, base.eventMemory.dayCounts, incoming && incoming.eventMemory ? incoming.eventMemory.dayCounts : {}),
@@ -731,8 +736,9 @@ function addUnique(list, value) { if (value && !list.includes(value)) list.unshi
 function addNote(note) { if (note) { state.notes.unshift(note); state.notes = state.notes.slice(0, 30); } }
 function applyVars(line) { return String(line).replaceAll("{{name}}", state.player.name); }
 function formatClock() { return `${String(state.hour).padStart(2, "0")}:00`; }
-function nextTurnNo() { state.turnNo = Number(state.turnNo || 0) + 1; return state.turnNo; }
-function utteranceCode(turnNo) { return `UTT-${corpusConfig.session_code}-${String(turnNo).padStart(5, "0")}`.slice(0, 80); }
+function nextActionTurnNo() { state.turnNo = Number(state.turnNo || 0) + 1; return state.turnNo; }
+function nextUtteranceNo() { state.utteranceNo = Number(state.utteranceNo || 0) + 1; return state.utteranceNo; }
+function utteranceCode(utteranceNo) { return `UTT-${corpusConfig.session_code}-${String(utteranceNo).padStart(5, "0")}`.slice(0, 80); }
 function normalizeFunction(kind) { return VALID_UTTERANCE_FUNCTIONS.has(kind) ? kind : kindMap[kind] || "summary"; }
 
 function getPath(root, path) {
@@ -770,13 +776,77 @@ function startGame(event) {
     started: true,
     player: {
       name: String(form.get("playerName") || "旅人").trim().slice(0, 16) || "旅人",
-      textStyle: String(form.get("textStyle") || "standard")
+      textStyle: String(form.get("textStyle") || "standard"),
+      role: String(form.get("role") || "scribe"),
+      origin: String(form.get("origin") || "nanjing"),
+      trait: String(form.get("trait") || "calm"),
+      difficulty: String(form.get("difficulty") || "standard")
     }
   });
-  recordUtterance("summary", "開始遊戲", getPassage(), "researcher", "none");
-  enterPassage(getPassage(), "start");
+  state.turnNo = 0;
+  state.utteranceNo = 0;
+  applyCharacterCreation();
+  recordUtterance("summary", "開始遊戲", getPassage(), "researcher", "none", 0);
+  enterPassage(getPassage(), 0);
   saveState();
   render();
+}
+
+function applyCharacterCreation() {
+  const role = state.player.role || "scribe";
+  const origin = state.player.origin || "nanjing";
+  const trait = state.player.trait || "calm";
+  const difficulty = state.player.difficulty || "standard";
+
+  if (role === "scribe") {
+    state.skills.archive += 1;
+    applyDev({ traceability: 6 });
+    addUnique(state.items, "來源索引卡");
+    addNote("書吏線人開局：案卷能力提高，取得來源索引卡。");
+  }
+  if (role === "wanderer") {
+    state.skills.travel += 1;
+    applyEffects({ spirit: 8, fatigue: -4 });
+    addUnique(state.items, "舊路草圖");
+    addNote("江湖遊士開局：行路能力提高，身體負擔較低。");
+  }
+  if (role === "merchant") {
+    state.skills.inquiry += 1;
+    applyEffects({ coin: 5, reputation: 3 });
+    addUnique(state.items, "商旅名帖");
+    addNote("商旅耳目開局：探問能力提高，旅費較足。");
+  }
+  if (role === "medic") {
+    state.skills.influence += 1;
+    applyEffects({ hunger: -4, fatigue: -6, composure: 4 });
+    addUnique(state.items, "醒神藥");
+    addNote("醫館學徒開局：鎮定提高，疲勞與飢餓較低。");
+  }
+
+  if (origin === "north") {
+    applyDev({ smm: 3 });
+    addNote("北路出身：你更容易辨認銀川與關卡線索。");
+  }
+  if (origin === "south") {
+    applyEffects({ coin: 2 });
+    addNote("南市出身：你熟悉商旅口音與市集價格。");
+  }
+  if (origin === "wudu") {
+    applyDev({ tms: 3 });
+    addNote("五毒出身：你知道南方藥箋與山門稱呼。");
+  }
+
+  if (trait === "calm") applyEffects({ composure: 8 });
+  if (trait === "streetwise") applyEffects({ suspicion: -2, heat: -1 });
+  if (trait === "silver_tongue") state.skills.influence += 1;
+  if (trait === "sturdy") applyEffects({ fatigue: -10, spirit: 4 });
+
+  if (difficulty === "relaxed") applyEffects({ coin: 4, heat: -3, suspicion: -2 });
+  if (difficulty === "pressure") applyEffects({ coin: -4, heat: 4, hunger: 8, fatigue: 6 });
+
+  Object.keys(state.skills).forEach((key) => {
+    state.skills[key] = clamp(Number(state.skills[key] || 0), 0, 9);
+  });
 }
 
 function render() {
@@ -790,7 +860,7 @@ function render() {
 function renderPassage() {
   const p = getPassage();
   $("passageTitle").textContent = p.title;
-  $("passageMeta").textContent = `${p.time} / ${p.location} / 第 ${state.turnNo || 1} 回合 / ${formatClock()}`;
+  $("passageMeta").textContent = `${p.time} / ${p.location} / 已行動 ${state.turnNo || 0} 回合 / ${formatClock()}`;
   $("passageText").innerHTML = p.text.map((line) => `<p>${esc(applyVars(line))}</p>`).join("") + (state.lastEvent ? `<p class="system-line">${esc(state.lastEvent)}</p>` : "");
   $("choiceList").innerHTML = p.choices.map((choice, index) => renderChoice(choice, index)).join("");
   $("choiceList").querySelectorAll("button[data-choice]").forEach((button) => button.addEventListener("click", () => choose(Number(button.dataset.choice))));
@@ -798,11 +868,9 @@ function renderPassage() {
 }
 
 function renderChoice(choice, index) {
-  const locked = !canChoose(choice);
   const prefix = state.options.numberedLinks ? `${index + 1}. ` : "";
   const meta = choice.skill ? ` <span class="choice-meta">[${esc(labels.skills[choice.skill] || choice.skill)} ${choice.dc || 6}]</span>` : "";
-  const reason = locked ? `<span class="choice-lock">${esc(lockReason(choice))}</span>` : "";
-  return `<button type="button" class="link-internal${locked ? " link-disabled" : ""}" data-choice="${index}" ${locked ? "disabled" : ""}>${esc(prefix + choice.text)}${meta}${reason}</button>`;
+  return `<button type="button" class="link-internal" data-choice="${index}">${esc(prefix + choice.text)}${meta}</button>`;
 }
 
 function renderSidebar() {
@@ -810,14 +878,7 @@ function renderSidebar() {
   const manifestSource = activeManifest.metadata && activeManifest.metadata.source ? activeManifest.metadata.source : "fallback";
   const format = activeManifest.bundle_format || activeManifest.manifest_format || "fallback";
   const progress = progressSummary();
-  const relationLines = Object.keys(state.relations || {}).slice(0, 3).map((code) => {
-    const relation = state.relations[code] || {};
-    return `<p>${esc(code)}：信任 ${esc(relation.trust == null ? 0 : relation.trust)}，好感 ${esc(relation.favor == null ? 0 : relation.favor)}</p>`;
-  }).join("");
-  $("characterBox").innerHTML = `<p><strong>${esc(state.player.name)}</strong></p><p>地點：${esc(p.location)}</p><p>第 ${state.day} 日，${formatClock()}</p><p>線索：${progress.count}/${progress.required}</p><p>資料：${esc(manifestSource)}</p><p>格式：${esc(format)}</p><p>風格：${esc(labels.styles[state.player.textStyle] || "標準")}</p>${relationLines}`;
-  $("statusBox").innerHTML = ["spirit", "composure", "suspicion", "fatigue", "hunger", "heat", "reputation"].map((key) => statMeter(labels.stats[key], state.stats[key], key)).join("") + `<div class="wallet">錢：${esc(state.stats.coin)}</div><div class="skill-grid">${Object.keys(labels.skills).map((key) => `<span>${esc(labels.skills[key])} ${esc(state.skills[key])}</span>`).join("")}</div>`;
-  $("itemBox").innerHTML = state.items.slice(0, 9).map((item) => `<p><strong>${esc(item)}</strong></p>`).join("") || "<p>無</p>";
-  $("noteBox").innerHTML = progress.lines.map((line) => `<p><strong>${esc(line)}</strong></p>`).join("") + (state.notes.slice(0, 7).map((note) => `<p>${esc(note)}</p>`).join("") || "<p>無</p>");
+  $("overviewBox").innerHTML = `<div class="overview-list"><p><span>角色</span><span>${esc(state.player.name)}</span></p><p><span>職能</span><span>${esc(labels.roles[state.player.role] || state.player.role)}</span></p><p><span>地點</span><span>${esc(p.location)}</span></p><p><span>日期</span><span>第 ${state.day} 日 ${formatClock()}</span></p><p><span>行動</span><span>${state.turnNo || 0}</span></p><p><span>線索</span><span>${progress.count}/${progress.required}</span></p><p><span>資料</span><span>${esc(manifestSource)}</span></p><p><span>格式</span><span>${esc(format)}</span></p></div>`;
 }
 
 function progressSummary() {
@@ -854,14 +915,14 @@ function canChoose(choice) {
 
 function lockReason(choice) {
   if (choice.req) {
-    if (choice.req.item) return ` 需物品：${choice.req.item}`;
-    if (Array.isArray(choice.req.items)) return ` 需物品：${choice.req.items.join("、")}`;
-    if (choice.req.flag) return ` 需旗標：${choice.req.flag}`;
-    if (Array.isArray(choice.req.flags)) return ` 需旗標：${choice.req.flags.join("、")}`;
-    if (choice.req.coin) return ` 需錢：${choice.req.coin}`;
-    if (choice.req.stat) return ` 需${choice.req.stat.path}達 ${choice.req.stat.min || 0}`;
+    if (choice.req.item) return `需物品：${choice.req.item}`;
+    if (Array.isArray(choice.req.items)) return `需物品：${choice.req.items.join("、")}`;
+    if (choice.req.flag) return `需旗標：${choice.req.flag}`;
+    if (Array.isArray(choice.req.flags)) return `需旗標：${choice.req.flags.join("、")}`;
+    if (choice.req.coin) return `需錢：${choice.req.coin}`;
+    if (choice.req.stat) return `需${choice.req.stat.path}達 ${choice.req.stat.min || 0}`;
   }
-  return " 條件不足";
+  return "條件不足";
 }
 
 function evaluateConditions(conditions) {
@@ -901,10 +962,15 @@ function evaluateCondition(condition) {
 function choose(index) {
   const p = getPassage();
   const choice = p.choices[index];
-  if (!choice || !canChoose(choice)) return;
+  if (!choice) return;
+  if (!canChoose(choice)) {
+    showChoiceBlocked(choice, p);
+    return;
+  }
   applyEffects(p.on_exit);
+  const actionTurnNo = nextActionTurnNo();
   const outcome = resolveChoice(choice);
-  const turnNo = recordUtterance(choice.kind || "decision", choice.text, p, "pc", outcome);
+  const turnNo = recordUtterance(choice.kind || "decision", choice.text, p, "pc", outcome, actionTurnNo);
   state.events.push({
     turn_no: turnNo,
     scene_code: p.code,
@@ -919,7 +985,16 @@ function choose(index) {
   state.passage = outcome === "partial" && choice.failure_passage_code ? choice.failure_passage_code : choice.to;
   advanceTime(choice.kind);
   maybeRandomEvent("after_choice");
-  enterPassage(getPassage(), "choice");
+  enterPassage(getPassage(), actionTurnNo);
+  checkThresholdFeedback();
+  saveState();
+  render();
+}
+
+function showChoiceBlocked(choice, scene) {
+  state.lastEvent = `${choice.text}：${lockReason(choice)}`;
+  addNote(state.lastEvent);
+  recordUtterance("clarification", state.lastEvent, scene, "researcher", "blocked_choice", state.turnNo || 0);
   saveState();
   render();
 }
@@ -1052,7 +1127,7 @@ function maybeRandomEvent(trigger) {
   applyEffects(event.effects || {});
   applyDev(event.dev || {});
   const p = getPassage();
-  const turnNo = recordUtterance("narration", event.text, { code: p.code, title: p.title, location: p.location }, "gm", event.key || "random_event");
+  const turnNo = recordUtterance("narration", event.text, { code: p.code, title: p.title, location: p.location }, "gm", event.key || "random_event", state.turnNo || 0);
   state.events.push({
     turn_no: turnNo,
     scene_code: p.code,
@@ -1081,6 +1156,28 @@ function applyNeedsPressure() {
     applyEffects({ fatigue: 8, hunger: 5 });
     addNote("精神或鎮定見底，你被迫回客舍休整。");
   }
+}
+
+function checkThresholdFeedback() {
+  const messages = [
+    thresholdFeedback("fatigue_75", state.stats.fatigue >= 75, "疲勞已到高檔，長途行動與檢定會更吃力。"),
+    thresholdFeedback("hunger_70", state.stats.hunger >= 70, "飢餓已影響判斷，休息前最好補給。"),
+    thresholdFeedback("heat_25", state.stats.heat >= 25, "注目升高，官署、驛站與差人事件更容易壓過來。"),
+    thresholdFeedback("reputation_45", state.stats.reputation >= 45, "名聲已累積到能換取更多協助。"),
+    thresholdFeedback("spirit_15", state.stats.spirit <= 15, "精神偏低，冒險行動會更容易失誤。"),
+    thresholdFeedback("composure_15", state.stats.composure <= 15, "鎮定偏低，交涉與盤問的代價會提高。")
+  ].filter(Boolean);
+  if (messages.length && !state.lastEvent) state.lastEvent = messages[messages.length - 1];
+}
+
+function thresholdFeedback(key, condition, message) {
+  if (condition && !state.feedbackSeen[key]) {
+    state.feedbackSeen[key] = true;
+    addNote(message);
+    return message;
+  }
+  if (!condition && state.feedbackSeen[key]) state.feedbackSeen[key] = false;
+  return "";
 }
 
 function runRuntimeEvent(trigger) {
@@ -1123,7 +1220,7 @@ function applyRuntimeEvent(pool, entry) {
   const p = getPassage();
   state.lastEvent = entry.text || entry.title;
   applyEffects(entry.effects);
-  const turnNo = recordUtterance("narration", state.lastEvent, { code: p.code, title: entry.title || pool.name, location: p.location }, "gm", key);
+  const turnNo = recordUtterance("narration", state.lastEvent, { code: p.code, title: entry.title || pool.name, location: p.location }, "gm", key, state.turnNo || 0);
   state.events.push({
     turn_no: turnNo,
     scene_code: p.code,
@@ -1154,7 +1251,8 @@ function runAutoLoops() {
     applyDev({ smm: 2, tms: 2, traceability: 4 });
     applyEffects({ fatigue: 1, hunger: 1, composure: 1 });
     const scene = { code: `SCN-AUTO-${String(i).padStart(3, "0")}`, title: `第${i}輪：${seed.title}`, location: seed.location };
-    const turnNo = recordUtterance("summary", `整理${seed.location}線索：${seed.note}`, scene, "pc", "auto_loop");
+    const autoTurnNo = nextActionTurnNo();
+    const turnNo = recordUtterance("summary", `整理${seed.location}線索：${seed.note}`, scene, "pc", "auto_loop", autoTurnNo);
     state.events.push({
       turn_no: turnNo,
       scene_code: scene.code,
@@ -1202,29 +1300,31 @@ function getPassage() {
   return passages[state.passage] || passages.Gate || Object.values(passages)[0];
 }
 
-function enterPassage(scene) {
+function enterPassage(scene, turnNo) {
   if (!scene) return;
   applyEffects(scene.on_enter);
-  recordPassageNarration(scene);
+  recordPassageNarration(scene, turnNo);
 }
 
-function recordPassageNarration(scene) {
+function recordPassageNarration(scene, turnNo) {
   if (!scene || state.narrated[scene.code]) return;
   state.narrated[scene.code] = true;
-  recordUtterance("narration", (scene.text || []).map(applyVars).join("\n"), scene, "gm", "scene_enter");
+  recordUtterance("narration", (scene.text || []).map(applyVars).join("\n"), scene, "gm", "scene_enter", turnNo == null ? state.turnNo || 0 : turnNo);
 }
 
-function recordUtterance(kind, text, scene, source, outcome) {
-  const turnNo = nextTurnNo();
+function recordUtterance(kind, text, scene, source, outcome, turnNo) {
+  const usedTurnNo = turnNo == null ? Number(state.turnNo || 0) : Number(turnNo || 0);
+  const utteranceNo = nextUtteranceNo();
+  const safeScene = scene || getPassage();
   const sourceInfo = speakerForSource(source);
   const fn = normalizeFunction(kind);
   state.utterances.push({
     project_code: corpusConfig.project_code,
     team_code: corpusConfig.team_code,
     session_code: corpusConfig.session_code,
-    turn_no: turnNo,
-    sub_turn_no: null,
-    utterance_code: utteranceCode(turnNo),
+    turn_no: usedTurnNo,
+    sub_turn_no: utteranceNo,
+    utterance_code: utteranceCode(utteranceNo),
     speaker_type: sourceInfo.speaker_type,
     speaker_code: sourceInfo.speaker_code,
     speaker_label_raw: sourceInfo.speaker_label_raw,
@@ -1235,9 +1335,9 @@ function recordUtterance(kind, text, scene, source, outcome) {
     is_rule_related: fn === "rule_check",
     is_decision_related: ["decision", "negotiation", "clarification"].includes(fn),
     is_knowledge_related: ["question", "clarification", "summary"].includes(fn),
-    scene_code: scene.code,
-    scene_title: scene.title,
-    location: scene.location,
+    scene_code: safeScene.code,
+    scene_title: safeScene.title,
+    location: safeScene.location,
     source,
     outcome: outcome || "none",
     smm_score: state.dev.smm,
@@ -1245,7 +1345,7 @@ function recordUtterance(kind, text, scene, source, outcome) {
     traceability_score: state.dev.traceability,
     created_at: new Date().toISOString()
   });
-  return turnNo;
+  return usedTurnNo;
 }
 
 function speakerForSource(source) {
@@ -1254,7 +1354,11 @@ function speakerForSource(source) {
   return { speaker_type: "PC", speaker_code: state.player.character_code, speaker_label_raw: state.player.name };
 }
 
-function handleAction(action) {
+function handleAction(action, panel) {
+  if (action === "panel") {
+    openSidePanel(panel);
+    return;
+  }
   if (action === "save") {
     localStorage.setItem(SAVE_KEY, JSON.stringify(state));
     openOverlay("保存", "<p>已保存到瀏覽器 localStorage。</p>");
@@ -1263,6 +1367,181 @@ function handleAction(action) {
   if (action === "settings") openSettings();
   if (action === "restart") restartGame();
   if (action === "developer") openDeveloper();
+}
+
+function openSidePanel(panel) {
+  if (panel === "attributes") return openAttributesPanel();
+  if (panel === "social") return openSocialPanel();
+  if (panel === "traits") return openTraitsPanel();
+  if (panel === "journal") return openJournalPanel();
+  if (panel === "stats") return openStatsPanel();
+  if (panel === "achievements") return openAchievementsPanel();
+  if (panel === "options") return openSettings();
+  if (panel === "saves") return openSavesPanel();
+  if (panel === "researcher") return openResearcherPanel();
+  openDeveloper();
+}
+
+function openAttributesPanel() {
+  openOverlay("屬性", `<div class="panel-grid"><section><h3>狀態</h3>${["spirit", "composure", "suspicion", "fatigue", "hunger", "heat", "reputation"].map((key) => statMeter(labels.stats[key], state.stats[key], key)).join("")}<div class="panel-list"><p><span>錢</span><span>${esc(state.stats.coin)}</span></p></div></section><section><h3>技能</h3><div class="panel-list">${Object.keys(labels.skills).map((key) => `<p><span>${esc(labels.skills[key])}</span><span>${esc(state.skills[key])}</span></p>`).join("")}</div><h3>研究指標</h3><div class="panel-list"><p><span>SMM</span><span>${esc(state.dev.smm)}</span></p><p><span>TMS</span><span>${esc(state.dev.tms)}</span></p><p><span>追溯</span><span>${esc(state.dev.traceability)}</span></p></div></section></div>`);
+}
+
+function openSocialPanel() {
+  const relationRows = Object.keys(state.relations || {}).map((code) => {
+    const relation = state.relations[code] || {};
+    const definition = relationshipDefinitions.find((item) => item.npc_code === code);
+    const name = definition ? definition.npc_name : code;
+    const values = Object.keys(relation).map((key) => `${key} ${relation[key]}`).join("，") || "尚無資料";
+    return `<p><span>${esc(name)}</span><span>${esc(values)}</span></p>`;
+  }).join("");
+  openOverlay("社交", `<div class="panel-list"><p><span>名聲</span><span>${esc(state.stats.reputation)}</span></p><p><span>疑心</span><span>${esc(state.stats.suspicion)}</span></p><p><span>注目</span><span>${esc(state.stats.heat)}</span></p>${relationRows || "<p><span>NPC 關係</span><span>尚未建立</span></p>"}</div>`);
+}
+
+function openTraitsPanel() {
+  openOverlay("特質", `<div class="panel-list"><p><span>名字</span><span>${esc(state.player.name)}</span></p><p><span>職能</span><span>${esc(labels.roles[state.player.role] || state.player.role)}</span></p><p><span>出身</span><span>${esc(labels.origins[state.player.origin] || state.player.origin)}</span></p><p><span>特質</span><span>${esc(labels.traits[state.player.trait] || state.player.trait)}</span></p><p><span>難度</span><span>${esc(labels.difficulties[state.player.difficulty] || state.player.difficulty)}</span></p></div><h3>物品</h3><div class="panel-list">${state.items.map((item) => `<p><span>${esc(item)}</span><span>持有</span></p>`).join("") || "<p><span>物品</span><span>無</span></p>"}</div>`);
+}
+
+function openJournalPanel() {
+  const progress = progressSummary();
+  const notes = state.notes.slice(0, 18).map((note) => `<p><span>${esc(note)}</span><span></span></p>`).join("");
+  openOverlay("日誌", `<h3>線索</h3><div class="panel-list">${progress.lines.map((line) => `<p><span>${esc(line)}</span><span></span></p>`).join("")}</div><h3>紀錄</h3><div class="panel-list">${notes || "<p><span>尚無紀錄</span><span></span></p>"}</div>`);
+}
+
+function openStatsPanel() {
+  const progress = progressSummary();
+  openOverlay("統計", `<div class="panel-list"><p><span>Engine</span><span>${esc(ENGINE_VERSION)}</span></p><p><span>行動回合</span><span>${esc(state.turnNo || 0)}</span></p><p><span>語料發言</span><span>${esc(state.utteranceNo || state.utterances.length)}</span></p><p><span>事件</span><span>${esc(state.events.length)}</span></p><p><span>已得線索</span><span>${progress.count}/${progress.required}</span></p><p><span>日期</span><span>第 ${esc(state.day)} 日 ${esc(formatClock())}</span></p><p><span>自動札記</span><span>${esc(state.auto.generated)}/${esc(state.auto.limit)}</span></p></div><p><button id="openDeveloperPanel" type="button">開發者輸出</button></p>`);
+  $("openDeveloperPanel").addEventListener("click", openDeveloper);
+}
+
+function openAchievementsPanel() {
+  const rows = [
+    ["北路關卡", !!state.flags.weifen_lead],
+    ["人物對照", !!state.flags.pc_crosswalk],
+    ["南陽路引", !!state.flags.south_pass],
+    ["案卷摘記", !!state.flags.wuji_dossier],
+    ["來源索引", !!state.flags.source_index],
+    ["結案札記", progressSummary().count >= progressSummary().required],
+    ["長線札記", !!state.auto.completed]
+  ].map(([label, unlocked]) => `<p><span>${esc(label)}</span><span>${unlocked ? "已取得" : "未取得"}</span></p>`).join("");
+  openOverlay("成就", `<div class="panel-list">${rows}</div>`);
+}
+
+function openSavesPanel() {
+  openOverlay("存檔", `<div class="developer-actions"><button id="panelSave" type="button">保存</button><button id="panelLoad" type="button">載入</button><button id="panelRestart" type="button">重來</button><button id="panelExport" type="button">下載 JSON</button></div><p>保存與載入使用瀏覽器 localStorage。JSON 可匯出後交給 trpg-corpus 匯入。</p>`);
+  $("panelSave").addEventListener("click", () => {
+    localStorage.setItem(SAVE_KEY, JSON.stringify(state));
+    openOverlay("存檔", "<p>已保存到瀏覽器 localStorage。</p>");
+  });
+  $("panelLoad").addEventListener("click", loadManualSave);
+  $("panelRestart").addEventListener("click", restartGame);
+  $("panelExport").addEventListener("click", () => downloadJson(buildCorpus()));
+}
+
+function openResearcherPanel() {
+  const code = `USR-${Date.now()}`;
+  openOverlay("研究者劇情", `<div class="editor-grid"><label>段落代碼<input id="storyCode" type="text" value="${esc(code)}"></label><label>標題<input id="storyTitle" type="text" value="研究者新增段落"></label><label>地點<input id="storyLocation" type="text" value="${esc(getPassage().location || "南京")}"></label><label>時間<input id="storyTime" type="text" value="研究者輸入"></label><label>選項文字<input id="storyChoiceText" type="text" value="回到南京城門"></label><label>選項目標<input id="storyChoiceTarget" type="text" value="Gate"></label></div><label>劇情正文<textarea id="storyBody">請在此輸入研究者編寫的劇情。每一行會保存成 passage 文字。</textarea></label><label>Corpus API<input id="storyApiUrl" type="url" value="http://localhost:8787/api/researcher-stories"></label><div class="editor-actions"><button id="addStoryPassage" type="button">加入本機遊戲</button><button id="sendStoryToCorpus" type="button">送入 trpg-corpus</button><button id="downloadStoryBundle" type="button">下載劇情 JSON</button></div><div id="researcherResult" class="feedback-list"></div>`);
+  $("addStoryPassage").addEventListener("click", addResearcherPassage);
+  $("sendStoryToCorpus").addEventListener("click", sendResearcherStory);
+  $("downloadStoryBundle").addEventListener("click", () => downloadText(`da_go_researcher_story_${$("storyCode").value.trim() || code}.json`, JSON.stringify(buildResearcherStoryPayload(), null, 2), "application/json;charset=utf-8"));
+}
+
+function buildResearcherStoryPayload() {
+  const passageCode = normalizeStoryCode($("storyCode").value || `USR-${Date.now()}`);
+  const title = $("storyTitle").value.trim() || "研究者新增段落";
+  const location = $("storyLocation").value.trim() || getPassage().location || "南京";
+  const time = $("storyTime").value.trim() || "研究者輸入";
+  const body = $("storyBody").value.trim() || "研究者尚未輸入正文。";
+  const choiceText = $("storyChoiceText").value.trim() || "回到南京城門";
+  const target = normalizeStoryCode($("storyChoiceTarget").value || "Gate");
+  return {
+    story_code: `DAGO-STORY-${passageCode}`,
+    story_json_format: "da_go_researcher_story_v1",
+    metadata: {
+      engine_version: ENGINE_VERSION,
+      database_name: corpusConfig.database_name,
+      project_code: corpusConfig.project_code,
+      team_code: corpusConfig.team_code,
+      session_code: corpusConfig.session_code,
+      submitted_at: new Date().toISOString(),
+      source: "da_go_researcher_panel"
+    },
+    config: corpusConfig,
+    passages: [
+      {
+        id: passageCode,
+        passage_code: passageCode,
+        title,
+        location,
+        time_slot: time,
+        body,
+        tags: ["researcher", "manual"],
+        on_enter: [],
+        on_exit: [],
+        is_start: false,
+        is_terminal: false,
+        sort_order: Object.keys(passages).length + 100,
+        choices: [
+          {
+            id: `${passageCode}-CHOICE-1`,
+            choice_code: `${passageCode}-CHOICE-1`,
+            text: choiceText,
+            target,
+            utterance_function: "decision",
+            conditions: [],
+            effects: [],
+            visibility: [],
+            sort_order: 1
+          }
+        ]
+      }
+    ],
+    auto_load: true
+  };
+}
+
+function normalizeStoryCode(value) {
+  const cleaned = String(value || "").trim().replace(/[^\w-]+/g, "-").replace(/^-+|-+$/g, "");
+  return cleaned || `USR-${Date.now()}`;
+}
+
+function addResearcherPassage() {
+  const payload = buildResearcherStoryPayload();
+  const rawPassage = payload.passages[0];
+  const manifest = clone(activeManifest);
+  if (Array.isArray(manifest.passages)) {
+    manifest.passages = manifest.passages.filter((passage) => (passage.id || passage.passage_code || passage.code) !== rawPassage.passage_code);
+    manifest.passages.push(rawPassage);
+  } else {
+    manifest.passages = Object.assign({}, manifest.passages || {});
+    manifest.passages[rawPassage.passage_code] = rawPassage;
+  }
+  manifest.metadata = Object.assign({}, manifest.metadata || {}, { source: "researcher-local", updated_at: new Date().toISOString() });
+  persistManifest(manifest);
+  state.passage = rawPassage.passage_code;
+  delete state.narrated[rawPassage.passage_code];
+  state.lastEvent = `已加入研究者段落：${rawPassage.title}`;
+  addNote(state.lastEvent);
+  saveState();
+  render();
+  $("researcherResult").innerHTML = `<p><span>本機段落</span><span>${esc(rawPassage.passage_code)}</span></p>`;
+}
+
+async function sendResearcherStory() {
+  const payload = buildResearcherStoryPayload();
+  const url = $("storyApiUrl").value.trim() || "http://localhost:8787/api/researcher-stories";
+  $("researcherResult").innerHTML = "<p><span>送出中</span><span>等待 API 回應</span></p>";
+  try {
+    const response = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ story_code: payload.story_code, story_json: payload, auto_load: true })
+    });
+    const text = await response.text();
+    if (!response.ok) throw new Error(text || `HTTP ${response.status}`);
+    $("researcherResult").innerHTML = `<p><span>已送出</span><span>${esc(response.status)}</span></p><pre>${esc(text)}</pre>`;
+  } catch (error) {
+    $("researcherResult").innerHTML = `<p><span>送出失敗</span><span>${esc(error.message)}</span></p>`;
+  }
 }
 
 function loadManualSave() {
@@ -1284,6 +1563,7 @@ function loadManualSave() {
 function restartGame() {
   localStorage.removeItem(STORAGE_KEY);
   state = createDefaultState();
+  closeOverlay();
   render();
 }
 

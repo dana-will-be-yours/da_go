@@ -1,6 +1,6 @@
 # da_go
 
-`da_go` 是《大國年代記》的單人網頁文字遊戲。開局時間為大興二十年八月，地點為南京。玩家輸入角色名字、選擇文字外觀後即可開始。
+`da_go` 是《大國年代記》的單人網頁文字遊戲。開局時間為大興二十年八月，地點為南京。玩家輸入角色名字，選擇職能、出身、特質、難度與文字外觀後即可開始。
 
 ## 開啟
 
@@ -30,9 +30,10 @@ GitHub Pages 入口會轉到 `game.html`。
 - 事件：選項後可依 event pool 觸發額外事件，並保存冷卻、每日次數與 playlog。
 - 沙盒：預設內容含南京行動地圖、結案條件、醫館、短工、南市、官署、北路、夜宿與結案札記。
 - 壓力：飢餓、疲勞、疑心與注目會影響檢定，失控時會把玩家迫回客舍休整。
-- 一般遊玩畫面只顯示角色、狀態、物品、紀錄與劇情文字。
+- 左欄：屬性、社交、特質、日誌、統計、成就、選項、存檔與研究者面板採點選後開啟。
+- 研究者：可在遊戲內新增 passage、choice 與正文，並送到 `trpg-corpus-sqlserver` 的 `/api/researcher-stories`。
 - 夜宿札記可自動輪迴延伸 100 次，生成事件與 utterance。
-- SMM、TMS、追溯、Team/PC 對照、JSON 匯出放在「開發者」面板。
+- SMM、TMS、追溯、Team/PC 對照、JSON 匯出放在「統計 > 開發者輸出」。
 
 ## TRPG Corpus 對接
 
@@ -45,6 +46,12 @@ GitHub Pages 入口會轉到 `game.html`。
 
 ```text
 http://localhost:8787/api/runtime-bundle?project_code=DAGUO&team_code=DAGUO-T01&session_code=DA20-CORPUS-RPG-001
+```
+
+研究者劇情送出端點：
+
+```text
+http://localhost:8787/api/researcher-stories
 ```
 
 本機靜態測試資料：

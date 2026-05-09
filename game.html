@@ -18,6 +18,33 @@
               <input id="playerName" name="playerName" type="text" value="旅人" maxlength="16" autocomplete="off">
             </label>
             <fieldset>
+              <legend>角色職能</legend>
+              <label><input type="radio" name="role" value="scribe" checked> 書吏線人</label>
+              <label><input type="radio" name="role" value="wanderer"> 江湖遊士</label>
+              <label><input type="radio" name="role" value="merchant"> 商旅耳目</label>
+              <label><input type="radio" name="role" value="medic"> 醫館學徒</label>
+            </fieldset>
+            <fieldset>
+              <legend>出身</legend>
+              <label><input type="radio" name="origin" value="nanjing" checked> 南京</label>
+              <label><input type="radio" name="origin" value="north"> 北路</label>
+              <label><input type="radio" name="origin" value="south"> 南市</label>
+              <label><input type="radio" name="origin" value="wudu"> 五毒</label>
+            </fieldset>
+            <fieldset>
+              <legend>特質</legend>
+              <label><input type="radio" name="trait" value="calm" checked> 冷靜</label>
+              <label><input type="radio" name="trait" value="streetwise"> 熟路</label>
+              <label><input type="radio" name="trait" value="silver_tongue"> 善談</label>
+              <label><input type="radio" name="trait" value="sturdy"> 耐勞</label>
+            </fieldset>
+            <fieldset>
+              <legend>難度</legend>
+              <label><input type="radio" name="difficulty" value="relaxed"> 寬鬆</label>
+              <label><input type="radio" name="difficulty" value="standard" checked> 標準</label>
+              <label><input type="radio" name="difficulty" value="pressure"> 壓力</label>
+            </fieldset>
+            <fieldset>
               <legend>文字外觀</legend>
               <label><input type="radio" name="textStyle" value="standard" checked> 標準</label>
               <label><input type="radio" name="textStyle" value="scroll"> 書卷</label>
@@ -50,28 +77,20 @@
       </header>
 
       <nav id="ui-actions">
-        <button type="button" data-action="save">保存</button>
-        <button type="button" data-action="load">載入</button>
-        <button type="button" data-action="settings">設定</button>
-        <button type="button" data-action="restart">重來</button>
-        <button type="button" data-action="developer">開發者</button>
+        <button type="button" class="panel-wide" data-action="panel" data-panel="attributes">屬性</button>
+        <button type="button" class="panel-wide" data-action="panel" data-panel="social">社交</button>
+        <button type="button" data-action="panel" data-panel="traits">特質</button>
+        <button type="button" data-action="panel" data-panel="journal">日誌</button>
+        <button type="button" data-action="panel" data-panel="stats">統計</button>
+        <button type="button" data-action="panel" data-panel="achievements">成就</button>
+        <button type="button" data-action="panel" data-panel="options">選項</button>
+        <button type="button" data-action="panel" data-panel="saves">存檔</button>
+        <button type="button" class="panel-wide" data-action="panel" data-panel="researcher">研究者</button>
       </nav>
 
       <section class="sidebar-block">
-        <h2>角色</h2>
-        <div id="characterBox" class="sidebar-list"></div>
-      </section>
-      <section class="sidebar-block">
-        <h2>狀態</h2>
-        <div id="statusBox"></div>
-      </section>
-      <section class="sidebar-block">
-        <h2>物品</h2>
-        <div id="itemBox" class="sidebar-list"></div>
-      </section>
-      <section class="sidebar-block">
-        <h2>紀錄</h2>
-        <div id="noteBox" class="sidebar-list"></div>
+        <h2>概覽</h2>
+        <div id="overviewBox" class="sidebar-list"></div>
       </section>
     </div>
   </aside>
