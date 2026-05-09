@@ -2,7 +2,7 @@
   "schema_version": "da_go_scenario_bundle_v1",
   "scenario_code": "xiaocheng_jiushi",
   "scenario_name": "小城舊事",
-  "scenario_subtitle": "大興二十年南京篇",
+  "scenario_subtitle": "",
   "time_span": {
     "era": "大興",
     "year": 20,
@@ -14,13 +14,12 @@
     "restriction": "玩家活動限定南京。遠方地點以信件、帳目、傳聞、人物口述與旗標線索進入劇情。"
   },
   "intro": {
-    "summary": "雨後的南京外城，驛舍、茶棚、南市帳房與官署門廊同時浮出異樣。南陽帳目、銀川急信與崑崙遠訊彼此交錯，玩家只能在南京城內追索舊事的痕跡。",
+    "summary": "雨後城中，舊帳、急信與遠方傳聞同時浮出水面。你將從城中人的言語、試探與沉默裡，追索一段被壓下的舊事。",
     "features": [
-      "南京限定探索",
-      "市井傳聞與官署線索交錯",
-      "帳目、急信、門派消息三線並進",
-      "4D3 技能檢定與失敗回饋",
-      "可輸出 TRPG Corpus playlog JSON"
+      "在茶棚、驛舍、帳房與官署之間追索舊事。",
+      "從帳目、急信與傳聞中拼出暗線。",
+      "以選擇與後果推動名聲變化。",
+      "在城中人物的試探與回應裡決定立場。"
     ],
     "gm_note": "此劇本包為現有 da_go 南京篇劇情的範例封裝，可作為 SQL Server authoring workflow 與 da_go runtime 之間的交換格式。"
   },
