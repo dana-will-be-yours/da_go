@@ -1,10 +1,11 @@
 (()=>{
 'use strict';
-const VERSION='1.10.0-scenario-select';
+const VERSION='1.10.2-player-facing-scenario-select';
 const STORE='daGoScenarioSelection';
 const DEFAULT_SCENARIO_URL='assets/data/scenarios/xiaocheng-jiushi.json?v='+encodeURIComponent(VERSION);
 const $=id=>document.getElementById(id);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const DEFAULT_FEATURES=['在茶棚、驛舍、帳房與官署之間追索舊事。','從帳目、急信與傳聞中拼出暗線。','以選擇與後果推動名聲變化。','在城中人物的試探與回應裡決定立場。'];
 let scenarios=[];
 let selected=null;
 let entered=false;
@@ -15,52 +16,45 @@ function addStyle(){
   .scenario-select-panel{border:1px solid rgba(190,160,82,.72);background:linear-gradient(180deg,rgba(54,40,20,.52),rgba(15,15,18,.92));box-shadow:0 1rem 3rem rgba(0,0,0,.42);padding:1.25rem;margin:0 0 1.35rem;color:#ddd;position:relative;overflow:hidden;}
   .scenario-select-panel:before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 50% 0%,rgba(211,170,66,.18),transparent 32%);pointer-events:none;}
   .scenario-select-inner{position:relative;z-index:1;}
-  .scenario-title{font-family:'DFKai-SB','標楷體','BiauKai','KaiTi','STKaiti','PMingLiU',serif;color:#f1d176;font-size:1.75rem;margin:0 0 .25rem;letter-spacing:.08em;}
-  .scenario-subtitle{color:#cfc3a3;margin:.15rem 0 1rem;}
-  .scenario-actions{display:flex;gap:.65rem;flex-wrap:wrap;margin:.9rem 0 1rem;}
+  .scenario-panel-title{font-family:'DFKai-SB','標楷體','BiauKai','KaiTi','STKaiti','PMingLiU',serif;color:#f1d176;font-size:1.25rem;margin:0 0 .75rem;letter-spacing:.08em;text-align:center;}
+  .scenario-title{font-family:'DFKai-SB','標楷體','BiauKai','KaiTi','STKaiti','PMingLiU',serif;color:#f1d176;font-size:1.55rem;margin:.4rem 0 .25rem;letter-spacing:.08em;text-align:center;}
+  .scenario-subtitle{color:#cfc3a3;margin:.15rem 0 1rem;text-align:center;}
+  .scenario-actions{display:flex;gap:.65rem;flex-wrap:wrap;margin:.9rem 0 1rem;align-items:center;}
   .scenario-actions button,.scenario-actions select{font:inherit;background:#342818;color:#f1e6c4;border:1px solid rgba(209,177,99,.75);padding:.48rem .7rem;}
   .scenario-actions button{cursor:pointer;}
   .scenario-actions button:hover{background:#46351d;}
+  .scenario-current{margin:.55rem 0;text-align:center;color:#e8dfc8;}
   .scenario-summary{border-top:1px solid rgba(209,177,99,.42);border-bottom:1px solid rgba(209,177,99,.28);padding:.85rem 0;margin:.75rem 0;}
-  .scenario-summary p{line-height:1.8;margin:.35rem 0;}
-  .scenario-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.75rem;margin-top:.85rem;}
-  .scenario-card{background:rgba(0,0,0,.28);border:1px solid rgba(180,180,180,.2);padding:.75rem;}
-  .scenario-card h3{font-size:1rem;margin:.1rem 0 .45rem;color:#f0dfb0;}
-  .scenario-card ul{margin:.25rem 0 0;padding-left:1.2rem;}
-  .scenario-card li{margin:.25rem 0;}
+  .scenario-summary p{line-height:1.9;margin:.35rem 0;}
+  .scenario-feature-card{background:rgba(0,0,0,.24);border:1px solid rgba(180,180,180,.2);padding:.85rem;margin-top:.85rem;}
+  .scenario-feature-card h3{font-size:1rem;margin:.1rem 0 .55rem;color:#f0dfb0;}
+  .scenario-feature-card ul{margin:.25rem 0 0;padding-left:1.2rem;}
+  .scenario-feature-card li{margin:.35rem 0;line-height:1.75;}
   .scenario-hidden-input{display:none;}
-  @media(max-width:760px){.scenario-grid{grid-template-columns:1fr}.scenario-title{font-size:1.45rem}}
+  @media(max-width:760px){.scenario-title{font-size:1.35rem}.scenario-actions{display:grid;grid-template-columns:1fr}.scenario-actions select,.scenario-actions button{width:100%;}}
   `;
   document.head.appendChild(style);
 }
-function safeLoadLocal(){try{return JSON.parse(localStorage.getItem(STORE)||'null')}catch{return null}}
 function safeSaveLocal(s){try{localStorage.setItem(STORE,JSON.stringify({scenario_code:s.scenario_code,scenario_name:s.scenario_name,loaded_at:new Date().toISOString()}))}catch{}}
 function normalizeScenario(x){
   if(!x||typeof x!=='object')throw new Error('劇本 JSON 格式錯誤');
-  return Object.assign({schema_version:'da_go_scenario_bundle_v1',scenario_code:'custom_'+Date.now(),scenario_name:'未命名劇本',scenario_subtitle:'自訂劇本',intro:{summary:'未提供簡介。',features:[],gm_note:''},time_span:{},scope:{},worldview:{},geography:{districts:[]},characters:[],plot:{main_threads:[]}},x);
+  const base={schema_version:'da_go_scenario_bundle_v1',scenario_code:'custom_'+Date.now(),scenario_name:'未命名劇本',scenario_subtitle:'自訂劇本',intro:{summary:'未提供簡介。',features:DEFAULT_FEATURES.slice()},time_span:{},scope:{},worldview:{},geography:{districts:[]},characters:[],plot:{main_threads:[]}};
+  const s=Object.assign({},base,x);
+  s.intro=Object.assign({},base.intro,x.intro||{});
+  if(!Array.isArray(s.intro.features)||!s.intro.features.length)s.intro.features=DEFAULT_FEATURES.slice();
+  return s;
 }
 function renderScenario(s){
   const panel=$('scenarioSelectPanel'); if(!panel)return;
-  const districts=(s.geography?.districts||[]).map(d=>`<li>${esc(d.name)}：${esc((d.locations||[]).join('、'))}</li>`).join('')||'<li>未提供</li>';
-  const features=(s.intro?.features||[]).map(x=>`<li>${esc(x)}</li>`).join('')||'<li>未提供</li>';
-  const chars=(s.characters||[]).slice(0,8).map(x=>`<li>${esc(x.name)}：${esc(x.role||'劇中人物')}</li>`).join('')||'<li>未提供</li>';
-  const threads=(s.plot?.main_threads||[]).map(x=>`<li>${esc(x.title)}：${esc(x.goal||'')}</li>`).join('')||'<li>未提供</li>';
+  const features=(s.intro?.features||DEFAULT_FEATURES).map(x=>`<li>${esc(x)}</li>`).join('');
   panel.querySelector('#scenarioCurrentName').textContent=s.scenario_name||'未命名劇本';
   panel.querySelector('#scenarioDetail').innerHTML=`
     <h2 class="scenario-title">${esc(s.scenario_name)}</h2>
     <p class="scenario-subtitle">${esc(s.scenario_subtitle||'')}</p>
     <section class="scenario-summary">
-      <p><b>劇情介紹：</b>${esc(s.intro?.summary||'未提供')}</p>
-      <p><b>劇情時間段：</b>${esc(s.time_span?.start_date||'未提供')}</p>
-      <p><b>玩家活動範圍：</b>${esc(s.scope?.player_area||'未提供')}。${esc(s.scope?.restriction||'')}</p>
-      <p><b>劇本封裝：</b>${esc(s.worldview?.title||'大國年代記')} / ${esc(s.runtime_bundle||'未指定 runtime bundle')}</p>
+      <p>${esc(s.intro?.summary||'未提供簡介。')}</p>
     </section>
-    <div class="scenario-grid">
-      <article class="scenario-card"><h3>劇本遊玩特色</h3><ul>${features}</ul></article>
-      <article class="scenario-card"><h3>地理環境</h3><ul>${districts}</ul></article>
-      <article class="scenario-card"><h3>人物角色</h3><ul>${chars}</ul></article>
-      <article class="scenario-card"><h3>完整劇情線</h3><ul>${threads}</ul></article>
-    </div>`;
+    <article class="scenario-feature-card"><h3>劇本遊玩特色</h3><ul>${features}</ul></article>`;
 }
 function installPanel(){
   const startPanel=$('startPanel'), form=$('startForm'); if(!startPanel||!form||$('scenarioSelectPanel'))return;
@@ -69,8 +63,7 @@ function installPanel(){
   panel.id='scenarioSelectPanel';
   panel.className='scenario-select-panel';
   panel.innerHTML=`<div class="scenario-select-inner">
-    <h1>大國年代記</h1>
-    <p class="version">劇本選擇</p>
+    <p class="scenario-panel-title">劇本選擇</p>
     <div class="scenario-actions">
       <button type="button" id="scenarioInfoBtn">呈現劇本簡介</button>
       <button type="button" id="scenarioImportBtn">輸入劇本</button>
@@ -78,7 +71,7 @@ function installPanel(){
       <button type="button" id="scenarioEnterBtn">進入劇本</button>
       <input id="scenarioImportInput" class="scenario-hidden-input" type="file" accept="application/json,.json">
     </div>
-    <p>目前劇本：<b id="scenarioCurrentName">小城舊事</b></p>
+    <p class="scenario-current">目前劇本：<b id="scenarioCurrentName">小城舊事</b></p>
     <div id="scenarioDetail"></div>
   </div>`;
   startPanel.insertBefore(panel,form);
@@ -95,8 +88,10 @@ async function readImport(e){
     const s=normalizeScenario(JSON.parse(text));
     scenarios=scenarios.filter(x=>x.scenario_code!==s.scenario_code).concat(s);
     selected=s;
-    const opt=document.createElement('option'); opt.value=s.scenario_code; opt.textContent=s.scenario_name;
-    $('scenarioSwitch').appendChild(opt); $('scenarioSwitch').value=s.scenario_code;
+    if(!$('scenarioSwitch').querySelector(`option[value="${CSS.escape(s.scenario_code)}"]`)){
+      const opt=document.createElement('option'); opt.value=s.scenario_code; opt.textContent=s.scenario_name; $('scenarioSwitch').appendChild(opt);
+    }
+    $('scenarioSwitch').value=s.scenario_code;
     renderScenario(s);
   }catch(err){alert('劇本匯入失敗：'+(err&&err.message?err.message:err));}
 }
@@ -107,9 +102,11 @@ function enterScenario(){
   document.body.dataset.scenarioCode=selected.scenario_code;
   const form=$('startForm'); if(form)form.classList.remove('dago-wait-scenario');
   const panel=$('scenarioSelectPanel'); if(panel)panel.style.display='none';
-  const note=document.createElement('input');
-  note.type='hidden'; note.name='scenarioCode'; note.value=selected.scenario_code;
-  form?.appendChild(note);
+  if(form&&!form.querySelector('[name="scenarioCode"]')){
+    const note=document.createElement('input');
+    note.type='hidden'; note.name='scenarioCode'; note.value=selected.scenario_code;
+    form.appendChild(note);
+  }
 }
 function patchRenownLevel(){
   const select=document.querySelector('[name="renownLevel"]');
@@ -123,7 +120,7 @@ async function boot(){
   addStyle();
   installPanel();
   patchRenownLevel();
-  try{selected=normalizeScenario(await (await fetch(DEFAULT_SCENARIO_URL,{cache:'no-store'})).json())}catch{selected=normalizeScenario({scenario_code:'xiaocheng_jiushi',scenario_name:'小城舊事',scenario_subtitle:'大興二十年南京篇',intro:{summary:'南京城內，南陽帳目、銀川急信與崑崙遠訊彼此交錯。',features:['南京限定探索','帳目、急信、門派消息三線並進']},time_span:{start_date:'大興二十年九月九日'},scope:{player_area:'南京'},runtime_bundle:'assets/data/dago-nanjing-v5-bundle.json'})}
+  try{selected=normalizeScenario(await (await fetch(DEFAULT_SCENARIO_URL,{cache:'no-store'})).json())}catch{selected=normalizeScenario({scenario_code:'xiaocheng_jiushi',scenario_name:'小城舊事',scenario_subtitle:'大興二十年南京篇',intro:{summary:'雨後南京，舊帳、急信與遠方傳聞同時浮出水面。你將從城中人的言語、試探與沉默裡，追索一段被壓下的舊事。',features:DEFAULT_FEATURES.slice()}})}
   scenarios=[selected];
   renderScenario(selected);
   const obs=new MutationObserver(()=>{if(!entered)installPanel();patchRenownLevel()});
