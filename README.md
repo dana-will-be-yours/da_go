@@ -25,9 +25,31 @@ GitHub Pages 入口會轉到 `game.html`。
 
 - 開場：大興二十年八月，南京。
 - 形式：DOL 式左欄、passage 文字、藍色文字選項。
+- Runtime：可讀取 `da_go_runtime_bundle_v1`，內容含 passage、choice、state、NPC 關係與 event pool。
+- 選項：支援條件檢查與效果套用，例如金錢、疲勞、旗標、物品、技能與 NPC 關係。
+- 事件：選項後可依 event pool 觸發額外事件，並保存冷卻、每日次數與 playlog。
 - 一般遊玩畫面只顯示角色、狀態、物品、紀錄與劇情文字。
 - 夜宿札記可自動輪迴延伸 100 次，生成事件與 utterance。
 - SMM、TMS、追溯、Team/PC 對照、JSON 匯出放在「開發者」面板。
+
+## TRPG Corpus 對接
+
+開發者面板可匯入兩種 JSON：
+
+- `da_go_runtime_bundle_v1`：由 `trpg-corpus-sqlserver` 的 `dbo.usp_Export_DaGo_Runtime_Bundle` 或 `/api/runtime-bundle` 產生，前端優先使用。
+- `da_go_world_manifest_v1`：舊資料格式，前端仍會轉成可遊玩的 passage。
+
+本機 API 範例：
+
+```text
+http://localhost:8787/api/runtime-bundle?project_code=DAGUO&team_code=DAGUO-T01&session_code=DA20-CORPUS-RPG-001
+```
+
+本機靜態測試資料：
+
+```text
+http://localhost:8080/docs/sample-runtime-bundle.json
+```
 
 ## 來源對照
 

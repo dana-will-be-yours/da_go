@@ -1,7 +1,7 @@
 const STORAGE_KEY = "daGoCorpusRpgStateV2";
 const SAVE_KEY = "daGoCorpusRpgManualSaveV2";
 const MANIFEST_KEY = "daGoCorpusWorldManifestV1";
-const ENGINE_VERSION = "0.9.0-corpus-roundtrip";
+const ENGINE_VERSION = "1.0.0-runtime-bundle";
 
 const VALID_UTTERANCE_FUNCTIONS = new Set([
   "narration",
@@ -200,15 +200,21 @@ const fallbackPassages = {
 
 const defaultManifest = {
   manifest_format: "da_go_world_manifest_v1",
+  bundle_format: "da_go_runtime_bundle_v1",
   metadata: {
     source: "fallback",
     source_note: "本機預設資料，等待 trpg-corpus manifest 取代。"
   },
   config: corpusConfig,
+  world_state: { start_passage: "Gate", day: 1, hour: 6, location: "南京" },
+  states: [],
   passages: fallbackPassages,
   random_events: fallbackRandomEvents,
+  event_pools: [],
+  relationship_defs: [],
   route_cycle: fallbackRouteCycle,
   characters: [],
+  npcs: [],
   world_settings: [],
   items: [],
   rules: []
@@ -219,6 +225,9 @@ corpusConfig = Object.assign({}, defaultManifest.config, activeManifest.config |
 let passages = normalizePassages(activeManifest);
 let randomEvents = normalizeArray(activeManifest.random_events, fallbackRandomEvents);
 let routeCycle = normalizeArray(activeManifest.route_cycle, fallbackRouteCycle);
+let stateDefinitions = normalizeStateDefinitions(activeManifest.states);
+let relationshipDefinitions = normalizeRelationshipDefs(activeManifest.relationship_defs, activeManifest.npcs);
+let eventPools = normalizeEventPools(activeManifest.event_pools);
 
 const defaultState = {
   started: false, passage: "Gate", turnNo: 0, day: 1, hour: 6,
@@ -226,7 +235,8 @@ const defaultState = {
   stats: { spirit: 50, composure: 50, coin: 12, suspicion: 0, fatigue: 0, hunger: 0 },
   skills: { inquiry: 1, archive: 1, influence: 1, travel: 1 },
   dev: { smm: 50, tms: 50, traceability: 50 },
-  items: ["素布行囊"], notes: ["大興二十年八月，南京。"], flags: {}, utterances: [], events: [], narrated: {},
+  items: ["素布行囊"], notes: ["大興二十年八月，南京。"], flags: {}, relations: {}, utterances: [], events: [], narrated: {},
+  eventMemory: { counts: {}, dayCounts: {}, cooldownUntil: {} },
   auto: { generated: 0, limit: 24, completed: false }, lastEvent: "",
   options: { numberedLinks: true, randomEvents: true }
 };
@@ -243,9 +253,9 @@ render();
 function loadState() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    return raw ? mergeState(clone(defaultState), JSON.parse(raw)) : clone(defaultState);
+    return raw ? mergeState(createDefaultState(), JSON.parse(raw)) : createDefaultState();
   } catch (error) {
-    return clone(defaultState);
+    return createDefaultState();
   }
 }
 
@@ -265,53 +275,103 @@ function persistManifest(manifest) {
   passages = normalizePassages(activeManifest);
   randomEvents = normalizeArray(activeManifest.random_events, fallbackRandomEvents);
   routeCycle = normalizeArray(activeManifest.route_cycle, fallbackRouteCycle);
+  stateDefinitions = normalizeStateDefinitions(activeManifest.states);
+  relationshipDefinitions = normalizeRelationshipDefs(activeManifest.relationship_defs, activeManifest.npcs);
+  eventPools = normalizeEventPools(activeManifest.event_pools);
   localStorage.setItem(MANIFEST_KEY, JSON.stringify(activeManifest));
 }
 
 function mergeManifest(base, incoming) {
   const merged = Object.assign({}, base, incoming || {});
+  if (incoming && !incoming.bundle_format) delete merged.bundle_format;
   merged.metadata = Object.assign({}, base.metadata || {}, incoming && incoming.metadata ? incoming.metadata : {});
   merged.config = Object.assign({}, base.config || {}, incoming && incoming.config ? incoming.config : {});
   return merged;
 }
 
 function normalizePassages(manifest) {
-  if (manifest && manifest.passages && !Array.isArray(manifest.passages)) return manifest.passages;
+  if (manifest && manifest.passages && !Array.isArray(manifest.passages)) return normalizePassageMap(manifest.passages);
+  if (manifest && Array.isArray(manifest.passages) && manifest.passages.length > 0) {
+    const output = {};
+    manifest.passages.forEach((passage, index) => {
+      const key = passage.id || passage.passage_code || passage.code || passage.scene_code || `Passage${index + 1}`;
+      output[key] = normalizePassage(passage, key, index);
+    });
+    addFallbackChoices(output);
+    return output;
+  }
   if (manifest && Array.isArray(manifest.scenes) && manifest.scenes.length > 0) {
     const output = {};
     manifest.scenes.forEach((scene, index) => {
       const key = scene.key || scene.scene_key || scene.scene_code || `Scene${index + 1}`;
-      output[key] = {
-        code: scene.scene_code || key,
-        title: scene.scene_title || scene.title || key,
-        time: scene.time || `第 ${index + 1} 場`,
-        location: scene.location_name || scene.location || "",
-        tags: scene.tags || ["corpus"],
-        text: normalizeTextLines(scene.text || scene.scene_summary_clean || scene.scene_summary_raw || scene.scene_summary || ""),
-        choices: normalizeChoices(scene.choices, key)
-      };
+      output[key] = normalizePassage(scene, key, index);
     });
-    const keys = Object.keys(output);
-    keys.forEach((key, index) => {
-      if (!output[key].choices.length) {
-        output[key].choices.push(ch("前往下一段資料", keys[index + 1] || keys[0], "decision", {}, { traceability: 1 }));
-      }
-    });
+    addFallbackChoices(output);
     return output;
   }
-  return clone(fallbackPassages);
+  return normalizePassageMap(fallbackPassages);
+}
+
+function normalizePassageMap(value) {
+  const output = {};
+  Object.keys(value || {}).forEach((key, index) => {
+    output[key] = normalizePassage(value[key], key, index);
+  });
+  addFallbackChoices(output);
+  return output;
+}
+
+function normalizePassage(passage, key, index) {
+  const tags = parseJsonIfString(passage.tags || passage.tag_json || []);
+  return {
+    code: passage.code || passage.passage_code || passage.scene_code || key,
+    title: passage.title || passage.scene_title || passage.passage_title || key,
+    time: passage.time || passage.time_slot || `第 ${index + 1} 場`,
+    location: passage.location || passage.location_name || "",
+    tags: Array.isArray(tags) ? tags : ["corpus"],
+    text: normalizeTextLines(passage.text || passage.body || passage.body_markdown || passage.scene_summary_clean || passage.scene_summary_raw || passage.scene_summary || ""),
+    choices: normalizeChoices(passage.choices, key),
+    on_enter: normalizeEffectsSpec(passage.on_enter || passage.on_enter_json),
+    on_exit: normalizeEffectsSpec(passage.on_exit || passage.on_exit_json),
+    is_terminal: !!passage.is_terminal
+  };
+}
+
+function addFallbackChoices(output) {
+  const keys = Object.keys(output);
+  keys.forEach((key, index) => {
+    if (!output[key].choices.length && !output[key].is_terminal) {
+      output[key].choices.push(ch("前往下一段資料", keys[index + 1] || keys[0], "decision", [], { traceability: 1 }));
+    }
+  });
 }
 
 function normalizeChoices(choices, currentKey) {
   if (!Array.isArray(choices)) return [];
-  return choices.map((choice, index) => ch(
-    choice.text || choice.choice_text || `選項 ${index + 1}`,
-    choice.to || choice.next_scene_key || choice.next_scene_code || currentKey,
-    normalizeFunction(choice.kind || choice.utterance_function || "decision"),
-    choice.effects || {},
-    choice.dev || { traceability: 1 },
-    choice.extra || {}
-  ));
+  return choices.map((choice, index) => {
+    const parsedChoice = parseJsonIfString(choice);
+    const check = parseJsonIfString(parsedChoice.check || parsedChoice.skill_check || parsedChoice.skill_check_json || {});
+    const extra = Object.assign({}, parsedChoice.extra || {});
+    ["item", "note", "flag", "req", "autoRun", "on_success", "success_effects", "on_failure", "failure_effects"].forEach((key) => {
+      if (parsedChoice[key] !== undefined) extra[key] = parsedChoice[key];
+    });
+    return Object.assign(ch(
+      parsedChoice.text || parsedChoice.choice_text || `選項 ${index + 1}`,
+      parsedChoice.to || parsedChoice.target || parsedChoice.next_passage_code || parsedChoice.next_scene_key || parsedChoice.next_scene_code || currentKey,
+      normalizeFunction(parsedChoice.kind || parsedChoice.utterance_function || "decision"),
+      normalizeEffectsSpec(parsedChoice.effects || parsedChoice.effect_json),
+      parsedChoice.dev || { traceability: 1 },
+      extra
+    ), {
+      id: parsedChoice.id || parsedChoice.choice_code || `choice_${index + 1}`,
+      conditions: normalizeConditionList(parsedChoice.conditions || parsedChoice.condition_json),
+      visibility: normalizeConditionList(parsedChoice.visibility || parsedChoice.visibility_json),
+      failure_passage_code: parsedChoice.failure_passage_code || parsedChoice.failure || null,
+      skill: parsedChoice.skill || check.skill || null,
+      dc: parsedChoice.dc || check.dc || check.difficulty || null,
+      check
+    });
+  });
 }
 
 function normalizeArray(value, fallback) {
@@ -323,10 +383,157 @@ function normalizeTextLines(value) {
   return String(value || "").split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
 }
 
+function parseJsonIfString(value) {
+  if (typeof value !== "string") return value;
+  const trimmed = value.trim();
+  if (!trimmed || !/^[\[{]/.test(trimmed)) return value;
+  try {
+    return JSON.parse(trimmed);
+  } catch (error) {
+    return value;
+  }
+}
+
+function normalizeEffectsSpec(value) {
+  const parsed = parseJsonIfString(value);
+  if (!parsed) return [];
+  if (Array.isArray(parsed)) return parsed.filter(Boolean);
+  if (typeof parsed === "object" && parsed.op) return [parsed];
+  if (typeof parsed === "object") return parsed;
+  return [];
+}
+
+function normalizeConditionList(value) {
+  const parsed = parseJsonIfString(value);
+  if (!parsed) return [];
+  if (Array.isArray(parsed)) return parsed.filter(Boolean);
+  if (typeof parsed === "object") return [parsed];
+  return [];
+}
+
+function normalizeStateDefinitions(value) {
+  const parsed = parseJsonIfString(value);
+  const rows = Array.isArray(parsed)
+    ? parsed
+    : Object.keys(parsed || {}).map((key) => Object.assign({ key }, parsed[key]));
+  return rows.map((row) => {
+    const key = row.key || row.state_key;
+    return {
+      key,
+      group: row.group || row.state_group || (key ? key.split(".")[0] : "runtime"),
+      type: row.type || row.value_type || "string",
+      default: row.default !== undefined ? row.default : row.default_value_text,
+      min: row.min !== undefined ? Number(row.min) : row.min_value !== undefined ? Number(row.min_value) : null,
+      max: row.max !== undefined ? Number(row.max) : row.max_value !== undefined ? Number(row.max_value) : null,
+      label: row.label || row.ui_label || key,
+      ui_visible: row.ui_visible !== false
+    };
+  }).filter((row) => row.key);
+}
+
+function normalizeRelationshipDefs(value, npcs) {
+  const rows = normalizeArray(parseJsonIfString(value), []);
+  if (rows.length) return rows.map(normalizeRelationshipDef).filter(Boolean);
+  return normalizeArray(npcs, []).map((npc) => normalizeRelationshipDef({
+    npc_code: npc.npc_code,
+    npc_name: npc.npc_name,
+    metrics: [
+      { key: "trust", default: 0, min: -100, max: 100, label: "信任" },
+      { key: "favor", default: 0, min: -100, max: 100, label: "好感" },
+      { key: "fear", default: 0, min: -100, max: 100, label: "畏懼" }
+    ]
+  })).filter(Boolean);
+}
+
+function normalizeRelationshipDef(row) {
+  const npcCode = row.npc_code || row.code;
+  if (!npcCode) return null;
+  return {
+    npc_code: npcCode,
+    npc_name: row.npc_name || row.name || npcCode,
+    metrics: normalizeArray(parseJsonIfString(row.metrics), []).map((metric) => ({
+      key: metric.key || metric.relation_key,
+      default: Number(metric.default !== undefined ? metric.default : metric.default_value || 0),
+      min: Number(metric.min !== undefined ? metric.min : metric.min_value || -100),
+      max: Number(metric.max !== undefined ? metric.max : metric.max_value || 100),
+      label: metric.label || metric.ui_label || metric.key || metric.relation_key
+    })).filter((metric) => metric.key)
+  };
+}
+
+function normalizeEventPools(value) {
+  return normalizeArray(parseJsonIfString(value), []).map((pool, index) => {
+    const entries = normalizeArray(parseJsonIfString(pool.entries), []).map((entry, entryIndex) => ({
+      event_id: entry.event_id || entry.id || entry.event_code || `${pool.id || pool.event_pool_code || `pool_${index + 1}`}_${entryIndex + 1}`,
+      title: entry.title || entry.event_name || entry.event_title || "事件",
+      passage_id: entry.passage_id || entry.passage_code || entry.target || null,
+      text: entry.text || entry.event_text || entry.event_summary || "",
+      conditions: normalizeConditionList(entry.conditions || entry.condition_json),
+      effects: normalizeEffectsSpec(entry.effects || entry.effect_json),
+      weight: Math.max(0, Number(entry.weight || 1)),
+      cooldown_turns: Math.max(0, Number(entry.cooldown_turns || 0)),
+      max_triggers_per_day: Math.max(0, Number(entry.max_triggers_per_day || 1))
+    })).filter((entry) => entry.weight > 0);
+    return {
+      id: pool.id || pool.event_pool_code || `pool_${index + 1}`,
+      name: pool.name || pool.pool_name || "事件池",
+      trigger: pool.trigger || pool.trigger_type || "after_choice",
+      location_scope: pool.location_scope || null,
+      conditions: normalizeConditionList(pool.conditions || pool.condition_json),
+      entries
+    };
+  }).filter((pool) => pool.entries.length);
+}
+
 function saveState() { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+
+function createDefaultState() {
+  const base = clone(defaultState);
+  const world = activeManifest.world_state || {};
+  base.passage = startPassageKey();
+  base.day = Number(world.day || 1);
+  base.hour = Number(world.hour || 6);
+  applyStateDefaults(base);
+  applyRelationshipDefaults(base);
+  return base;
+}
+
+function startPassageKey() {
+  const world = activeManifest.world_state || {};
+  return world.start_passage || Object.keys(passages)[0] || "Gate";
+}
+
+function applyStateDefaults(targetState) {
+  stateDefinitions.forEach((definition) => {
+    setPath(targetState, definition.key, coerceDefaultValue(definition));
+  });
+}
+
+function coerceDefaultValue(definition) {
+  const raw = definition.default;
+  if (definition.type === "number") return Number(raw || 0);
+  if (definition.type === "boolean") return raw === true || raw === "1" || raw === "true";
+  if (definition.type === "json") return parseJsonIfString(raw) || null;
+  return raw == null ? "" : String(raw);
+}
+
+function applyRelationshipDefaults(targetState) {
+  relationshipDefinitions.forEach((definition) => {
+    if (!targetState.relations[definition.npc_code]) targetState.relations[definition.npc_code] = {};
+    definition.metrics.forEach((metric) => {
+      targetState.relations[definition.npc_code][metric.key] = Number(metric.default || 0);
+    });
+  });
+}
+
 function mergeState(base, incoming) {
   const n = Object.assign({}, base, incoming || {});
-  ["player", "stats", "skills", "dev", "auto", "options", "flags", "narrated"].forEach((k) => { n[k] = Object.assign({}, base[k], incoming && incoming[k] ? incoming[k] : {}); });
+  ["player", "stats", "skills", "dev", "auto", "options", "flags", "relations", "narrated"].forEach((k) => { n[k] = Object.assign({}, base[k], incoming && incoming[k] ? incoming[k] : {}); });
+  n.eventMemory = {
+    counts: Object.assign({}, base.eventMemory.counts, incoming && incoming.eventMemory ? incoming.eventMemory.counts : {}),
+    dayCounts: Object.assign({}, base.eventMemory.dayCounts, incoming && incoming.eventMemory ? incoming.eventMemory.dayCounts : {}),
+    cooldownUntil: Object.assign({}, base.eventMemory.cooldownUntil, incoming && incoming.eventMemory ? incoming.eventMemory.cooldownUntil : {})
+  };
   ["items", "notes", "utterances", "events"].forEach((k) => { n[k] = Array.isArray(n[k]) ? n[k] : base[k].slice(); });
   return n;
 }
@@ -341,10 +548,38 @@ function nextTurnNo() { state.turnNo = Number(state.turnNo || 0) + 1; return sta
 function utteranceCode(turnNo) { return `UTT-${corpusConfig.session_code}-${String(turnNo).padStart(5, "0")}`.slice(0, 80); }
 function normalizeFunction(kind) { return VALID_UTTERANCE_FUNCTIONS.has(kind) ? kind : kindMap[kind] || "summary"; }
 
+function getPath(root, path) {
+  return String(path || "").split(".").filter(Boolean).reduce((current, part) => (current == null ? undefined : current[part]), root);
+}
+
+function setPath(root, path, value) {
+  const parts = String(path || "").split(".").filter(Boolean);
+  if (!parts.length) return;
+  let current = root;
+  parts.slice(0, -1).forEach((part) => {
+    if (current[part] == null || typeof current[part] !== "object") current[part] = {};
+    current = current[part];
+  });
+  current[parts[parts.length - 1]] = clampForPath(path, value);
+}
+
+function clampForPath(path, value) {
+  const definition = stateDefinitions.find((item) => item.key === path);
+  if (!definition || definition.type !== "number") return value;
+  const min = definition.min == null ? -Infinity : definition.min;
+  const max = definition.max == null ? Infinity : definition.max;
+  return clamp(Number(value), min, max);
+}
+
+function addPath(path, value) {
+  const current = Number(getPath(state, path) || 0);
+  setPath(state, path, current + Number(value || 0));
+}
+
 function startGame(event) {
   event.preventDefault();
   const form = new FormData(event.currentTarget);
-  state = mergeState(clone(defaultState), {
+  state = mergeState(createDefaultState(), {
     started: true,
     player: {
       name: String(form.get("playerName") || "旅人").trim().slice(0, 16) || "旅人",
@@ -352,7 +587,7 @@ function startGame(event) {
     }
   });
   recordUtterance("summary", "開始遊戲", getPassage(), "researcher", "none");
-  recordPassageNarration(getPassage());
+  enterPassage(getPassage(), "start");
   saveState();
   render();
 }
@@ -378,7 +613,7 @@ function renderPassage() {
 function renderChoice(choice, index) {
   const locked = !canChoose(choice);
   const prefix = state.options.numberedLinks ? `${index + 1}. ` : "";
-  const meta = choice.skill ? ` <span class="choice-meta">[${esc(labels.skills[choice.skill])} ${choice.dc || 6}]</span>` : "";
+  const meta = choice.skill ? ` <span class="choice-meta">[${esc(labels.skills[choice.skill] || choice.skill)} ${choice.dc || 6}]</span>` : "";
   const reason = locked ? `<span class="choice-lock">${esc(lockReason(choice))}</span>` : "";
   return `<button type="button" class="link-internal${locked ? " link-disabled" : ""}" data-choice="${index}" ${locked ? "disabled" : ""}>${esc(prefix + choice.text)}${meta}${reason}</button>`;
 }
@@ -386,7 +621,12 @@ function renderChoice(choice, index) {
 function renderSidebar() {
   const p = getPassage();
   const manifestSource = activeManifest.metadata && activeManifest.metadata.source ? activeManifest.metadata.source : "fallback";
-  $("characterBox").innerHTML = `<p><strong>${esc(state.player.name)}</strong></p><p>地點：${esc(p.location)}</p><p>第 ${state.day} 日，${formatClock()}</p><p>資料：${esc(manifestSource)}</p><p>風格：${esc(labels.styles[state.player.textStyle] || "標準")}</p>`;
+  const format = activeManifest.bundle_format || activeManifest.manifest_format || "fallback";
+  const relationLines = Object.keys(state.relations || {}).slice(0, 3).map((code) => {
+    const relation = state.relations[code] || {};
+    return `<p>${esc(code)}：信任 ${esc(relation.trust == null ? 0 : relation.trust)}，好感 ${esc(relation.favor == null ? 0 : relation.favor)}</p>`;
+  }).join("");
+  $("characterBox").innerHTML = `<p><strong>${esc(state.player.name)}</strong></p><p>地點：${esc(p.location)}</p><p>第 ${state.day} 日，${formatClock()}</p><p>資料：${esc(manifestSource)}</p><p>格式：${esc(format)}</p><p>風格：${esc(labels.styles[state.player.textStyle] || "標準")}</p>${relationLines}`;
   $("statusBox").innerHTML = ["spirit", "composure", "suspicion", "fatigue", "hunger"].map((key) => statMeter(labels.stats[key], state.stats[key], key)).join("") + `<div class="wallet">錢：${esc(state.stats.coin)}</div><div class="skill-grid">${Object.keys(labels.skills).map((key) => `<span>${esc(labels.skills[key])} ${esc(state.skills[key])}</span>`).join("")}</div>`;
   $("itemBox").innerHTML = state.items.slice(0, 9).map((item) => `<p><strong>${esc(item)}</strong></p>`).join("") || "<p>無</p>";
   $("noteBox").innerHTML = state.notes.slice(0, 9).map((note) => `<p>${esc(note)}</p>`).join("") || "<p>無</p>";
@@ -399,25 +639,60 @@ function statMeter(label, value, key) {
 }
 
 function canChoose(choice) {
-  if (!choice.req) return true;
-  if (choice.req.item && !state.items.includes(choice.req.item)) return false;
-  if (choice.req.flag && !state.flags[choice.req.flag]) return false;
-  if (choice.req.coin && state.stats.coin < choice.req.coin) return false;
+  if (choice.visibility && choice.visibility.length && !evaluateConditions(choice.visibility)) return false;
+  if (choice.conditions && choice.conditions.length && !evaluateConditions(choice.conditions)) return false;
+  if (choice.req) {
+    if (choice.req.item && !state.items.includes(choice.req.item)) return false;
+    if (choice.req.flag && !state.flags[choice.req.flag]) return false;
+    if (choice.req.coin && state.stats.coin < choice.req.coin) return false;
+  }
   return true;
 }
 
 function lockReason(choice) {
-  if (!choice.req) return "";
-  if (choice.req.item) return ` 需物品：${choice.req.item}`;
-  if (choice.req.flag) return ` 需旗標：${choice.req.flag}`;
-  if (choice.req.coin) return ` 需錢：${choice.req.coin}`;
+  if (choice.req) {
+    if (choice.req.item) return ` 需物品：${choice.req.item}`;
+    if (choice.req.flag) return ` 需旗標：${choice.req.flag}`;
+    if (choice.req.coin) return ` 需錢：${choice.req.coin}`;
+  }
   return " 條件不足";
+}
+
+function evaluateConditions(conditions) {
+  return normalizeConditionList(conditions).every(evaluateCondition);
+}
+
+function evaluateCondition(condition) {
+  if (condition.all) return normalizeConditionList(condition.all).every(evaluateCondition);
+  if (condition.any) return normalizeConditionList(condition.any).some(evaluateCondition);
+  if (condition.not) return !evaluateCondition(condition.not);
+  if (condition.op === "has_item") return state.items.includes(condition.value || condition.item);
+  if (condition.op === "not_has_item") return !state.items.includes(condition.value || condition.item);
+  const path = condition.path || condition.key;
+  const actual = path ? getPath(state, path) : undefined;
+  const expected = condition.value;
+  switch (condition.op || "==") {
+    case ">": return Number(actual) > Number(expected);
+    case ">=": return Number(actual) >= Number(expected);
+    case "<": return Number(actual) < Number(expected);
+    case "<=": return Number(actual) <= Number(expected);
+    case "!=":
+    case "ne": return actual !== expected;
+    case "truthy": return !!actual;
+    case "falsy": return !actual;
+    case "includes": return Array.isArray(actual) ? actual.includes(expected) : String(actual || "").includes(String(expected));
+    case "in": return Array.isArray(expected) && expected.includes(actual);
+    case "==":
+    case "eq":
+    default: return actual === expected || String(actual) === String(expected);
+  }
 }
 
 function choose(index) {
   const p = getPassage();
   const choice = p.choices[index];
   if (!choice || !canChoose(choice)) return;
+  applyEffects(p.on_exit);
   const outcome = resolveChoice(choice);
   const turnNo = recordUtterance(choice.kind || "decision", choice.text, p, "pc", outcome);
   state.events.push({
@@ -431,10 +706,10 @@ function choose(index) {
   });
   applyChoice(choice, outcome);
   if (choice.autoRun) runAutoLoops();
-  state.passage = choice.to;
+  state.passage = outcome === "partial" && choice.failure_passage_code ? choice.failure_passage_code : choice.to;
   advanceTime(choice.kind);
-  maybeRandomEvent();
-  recordPassageNarration(getPassage());
+  maybeRandomEvent("after_choice");
+  enterPassage(getPassage(), "choice");
   saveState();
   render();
 }
@@ -456,6 +731,8 @@ function resolveChoice(choice) {
 function applyChoice(choice, outcome) {
   applyEffects(choice.effects);
   applyDev(choice.dev);
+  if (outcome === "success") applyEffects(choice.on_success || choice.success_effects);
+  if (outcome === "partial") applyEffects(choice.on_failure || choice.failure_effects);
   if (choice.item) addUnique(state.items, choice.item);
   if (choice.note) addNote(choice.note);
   if (choice.flag) state.flags[choice.flag] = true;
@@ -464,9 +741,61 @@ function applyChoice(choice, outcome) {
 }
 
 function applyEffects(effects) {
-  Object.keys(effects || {}).forEach((key) => {
-    state.stats[key] = clamp(Number(state.stats[key] || 0) + Number(effects[key] || 0), key === "coin" ? -99 : 0, key === "coin" ? 999 : 100);
+  const parsed = normalizeEffectsSpec(effects);
+  if (Array.isArray(parsed)) {
+    parsed.forEach(applyEffect);
+    return;
+  }
+  Object.keys(parsed || {}).forEach((key) => {
+    state.stats[key] = clamp(Number(state.stats[key] || 0) + Number(parsed[key] || 0), key === "coin" ? -99 : 0, key === "coin" ? 999 : 100);
   });
+}
+
+function applyEffect(effect) {
+  if (!effect || typeof effect !== "object") return;
+  const op = effect.op || "add";
+  if (op === "add") {
+    addPath(effect.path, effect.value);
+    return;
+  }
+  if (op === "set") {
+    setPath(state, effect.path, effect.value);
+    return;
+  }
+  if (op === "toggle") {
+    setPath(state, effect.path, !getPath(state, effect.path));
+    return;
+  }
+  if (op === "push_unique" || op === "add_item") {
+    const listPath = effect.path || "items";
+    const list = getPath(state, listPath);
+    if (Array.isArray(list)) addUnique(list, effect.value || effect.item);
+    return;
+  }
+  if (op === "remove_item") {
+    state.items = state.items.filter((item) => item !== (effect.value || effect.item));
+    return;
+  }
+  if (op === "set_flag") {
+    state.flags[effect.flag || effect.path] = effect.value !== false;
+    return;
+  }
+  if (op === "note" || op === "add_note") {
+    addNote(effect.value || effect.text);
+    return;
+  }
+  if (op === "advance_time") {
+    advanceClock(Number(effect.hours || effect.value || 1));
+    return;
+  }
+  if (op === "add_relation") {
+    const npcCode = effect.npc_code || effect.npc || effect.target;
+    const metric = effect.metric || effect.relation_key || "trust";
+    if (!npcCode) return;
+    if (!state.relations[npcCode]) state.relations[npcCode] = {};
+    const path = `relations.${npcCode}.${metric}`;
+    addPath(path, Number(effect.value || 0));
+  }
 }
 
 function applyDev(dev) {
@@ -477,17 +806,31 @@ function applyDev(dev) {
 
 function advanceTime(kind) {
   const delta = kind === "action" ? 2 : kind === "decision" ? 2 : kind === "question" ? 2 : 1;
-  state.hour += delta;
-  if (state.hour >= 24) {
-    state.hour -= 24;
-    state.day += 1;
-  }
+  advanceClock(delta);
   applyEffects({ hunger: 1, fatigue: 1 });
 }
 
-function maybeRandomEvent() {
+function advanceClock(hours) {
+  state.hour += Number(hours || 0);
+  if (state.hour >= 24) {
+    const extraDays = Math.floor(state.hour / 24);
+    state.hour = state.hour % 24;
+    state.day += extraDays;
+  }
+  while (state.hour < 0) {
+    state.hour += 24;
+    state.day = Math.max(1, state.day - 1);
+  }
+}
+
+function maybeRandomEvent(trigger) {
   state.lastEvent = "";
-  if (!state.options.randomEvents || state.turnNo % 3 !== 0 || randomEvents.length === 0) return;
+  if (!state.options.randomEvents) return;
+  if (eventPools.length) {
+    runRuntimeEvent(trigger || "after_choice");
+    return;
+  }
+  if (state.turnNo % 3 !== 0 || randomEvents.length === 0) return;
   const event = randomEvents[state.turnNo % randomEvents.length];
   state.lastEvent = event.text;
   applyEffects(event.effects || {});
@@ -502,6 +845,69 @@ function maybeRandomEvent() {
     to_scene: state.passage,
     created_at: new Date().toISOString()
   });
+}
+
+function runRuntimeEvent(trigger) {
+  const candidates = [];
+  eventPools.forEach((pool) => {
+    if (pool.trigger !== trigger) return;
+    if (pool.conditions.length && !evaluateConditions(pool.conditions)) return;
+    pool.entries.forEach((entry) => {
+      if (!isEventEntryAvailable(entry)) return;
+      if (entry.conditions.length && !evaluateConditions(entry.conditions)) return;
+      candidates.push({ pool, entry });
+    });
+  });
+  const selected = weightedPick(candidates);
+  if (!selected) return;
+  applyRuntimeEvent(selected.pool, selected.entry);
+}
+
+function isEventEntryAvailable(entry) {
+  const key = eventMemoryKey(entry);
+  if ((state.eventMemory.cooldownUntil[key] || 0) > state.turnNo) return false;
+  const dayKey = `${state.day}:${key}`;
+  if (entry.max_triggers_per_day && (state.eventMemory.dayCounts[dayKey] || 0) >= entry.max_triggers_per_day) return false;
+  return true;
+}
+
+function weightedPick(candidates) {
+  const total = candidates.reduce((sum, item) => sum + item.entry.weight, 0);
+  if (total <= 0) return null;
+  let roll = Math.random() * total;
+  for (const candidate of candidates) {
+    roll -= candidate.entry.weight;
+    if (roll <= 0) return candidate;
+  }
+  return candidates[candidates.length - 1] || null;
+}
+
+function applyRuntimeEvent(pool, entry) {
+  const key = eventMemoryKey(entry);
+  const p = getPassage();
+  state.lastEvent = entry.text || entry.title;
+  applyEffects(entry.effects);
+  const turnNo = recordUtterance("narration", state.lastEvent, { code: p.code, title: entry.title || pool.name, location: p.location }, "gm", key);
+  state.events.push({
+    turn_no: turnNo,
+    scene_code: p.code,
+    scene_title: entry.title || pool.name,
+    choice_text: state.lastEvent,
+    to_scene: entry.passage_id || state.passage,
+    event_pool: pool.id,
+    event_id: key,
+    runtime_event: true,
+    created_at: new Date().toISOString()
+  });
+  state.eventMemory.counts[key] = (state.eventMemory.counts[key] || 0) + 1;
+  const dayKey = `${state.day}:${key}`;
+  state.eventMemory.dayCounts[dayKey] = (state.eventMemory.dayCounts[dayKey] || 0) + 1;
+  if (entry.cooldown_turns) state.eventMemory.cooldownUntil[key] = state.turnNo + entry.cooldown_turns;
+  if (entry.passage_id && passages[entry.passage_id]) state.passage = entry.passage_id;
+}
+
+function eventMemoryKey(entry) {
+  return entry.event_id || entry.passage_id || entry.title || entry.text;
 }
 
 function runAutoLoops() {
@@ -558,6 +964,12 @@ function getPassage() {
   const match = /^Auto-(\d+)$/.exec(state.passage || "");
   if (match) return makeAutoPassage(clamp(Number(match[1]), 1, state.auto.limit));
   return passages[state.passage] || passages.Gate || Object.values(passages)[0];
+}
+
+function enterPassage(scene) {
+  if (!scene) return;
+  applyEffects(scene.on_enter);
+  recordPassageNarration(scene);
 }
 
 function recordPassageNarration(scene) {
@@ -624,7 +1036,7 @@ function loadManualSave() {
       openOverlay("載入", "<p>尚無手動保存。</p>");
       return;
     }
-    state = mergeState(clone(defaultState), JSON.parse(raw));
+    state = mergeState(createDefaultState(), JSON.parse(raw));
     saveState();
     render();
     openOverlay("載入", "<p>已載入手動保存。</p>");
@@ -635,8 +1047,20 @@ function loadManualSave() {
 
 function restartGame() {
   localStorage.removeItem(STORAGE_KEY);
-  state = clone(defaultState);
+  state = createDefaultState();
   render();
+}
+
+function resetStateForManifest() {
+  const previous = state || {};
+  state = mergeState(createDefaultState(), {
+    started: !!previous.started,
+    player: previous.player || defaultState.player,
+    options: previous.options || defaultState.options
+  });
+  state.passage = startPassageKey();
+  state.narrated = {};
+  state.lastEvent = "";
 }
 
 function openSettings() {
@@ -653,7 +1077,7 @@ function openSettings() {
 
 function openDeveloper() {
   const data = buildCorpus();
-  openOverlay("開發者 / TRPG Corpus", `<div class="dev-grid"><p><strong>Engine</strong><span>${ENGINE_VERSION}</span></p><p><strong>Utterance</strong><span>${state.utterances.length}</span></p><p><strong>Events</strong><span>${state.events.length}</span></p><p><strong>SMM</strong><span>${state.dev.smm}</span></p><p><strong>TMS</strong><span>${state.dev.tms}</span></p><p><strong>追溯</strong><span>${state.dev.traceability}</span></p></div><div class="developer-actions"><button id="copyJson" type="button">複製 JSON</button><button id="downloadJson" type="button">下載 JSON</button><button id="downloadCsv" type="button">下載 staging CSV</button></div><section class="settings-grid"><label>World manifest JSON<input id="manifestFile" type="file" accept="application/json,.json"></label><label>Manifest API URL<input id="manifestUrl" type="url" value="http://localhost:8787/api/world-manifest?project_code=${esc(corpusConfig.project_code)}&team_code=${esc(corpusConfig.team_code)}"></label><button id="loadManifestUrl" type="button">讀取 manifest</button><button id="clearManifest" type="button">清除 manifest</button></section><details open><summary>輸出預覽</summary><pre>${esc(JSON.stringify(data, null, 2))}</pre></details>`);
+  openOverlay("開發者 / TRPG Corpus", `<div class="dev-grid"><p><strong>Engine</strong><span>${ENGINE_VERSION}</span></p><p><strong>Utterance</strong><span>${state.utterances.length}</span></p><p><strong>Events</strong><span>${state.events.length}</span></p><p><strong>SMM</strong><span>${state.dev.smm}</span></p><p><strong>TMS</strong><span>${state.dev.tms}</span></p><p><strong>追溯</strong><span>${state.dev.traceability}</span></p></div><div class="developer-actions"><button id="copyJson" type="button">複製 JSON</button><button id="downloadJson" type="button">下載 JSON</button><button id="downloadCsv" type="button">下載 staging CSV</button></div><section class="settings-grid"><label>Runtime bundle / manifest JSON<input id="manifestFile" type="file" accept="application/json,.json"></label><label>Runtime API URL<input id="manifestUrl" type="url" value="http://localhost:8787/api/runtime-bundle?project_code=${esc(corpusConfig.project_code)}&team_code=${esc(corpusConfig.team_code)}"></label><button id="loadManifestUrl" type="button">讀取資料</button><button id="clearManifest" type="button">清除資料</button></section><details open><summary>輸出預覽</summary><pre>${esc(JSON.stringify(data, null, 2))}</pre></details>`);
   $("copyJson").addEventListener("click", () => navigator.clipboard && navigator.clipboard.writeText(JSON.stringify(data, null, 2)));
   $("downloadJson").addEventListener("click", () => downloadJson(data));
   $("downloadCsv").addEventListener("click", () => downloadText(`da_go_${corpusConfig.session_code}_stg_utterance_import.csv`, toCsv(data.stg_Utterance_Import), "text/csv;charset=utf-8"));
@@ -666,6 +1090,10 @@ function openDeveloper() {
     passages = normalizePassages(activeManifest);
     randomEvents = normalizeArray(activeManifest.random_events, fallbackRandomEvents);
     routeCycle = normalizeArray(activeManifest.route_cycle, fallbackRouteCycle);
+    stateDefinitions = normalizeStateDefinitions(activeManifest.states);
+    relationshipDefinitions = normalizeRelationshipDefs(activeManifest.relationship_defs, activeManifest.npcs);
+    eventPools = normalizeEventPools(activeManifest.event_pools);
+    resetStateForManifest();
     closeOverlay();
     render();
   });
@@ -685,6 +1113,7 @@ function buildCorpus() {
       session_code: corpusConfig.session_code,
       import_batch_code: corpusConfig.import_batch_code,
       source_manifest_format: activeManifest.manifest_format || "unknown",
+      source_bundle_format: activeManifest.bundle_format || "unknown",
       exported_at: new Date().toISOString()
     },
     stg_Import_Batch: importBatchRow(),
@@ -806,8 +1235,7 @@ async function loadManifestFile(event) {
   if (!file) return;
   const text = await file.text();
   persistManifest(JSON.parse(text));
-  state.passage = Object.keys(passages)[0] || "Gate";
-  state.narrated = {};
+  resetStateForManifest();
   saveState();
   closeOverlay();
   render();
@@ -820,8 +1248,7 @@ async function loadManifestUrl() {
   if (!response.ok) throw new Error(`Manifest HTTP ${response.status}`);
   const manifest = await response.json();
   persistManifest(manifest);
-  state.passage = Object.keys(passages)[0] || "Gate";
-  state.narrated = {};
+  resetStateForManifest();
   saveState();
   closeOverlay();
   render();

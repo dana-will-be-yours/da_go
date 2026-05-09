@@ -1,0 +1,112 @@
+{
+  "bundle_format": "da_go_runtime_bundle_v1",
+  "metadata": {
+    "source": "sample",
+    "project_code": "DAGUO",
+    "team_code": "DAGUO-T01",
+    "session_code": "DA20-CORPUS-RPG-001",
+    "engine_target": "da_go>=1.0.0"
+  },
+  "config": {
+    "database_name": "TRPG_Corpus_DB",
+    "project_code": "DAGUO",
+    "team_code": "DAGUO-T01",
+    "session_code": "DA20-CORPUS-RPG-001",
+    "import_batch_code": "DAGO_SAMPLE",
+    "gm_code": "TM-GM",
+    "researcher_code": "TM-RESEARCHER"
+  },
+  "world_state": {
+    "start_passage": "DemoGate",
+    "day": 1,
+    "hour": 6,
+    "location": "南京"
+  },
+  "states": [
+    { "key": "stats.coin", "group": "stats", "type": "number", "default": "12", "min": -99, "max": 999, "label": "錢" },
+    { "key": "stats.fatigue", "group": "stats", "type": "number", "default": "0", "min": 0, "max": 100, "label": "疲勞" },
+    { "key": "stats.hunger", "group": "stats", "type": "number", "default": "0", "min": 0, "max": 100, "label": "飢餓" },
+    { "key": "flags.demo_seen", "group": "flags", "type": "boolean", "default": "false", "label": "已讀樣例事件" }
+  ],
+  "passages": [
+    {
+      "id": "DemoGate",
+      "title": "樣例城門",
+      "location": "南京",
+      "time_slot": "卯時",
+      "tags": ["sample", "hub"],
+      "body": ["這是一份 runtime bundle 測試資料。", "選項會改變金錢、疲勞、旗標與 NPC 關係。"],
+      "choices": [
+        {
+          "id": "buy_tea",
+          "text": "花一文錢打聽消息",
+          "target": "DemoTea",
+          "utterance_function": "question",
+          "conditions": [{ "path": "stats.coin", "op": ">=", "value": 1 }],
+          "effects": [
+            { "op": "add", "path": "stats.coin", "value": -1 },
+            { "op": "set", "path": "flags.demo_seen", "value": true },
+            { "op": "add_relation", "npc_code": "NPC-WEI", "metric": "trust", "value": 3 },
+            { "op": "note", "value": "茶棚消息已進入 playlog。" }
+          ],
+          "check": { "skill": "inquiry", "dc": 6 }
+        }
+      ]
+    },
+    {
+      "id": "DemoTea",
+      "title": "樣例茶棚",
+      "location": "南京城外",
+      "time_slot": "辰時",
+      "tags": ["sample", "social"],
+      "body": ["茶棚裡有人提到北路與銀川。", "NPC 關係數值已由上一個選項更新。"],
+      "choices": [
+        {
+          "id": "return_gate",
+          "text": "回到城門",
+          "target": "DemoGate",
+          "utterance_function": "decision",
+          "effects": [{ "op": "add", "path": "stats.fatigue", "value": 1 }]
+        }
+      ]
+    }
+  ],
+  "event_pools": [
+    {
+      "id": "sample_after_choice",
+      "name": "樣例選項後事件",
+      "trigger": "after_choice",
+      "entries": [
+        {
+          "event_id": "EV_SAMPLE_RAIN",
+          "title": "細雨",
+          "text": "細雨落下，街上腳印變得清楚。",
+          "weight": 1,
+          "cooldown_turns": 2,
+          "max_triggers_per_day": 1,
+          "effects": [{ "op": "add", "path": "dev.traceability", "value": 2 }]
+        }
+      ]
+    }
+  ],
+  "relationship_defs": [
+    {
+      "npc_code": "NPC-WEI",
+      "npc_name": "魏無紛",
+      "metrics": [
+        { "key": "trust", "default": 0, "min": -100, "max": 100, "label": "信任" },
+        { "key": "favor", "default": 0, "min": -100, "max": 100, "label": "好感" },
+        { "key": "fear", "default": 0, "min": -100, "max": 100, "label": "畏懼" }
+      ]
+    }
+  ],
+  "npcs": [
+    {
+      "npc_code": "NPC-WEI",
+      "npc_name": "魏無紛",
+      "npc_type": "major_npc",
+      "faction": "北路",
+      "location_name": "銀川"
+    }
+  ]
+}
