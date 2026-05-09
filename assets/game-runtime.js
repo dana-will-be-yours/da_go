@@ -2,12 +2,12 @@
   "use strict";
   window.DaGoRuntimeManifest = Object.freeze({
     runtime_name: "da_go_unified_runtime",
-    runtime_version: "1.6.0-trpg-guide-4d3",
-    active_engine: "assets/game-playable-v3.js",
+    runtime_version: "1.7.0-seasonal-authoring-v4",
+    active_engine: "assets/game-playable-v4.js",
     target_database: "TRPG_Corpus_DB",
     export_format: "da_go_playlog_json_v2",
     staging_target: "stg.DaGo_PlayLog_Import -> stg.Utterance_Import",
-    canonical_runtime: "assets/game-playable-v3.js"
+    canonical_runtime: "assets/game-playable-v4.js"
   });
   const activeEngine = window.DaGoRuntimeManifest.active_engine;
   if (document.querySelector(`script[src^="${activeEngine}"]`)) return;
