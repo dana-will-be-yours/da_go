@@ -1,0 +1,69 @@
+{
+  "metadata": {
+    "bundle_format": "da_go_runtime_bundle_v5",
+    "bundle_code": "DAGUO_NANJING_V5",
+    "era": "大興",
+    "year": 20,
+    "scope": "nanjing_only",
+    "start_passage": "Gate"
+  },
+  "difficulty": {"8":"簡單","10":"基礎挑戰","12":"標準挑戰","14":"困難","16":"很困難","18":"極難","20":"傳奇級","22":"非常規"},
+  "skills": {
+    "inner":{"name":"內功","attr":"body","group":"體魄"},"outer":{"name":"外功","attr":"body","group":"體魄"},"light":{"name":"輕功","attr":"body","group":"體魄"},"swim":{"name":"水性","attr":"body","group":"體魄"},"climb":{"name":"攀行","attr":"body","group":"體魄"},"pierce":{"name":"刺擊","attr":"body","group":"體魄"},"slash":{"name":"斬擊","attr":"body","group":"體魄"},"strike":{"name":"打擊","attr":"body","group":"體魄"},"sense":{"name":"感知","attr":"body","group":"體魄"},
+    "sleight":{"name":"巧手","attr":"tech","group":"技巧"},"craft":{"name":"工藝","attr":"tech","group":"技巧"},"appraise":{"name":"辨別","attr":"tech","group":"技巧"},"medicine":{"name":"醫術","attr":"tech","group":"技巧"},"pharma":{"name":"調藥","attr":"tech","group":"技巧"},"ride":{"name":"騎術","attr":"tech","group":"技巧"},"hide":{"name":"躲藏","attr":"tech","group":"技巧"},"observe":{"name":"觀察","attr":"tech","group":"技巧"},"listen":{"name":"聆聽","attr":"tech","group":"技巧"},"smell":{"name":"品嗅","attr":"tech","group":"技巧"},"office":{"name":"政務","attr":"tech","group":"技巧"},"animal":{"name":"馴養","attr":"tech","group":"技巧"},"threat":{"name":"威嚇","attr":"tech","group":"技巧"},"art":{"name":"表達","attr":"tech","group":"技巧"},"elegance":{"name":"雅藝","attr":"tech","group":"技巧"},
+    "appearance":{"name":"相貌","attr":"mind","group":"智識"},"resource":{"name":"資源","attr":"mind","group":"智識"},"wealth":{"name":"財富","attr":"mind","group":"智識"},"court":{"name":"官場","attr":"mind","group":"智識"},"jianghu":{"name":"江湖","attr":"mind","group":"智識"},"geo":{"name":"地理","attr":"mind","group":"智識"},"nature":{"name":"自然","attr":"mind","group":"智識"},"history":{"name":"歷史","attr":"mind","group":"智識"},"religion":{"name":"宗教","attr":"mind","group":"智識"},"study":{"name":"學藝","attr":"mind","group":"智識"},"will":{"name":"意志","attr":"mind","group":"智識"},"language":{"name":"語言","attr":"mind","group":"智識"},"social":{"name":"交際","attr":"mind","group":"智識"},"empathy":{"name":"共情","attr":"mind","group":"智識"},"speech":{"name":"口才","attr":"mind","group":"智識"}
+  },
+  "roles": {
+    "wenxuan":{"name":"文選","skills":{"study":2,"office":2,"court":1,"elegance":1}},
+    "house":{"name":"門閥子弟","skills":{"wealth":2,"resource":1,"court":1,"social":1}},
+    "yamen":{"name":"胥吏","skills":{"office":2,"observe":1,"court":1}},
+    "guard":{"name":"衛士","skills":{"outer":1,"slash":1,"court":1,"ride":1}},
+    "wanderer":{"name":"遊俠","skills":{"jianghu":2,"geo":1,"hide":1,"history":1}},
+    "merchant":{"name":"行商","skills":{"wealth":2,"resource":2,"speech":1,"appraise":1}},
+    "medic":{"name":"坊郭醫","skills":{"medicine":2,"pharma":1,"nature":1,"observe":1}},
+    "artist":{"name":"伎伶俳優","skills":{"art":2,"empathy":1,"social":1,"elegance":1}},
+    "disciple":{"name":"門派弟子","skills":{"outer":1,"light":1,"jianghu":1,"religion":1}}
+  },
+  "rank_rules": {"1":{"code":"wu","name":"戊","reputation":0,"coin":0},"2":{"code":"ding","name":"丁","reputation":1,"coin":1},"3":{"code":"bing","name":"丙","reputation":2,"coin":3},"4":{"code":"yi","name":"乙","reputation":3,"coin":5},"5":{"code":"jia","name":"甲","reputation":4,"coin":8}},
+  "locations": [
+    {"code":"Gate","name":"南京外城","type":"city_gate"},{"code":"Tea","name":"南京茶棚","type":"rumour_hub"},{"code":"Relay","name":"南京驛舍","type":"office_route"},{"code":"River","name":"秦淮河埠","type":"harbour"},{"code":"Ledger","name":"南京南市帳房","type":"market_archive"},{"code":"Kunlun","name":"南京西街書肆","type":"bookshop"},{"code":"Yamen","name":"南京官署","type":"government"},{"code":"NorthStreet","name":"南京北街","type":"north_route"},{"code":"Training","name":"借住小院","type":"training"}
+  ],
+  "npcs": [
+    {"code":"npc_tea_master","name":"茶博士","location":"Tea","relation":0,"tags":["情報","市井"]},
+    {"code":"npc_post_runner","name":"驛卒","location":"Relay","relation":0,"tags":["北路","官信"]},
+    {"code":"npc_old_scribe","name":"老書吏","location":"Yamen","relation":0,"tags":["官署","魏氏"]},
+    {"code":"npc_boatman","name":"船主","location":"River","relation":0,"tags":["江夏","糧船"]},
+    {"code":"npc_accountant","name":"帳房先生","location":"Ledger","relation":0,"tags":["南陽","商會"]},
+    {"code":"npc_qingyi","name":"青衣商旅","location":"Alley","relation":-1,"tags":["紙包","崑崙"]},
+    {"code":"npc_daotong","name":"買紙道童","location":"Kunlun","relation":0,"tags":["崑崙","西街"]}
+  ],
+  "quests": [
+    {"code":"quest_south_ledger","title":"南陽銀痕","status":"active","steps":["取得南合商會戳記","取得南陽帳目疑點","問出劉廷平舊名"]},
+    {"code":"quest_north_letter","title":"銀川急信","status":"active","steps":["取得銀川急信線索","取得北路送信圖","請馬客帶信"]},
+    {"code":"quest_kunlun_rumour","title":"崑崙遠訊","status":"active","steps":["取得崑崙受襲傳聞","取得崑崙書肆信物","查下山者去向"]}
+  ],
+  "shops": [
+    {"code":"shop_teahouse","name":"茶棚小攤","location":"Tea","items":[{"code":"tea","name":"熱茶","price":1,"effects":{"composure":1,"hunger":-1}},{"code":"dry_food","name":"乾糧","price":1,"effects":{"hunger":-12,"spirit":1}}]},
+    {"code":"shop_stationery","name":"西街紙筆","location":"Kunlun","items":[{"code":"paper_brush","name":"素紙筆","price":1,"effects":{"composure":1}},{"code":"small_map","name":"南京小圖","price":3,"effects":{}}]}
+  ],
+  "event_pool": [
+    {"code":"evt_patrol","title":"巡丁視線","text":"街口有巡丁多看了你一眼。","effects":{"suspicion":1},"cooldown":4},
+    {"code":"evt_rain","title":"雨勢回潮","text":"遠處驛馬急過，泥水濺上牆角。","effects":{"fatigue":1},"cooldown":4},
+    {"code":"evt_rumour","title":"碎語換題","text":"茶棚換了一批客人，話題變得更碎。","effects":{"composure":-1},"cooldown":4}
+  ],
+  "passages": {
+    "Gate":{"code":"NJ-001","title":"南京外城","loc":"南京外城","text":["大興二十年的南京，雨後石道仍帶著潮色。城門口的驛馬、茶棚、南市帳房與官署差役把許多消息帶到同一條街上。","你今日只在南京行動。遠方的南陽、崑崙、銀川與五毒，都只以信、帳、傳聞與舊人之名進入這座城。"],"choices":[{"text":"去茶棚聽南來商旅說話","to":"Tea","kind":"question","skill":"listen","dc":8,"fx":{"hunger":1,"fatigue":1}},{"text":"到驛舍問北路急信","to":"Relay","kind":"question","skill":"office","dc":10,"fx":{"fatigue":1,"suspicion":1}},{"text":"繞去秦淮河埠看貨船","to":"River","kind":"action","skill":"observe","dc":10,"fx":{"fatigue":2}},{"text":"回借住小院溫課練功","to":"Training","kind":"training","skill":null,"dc":0,"fx":{"fatigue":-1}}]},
+    "Tea":{"code":"NJ-002","title":"城門茶棚","loc":"南京茶棚","text":["茶博士把粗碗推到你面前。旁桌兩名商旅提到江郡北虎商會、南陽商銀與江夏糧船。","有人低聲說，李遠已向南行，另有一封信要趕在局勢變壞前送到南京西街。"],"choices":[{"text":"請茶博士說清南陽商銀異動","to":"Ledger","kind":"question","skill":"speech","dc":10,"fx":{"coin":-1,"suspicion":1},"success":"茶博士收了錢，說南陽近日有大額拆借，名義乾淨，走向卻怪。","failure":"茶博士把碗往桌上一扣，說這種話不該在城門口問。"},{"text":"側耳聽商旅是否提到崑崙","to":"Kunlun","kind":"question","skill":"listen","dc":10,"fx":{"suspicion":1},"gain":"崑崙受襲傳聞"},{"text":"跟蹤離席的青衣商旅","to":"Alley","kind":"action","skill":"hide","dc":12,"fx":{"fatigue":3,"suspicion":2}},{"text":"回南京外城","to":"Gate","kind":"action","skill":null,"dc":0,"fx":{}}]},
+    "Relay":{"code":"NJ-003","title":"驛舍急信","loc":"南京驛舍","text":["驛舍廊下掛著還未乾的馬具。驛卒將北路信匣推入櫃內，匣面朱筆寫著「銀川」。","若要問，得先讓對方相信你有正當來由。"],"choices":[{"text":"用官樣話問銀川急信","to":"Yamen","kind":"question","skill":"office","dc":10,"fx":{"suspicion":1},"gain":"銀川急信線索"},{"text":"稱自己受人所託，問送信路線","to":"NorthStreet","kind":"negotiation","skill":"social","dc":10,"fx":{"suspicion":2,"fatigue":1},"gain":"北路送信圖"},{"text":"離開驛舍","to":"Gate","kind":"action","skill":null,"dc":0,"fx":{}}]},
+    "River":{"code":"NJ-004","title":"秦淮河埠","loc":"秦淮河埠","text":["河水把天色映得發灰。貨箱上有江郡、盧陵、南陽幾處戳記，搬夫說這兩月船期變得奇怪。","你今日不離南京，只能從船工口中問出江夏與南陽的線。"],"choices":[{"text":"查貨箱戳記與收貨名","to":"Ledger","kind":"action","skill":"appraise","dc":10,"fx":{"fatigue":2},"gain":"南合商會戳記"},{"text":"向船主問江夏糧船","to":"Rest","kind":"question","skill":"speech","dc":10,"fx":{"coin":-1},"gain":"江夏糧船消息"},{"text":"回南京外城","to":"Gate","kind":"action","skill":null,"dc":0,"fx":{}}]},
+    "Ledger":{"code":"NJ-005","title":"南市帳房","loc":"南京南市","text":["南市帳房裡，算籌壓著一張改過數次的借據。南合商會的名號反覆出現，收貨與付款卻分開走。","帳房先生說，南陽最近像有人在暗處堆薪。"],"choices":[{"text":"比對南陽與江郡兩筆帳","to":"Ledger","kind":"action","skill":"office","dc":10,"fx":{"fatigue":2},"gain":"南陽帳目疑點"},{"text":"問帳房先生劉廷平的名號","to":"Rest","kind":"question","skill":"court","dc":10,"fx":{"suspicion":1},"gain":"劉廷平舊名"},{"text":"回茶棚","to":"Tea","kind":"action","skill":null,"dc":0,"fx":{}}]},
+    "Kunlun":{"code":"NJ-006","title":"南京西街書肆","loc":"南京西街","text":["書肆門口掛著淡紫穗結。店主看見你提到崑崙，先看你的鞋，再看你的袖。","街口道童匆匆買紙。你聽見「崑崙受襲」四字，又聽見銀川與下山。"],"choices":[{"text":"追問道童消息來源","to":"NorthStreet","kind":"question","skill":"empathy","dc":10,"fx":{"suspicion":1},"gain":"崑崙受襲傳聞"},{"text":"用宗教典故試探店主","to":"Rest","kind":"question","skill":"religion","dc":10,"fx":{"composure":1},"gain":"崑崙書肆信物"},{"text":"回茶棚","to":"Tea","kind":"action","skill":null,"dc":0,"fx":{}}]},
+    "Alley":{"code":"NJ-007","title":"後巷青衣人","loc":"南京後巷","text":["青衣商旅在後巷停下，從袖中取出小紙包，交給賣香人。","他們說到「五月十六」與「崑崙山門」，又說南陽那邊已壓不住。"],"choices":[{"text":"記住紙包封法","to":"Relay","kind":"action","skill":"observe","dc":8,"fx":{"fatigue":1},"gain":"青衣紙包封法"},{"text":"上前裝作問路","to":"Ledger","kind":"negotiation","skill":"speech","dc":10,"fx":{"suspicion":2},"gain":"南陽異動口供"},{"text":"翻牆避開巡丁","to":"Gate","kind":"action","skill":"climb","dc":10,"fx":{"fatigue":3,"suspicion":-1}}]},
+    "Yamen":{"code":"NJ-008","title":"官署門廊","loc":"南京官署","text":["官署門廊掛著潮氣。老書吏不願多談北路，只說魏無紛在銀川，魏無忌在朝中。","他提醒你，問得太多會讓名字落到錯的人手裡。"],"choices":[{"text":"查魏無忌近年任官","to":"Rest","kind":"action","skill":"office","dc":12,"fx":{"suspicion":2,"fatigue":2},"gain":"魏無忌任官摘記"},{"text":"問魏無紛與銀川守備","to":"NorthStreet","kind":"question","skill":"court","dc":10,"fx":{"suspicion":1},"gain":"銀川守備傳聞"},{"text":"離開官署","to":"Gate","kind":"action","skill":null,"dc":0,"fx":{}}]},
+    "NorthStreet":{"code":"NJ-010","title":"南京北街","loc":"南京北街","text":["北街風大，賣馬人把韁繩繞在柱上。有人說崑崙受突厥攻擊後，有人下山，又有人往銀川。","你不離南京，只能請人帶信、打聽名聲，或把可疑線索留到夜裡細想。"],"choices":[{"text":"請馬客帶信往銀川","to":"Rest","kind":"negotiation","skill":"wealth","dc":10,"fx":{"coin":-3,"fatigue":1},"need":"銀川急信線索","gain":"銀川回信約定"},{"text":"打聽魏無紛名聲","to":"Yamen","kind":"question","skill":"jianghu","dc":8,"fx":{"coin":-1},"gain":"魏無紛名聲"},{"text":"回南京外城","to":"Gate","kind":"action","skill":null,"dc":0,"fx":{}}]},
+    "Training":{"code":"NJ-015","title":"溫課練功","loc":"借住小院","text":["小院燈光偏黃。你可以讀書、請教、演練，也可以停下來養神。"],"choices":[{"text":"研讀政務案牘","to":"TrainingResult","kind":"training","skill":"office","dc":8,"fx":{"fatigue":2,"hunger":1},"train":"office"},{"text":"演練輕功步法","to":"TrainingResult","kind":"training","skill":"light","dc":8,"fx":{"fatigue":4,"hunger":2},"train":"light"},{"text":"請人講江湖門路","to":"TrainingResult","kind":"training","skill":"jianghu","dc":8,"fx":{"coin":-1,"composure":1},"train":"jianghu"},{"text":"回南京外城","to":"Gate","kind":"action","skill":null,"dc":0,"fx":{}}]},
+    "TrainingResult":{"code":"NJ-016","title":"修習結果","loc":"借住小院","text":["{{last}}"],"choices":[{"text":"繼續修習","to":"Training","kind":"training","skill":null,"dc":0,"fx":{}},{"text":"回南京外城","to":"Gate","kind":"action","skill":null,"dc":0,"fx":{}},{"text":"歇息一會兒","to":"Rest","kind":"action","skill":null,"dc":0,"fx":{"fatigue":-15,"hunger":-5,"spirit":6}}]},
+    "Rest":{"code":"NJ-017","title":"歇息","loc":"借住小院","text":["風從窗縫裡進來。你把衣襟攏緊，讓呼吸慢下來。","短暫歇息不能消除所有麻煩，但足以讓你接著行動。"],"choices":[{"text":"睡到天明","to":"Gate","kind":"action","skill":null,"dc":0,"fx":{"spirit":18,"composure":8,"fatigue":-30,"hunger":-12,"suspicion":-1}},{"text":"溫課練功","to":"Training","kind":"training","skill":null,"dc":0,"fx":{}},{"text":"查看南京路線","to":"Map","kind":"action","skill":null,"dc":0,"fx":{}}]},
+    "Map":{"code":"NJ-018","title":"南京路線圖","loc":"隨身小圖","text":["小圖只畫南京：外城、茶棚、驛舍、秦淮河埠、南市、官署、北街與西街書肆。","遠方諸地皆在紙上，不在今日腳下。"],"choices":[{"text":"去外城","to":"Gate","kind":"action","skill":null,"dc":0,"fx":{}},{"text":"去南市帳房","to":"Ledger","kind":"action","skill":null,"dc":0,"fx":{}},{"text":"去官署","to":"Yamen","kind":"action","skill":null,"dc":0,"fx":{}},{"text":"去秦淮河埠","to":"River","kind":"action","skill":null,"dc":0,"fx":{}}]}
+  }
+}
