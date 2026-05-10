@@ -1,6 +1,6 @@
 {
   "name": "da_go",
-  "version": "1.12.10-card-ui",
+  "version": "1.12.13-deckbuilder",
   "private": true,
   "type": "commonjs",
   "scripts": {
