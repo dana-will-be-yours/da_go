@@ -1,29 +1,59 @@
 {
   "bundle_format": "da_go_runtime_bundle_v1",
-  "bundle_version": "1.11.1-xiaocheng-local",
-  "scenario": {
-    "code": "xiaocheng_jiushi",
-    "name": "小城舊事",
-    "time": "大興十年",
-    "location": "天津郡 常山縣",
+  "bundle_version": "1.12.0-modular-runtime",
+  "metadata": {
+    "runtime_name": "da_go_modular_runtime",
+    "runtime_version": "1.12.0-modular-runtime",
+    "project_code": "DAGO",
+    "team_code": "DAGO-T01",
+    "session_code": "DC10-XIAOCHENG-001",
+    "scenario_code": "xiaocheng_jiushi",
+    "title": "大國年代記",
     "start_passage": "Gate"
   },
-  "locations": [
-    {"code": "Gate", "name": "常山縣東門", "type": "city_gate"},
-    {"code": "WorkBoard", "name": "活計牌", "type": "job_board"},
-    {"code": "Inn", "name": "客棧", "type": "lodging"},
-    {"code": "Market", "name": "市集", "type": "market"},
-    {"code": "Yamen", "name": "縣衙", "type": "government"},
-    {"code": "Dock", "name": "南河埠", "type": "harbour"},
-    {"code": "Lodging", "name": "借住小院", "type": "save_point"},
-    {"code": "Tianjin", "name": "天津郡郡城", "type": "prefecture"},
-    {"code": "Hengshui", "name": "衡水縣方向", "type": "county"},
-    {"code": "Hengwan", "name": "珩灣縣方向", "type": "county"},
-    {"code": "Cangbei", "name": "滄北邑方向", "type": "town"}
+  "states": [
+    {"key": "stats.spirit", "group": "stats", "type": "number", "default": 50, "min": 0, "max": 100, "label": "精神"},
+    {"key": "stats.composure", "group": "stats", "type": "number", "default": 50, "min": 0, "max": 100, "label": "鎮定"},
+    {"key": "stats.suspicion", "group": "stats", "type": "number", "default": 0, "min": 0, "max": 100, "label": "疑心"},
+    {"key": "stats.fatigue", "group": "stats", "type": "number", "default": 0, "min": 0, "max": 100, "label": "疲勞"},
+    {"key": "stats.hunger", "group": "stats", "type": "number", "default": 0, "min": 0, "max": 100, "label": "飢餓"},
+    {"key": "stats.coin", "group": "stats", "type": "number", "default": 12, "min": -99, "max": 999, "label": "錢"}
   ],
-  "rules": {
-    "check_formula": "4D3+調整值+技能值 >= DC",
-    "collapse": "疲勞或飢餓過高時，行動後可能回到存檔點並扣除氣血。",
-    "hidden_goal": "研究者用：在此地找到工作生活一年。"
-  }
+  "passages": [
+    {"id": "Gate", "title": "常山縣東門", "location": "天津郡 / 常山縣東門", "body": "大興十年，天津郡常山縣。你生長在此地，東門外的土路、告示牆、米價與熟面孔都不是新鮮事。近來縣中活計緊，人情也緊。", "is_start": true, "choices": [
+      {"id": "to_work", "text": "去告示牆看今日招工", "target": "WorkBoard", "utterance_function": "action", "check": {"skill": "observe", "dc": 8}, "effects": [{"op":"add","path":"stats.fatigue","value":1},{"op":"add","path":"stats.hunger","value":1}]},
+      {"id": "to_inn", "text": "到驛路客棧問掌櫃", "target": "Inn", "utterance_function": "question", "check": {"skill": "speech", "dc": 8}, "effects": [{"op":"add","path":"stats.fatigue","value":1}]},
+      {"id": "to_market", "text": "去市集聽米價", "target": "Market", "utterance_function": "question", "check": {"skill": "listen", "dc": 10}, "effects": [{"op":"add","path":"stats.fatigue","value":1}]},
+      {"id": "to_lodging", "text": "回橋北租屋整理行囊", "target": "Lodging", "utterance_function": "summary", "effects": [{"op":"add","path":"stats.spirit","value":1}]}
+    ]},
+    {"id": "WorkBoard", "title": "告示牆", "location": "常山縣 / 東門告示牆", "body": "牆上貼著米倉搬運、修車棚、客棧灑掃、縣衙抄錄幾張舊告示。旁邊站著一個自稱梁三的中年人，替人牽線。", "choices": [
+      {"id": "carry_grain", "text": "應米倉搬運短工", "target": "WorkBoard", "utterance_function": "action", "check": {"skill": "outer", "dc": 8}, "effects": [{"op":"add","path":"stats.coin","value":5},{"op":"add","path":"stats.fatigue","value":8},{"op":"add","path":"stats.hunger","value":5},{"op":"log","value":"你接了米倉搬運短工。"}]},
+      {"id": "scribe_job", "text": "替梁三抄一張工簿", "target": "Yamen", "utterance_function": "action", "check": {"skill": "office", "dc": 10}, "effects": [{"op":"add","path":"stats.coin","value":3},{"op":"add","path":"stats.fatigue","value":2}]},
+      {"id": "back_gate", "text": "回東門", "target": "Gate", "utterance_function": "action", "effects": []}
+    ]},
+    {"id": "Inn", "title": "驛路客棧", "location": "常山縣 / 驛路客棧", "body": "客棧掌櫃姚娘把算盤放在櫃上。外地客不多，鄉里人卻常來此說事。", "choices": [
+      {"id": "ask_cleaning", "text": "向姚娘問灑掃差事", "target": "Inn", "utterance_function": "question", "check": {"skill": "social", "dc": 8}, "effects": [{"op":"add","path":"stats.coin","value":3},{"op":"add","path":"stats.fatigue","value":4},{"op":"meet_npc","npc_code":"npc_yao_niang"}]},
+      {"id": "buy_food", "text": "買一碗熱湯餅", "target": "Inn", "utterance_function": "action", "conditions": [{"op":"gte","path":"stats.coin","value":2}], "effects": [{"op":"add","path":"stats.coin","value":-2},{"op":"add","path":"stats.hunger","value":-18},{"op":"add","path":"stats.spirit","value":2}]},
+      {"id": "back_gate", "text": "回東門", "target": "Gate", "utterance_function": "action", "effects": []}
+    ]},
+    {"id": "Market", "title": "常山市集", "location": "常山縣 / 市集", "body": "市集沿著石渠鋪開，賣柴、賣藥、賣粗布的人各占一角。若要在此地站住腳，先得懂得哪句話該接，哪句話該放過。", "choices": [
+      {"id": "ask_price", "text": "聽貨郎講鄰村米價", "target": "Market", "utterance_function": "question", "check": {"skill": "listen", "dc": 10}, "effects": [{"op":"gain","value":"米價傳聞"}]},
+      {"id": "to_yamen", "text": "往縣衙門廊打聽差事", "target": "Yamen", "utterance_function": "question", "check": {"skill": "office", "dc": 10}, "effects": [{"op":"add","path":"stats.suspicion","value":1}]},
+      {"id": "back_gate", "text": "回東門", "target": "Gate", "utterance_function": "action", "effects": []}
+    ]},
+    {"id": "Yamen", "title": "縣衙門廊", "location": "常山縣 / 縣衙", "body": "縣衙門廊不寬，紙卷與潮氣混在一起。書吏唐簡看你手腳還算俐落，問你可願抄幾張舊案目錄。", "choices": [
+      {"id": "copy_record", "text": "抄錄舊案目錄", "target": "Yamen", "utterance_function": "action", "check": {"skill": "office", "dc": 10}, "effects": [{"op":"add","path":"stats.coin","value":4},{"op":"add","path":"stats.fatigue","value":3},{"op":"add","path":"stats.suspicion","value":1}]},
+      {"id": "back_gate", "text": "離開縣衙", "target": "Gate", "utterance_function": "action", "effects": []}
+    ]},
+    {"id": "Lodging", "title": "橋北租屋", "location": "常山縣 / 橋北租屋", "body": "租屋只有一張窄榻、一盞油燈與幾件行囊。窗外能聽見更夫走過石渠橋。", "choices": [
+      {"id": "sleep", "text": "睡到次日清晨", "target": "Gate", "utterance_function": "summary", "save_point": true, "effects": [{"op":"add","path":"stats.spirit","value":6},{"op":"add","path":"stats.composure","value":3},{"op":"add","path":"stats.fatigue","value":-40},{"op":"add","path":"stats.hunger","value":4},{"op":"add","path":"stats.suspicion","value":-1}]},
+      {"id": "study", "text": "整理今日聽來的話", "target": "Lodging", "utterance_function": "summary", "check": {"skill": "study", "dc": 8}, "effects": [{"op":"gain","value":"常山生活札記"}]},
+      {"id": "back_gate", "text": "回東門", "target": "Gate", "utterance_function": "action", "effects": []}
+    ]}
+  ],
+  "relationships": [
+    {"npc_code":"npc_yao_niang","npc_name":"姚娘","npc_type":"shopkeeper","location_name":"客棧","metrics":[{"key":"trust","default":0,"min":-100,"max":100,"label":"信任"}]}
+  ],
+  "event_pools": [],
+  "rules": {"check_formula": "4D3+調整值+技能值 >= DC", "hidden_goal": "研究者用：在此地找到工作生活一年。"}
 }
