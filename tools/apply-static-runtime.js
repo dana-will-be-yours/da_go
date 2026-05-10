@@ -20,5 +20,6 @@ for (const file of ['game.html', 'assets/game-runtime.js']) {
   fs.writeFileSync(full, patchVersion(fs.readFileSync(full, 'utf8')), 'utf8');
 }
 require('./v113_time.js')(root);
+require('./patch-deckbuilder-v114.js')(root);
 require('./patch-character-v113.js')(root);
 console.log('patched static runtime for ' + version);

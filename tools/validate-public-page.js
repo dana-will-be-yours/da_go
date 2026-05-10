@@ -21,13 +21,16 @@ for (const f of ['assets/scenario-select.js','assets/game-bundle-loader.js','ass
   if (!fs.existsSync(p)) throw new Error(`missing ${f}`);
   new Function(fs.readFileSync(p, 'utf8'));
 }
-for (const token of ['formatStoryTime','monthName','xunName','大興十年','makeStarterDeck','settleAfterDream','nextPurpose']) {
-  if (!modular.includes(token)) throw new Error(`runtime missing ${token}`);
+for (const token of ['formatStoryTime','monthName','xunName','大興十年','settleAfterDream','nextPurpose']) {
+  if (!modular.includes(token)) throw new Error(`time runtime missing ${token}`);
 }
 for (const token of ['poolEventsFor','relationshipChoices','eventChoices','applyDailyEvent','event_hook']) {
   if (!modular.includes(token)) throw new Error(`event runtime missing ${token}`);
 }
-for (const token of ['DaGoOriginSpecialV113','依五項身分開放大國世家','將門之子','大興崔氏旁支','崑崙外州']) {
+for (const token of ['deckBuilderHtml','ensureDeckBuild','buildOwnedCards','deckCodesForCombat','ownedCards','deckCodes','data-deck-add','data-deck-remove','式囊編排','佐藥','噬魂曲','吹角連營','借財通路']) {
+  if (!modular.includes(token)) throw new Error(`deck runtime missing ${token}`);
+}
+for (const token of ['DaGoOriginSpecialV113','依五項身分開放大國世家','將門之子','大興崔氏旁支','蓬萊崑崙外系','洞庭五毒外緣','華陰九曲外門','崑崙外州','邊防關部伍','文選']) {
   if (!hotfix.includes(token)) throw new Error(`hotfix missing ${token}`);
 }
 for (const token of ['preview-detail-block','full-status-sidebar','renderFullSidebar','addPreviewDetail']) {
