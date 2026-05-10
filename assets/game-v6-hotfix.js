@@ -13,24 +13,24 @@ const ROLE_GROUPS={
 window.ROLE_GROUPS=ROLE_GROUPS;
 const sectOnly=new Set(['qishan_ye','dongting_wudu','kunlun_chu','jiuqu_huayin','donglai_xuanhai','jiannan_yuezong','nanjiang_xiaoyao','wanminhui']);
 const roleValues=new Set(Object.values(ROLE_GROUPS).flat().map(([value])=>value));
-function roleOptions(selected){
-  return Object.entries(ROLE_GROUPS).map(([group,rows])=>`<optgroup label="${group}">${rows.map(([value,text])=>`<option value="${value}" ${value===selected?'selected':''}>${text}</option>`).join('')}</optgroup>`).join('');
-}
+function roleOptions(selected){return Object.entries(ROLE_GROUPS).map(([group,rows])=>`<optgroup label="${group}">${rows.map(([value,text])=>`<option value="${value}" ${value===selected?'selected':''}>${text}</option>`).join('')}</optgroup>`).join('')}
 function patchRoles(){
   const grid=document.querySelector('.role-stack-grid');
-  if(!grid||grid.dataset.v6RolePatched)return;
+  if(!grid||grid.dataset.v6RolePatched)return false;
   grid.dataset.v6RolePatched='1';
   const defaults=['yamen_clerk','wanderer','merchant','medic','soldier'];
   const current=[...grid.querySelectorAll('[name="roles"]')].map((x,i)=>roleValues.has(x.value)?x.value:defaults[i]).slice(0,5);
   while(current.length<5)current.push(defaults[current.length]);
   grid.innerHTML=current.map((value,i)=>`<label>身分 ${i+1}<select name="roles">${roleOptions(value)}</select></label>`).join('');
+  return true;
 }
 function patchRenown(){
   const trait=document.querySelector('[name="trait"]')?.closest('.field-group');
   if(trait&&!document.querySelector('[name="renownPath"]')){
     trait.insertAdjacentHTML('afterend','<div class="field-group"><span>初始名聲</span><label><input type="radio" name="renownPath" value="zheng" checked> 正</label><label><input type="radio" name="renownPath" value="xie"> 邪</label><label><input type="radio" name="renownPath" value="qi"> 奇</label><input type="hidden" name="renownLevel" value="1"></div>');
   }
-  document.querySelectorAll('[name="renownLevel"]').forEach(input=>{input.value='1'});
+  const renown=document.querySelector('[name="renownLevel"]');
+  if(renown)renown.value='1';
 }
 function patchSectRule(){
   const form=document.getElementById('startForm');
@@ -45,15 +45,10 @@ function patchSectRule(){
       if(!hasDisciple&&input.checked)form.querySelector('[name="specialOrigin"][value="none"]').checked=true;
     });
   };
-  form.addEventListener('change',update,true);
+  form.addEventListener('change',event=>{if(event.target?.name==='roles'||event.target?.name==='specialOrigin')update()},true);
   update();
 }
-function patch(){
-  patchRoles();
-  patchRenown();
-  patchSectRule();
-}
-patch();
-const obs=new MutationObserver(patch);
-obs.observe(document.documentElement,{childList:true,subtree:true});
+function patch(){patchRoles();patchRenown();patchSectRule()}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',patch,{once:true});else patch();
+setTimeout(patch,250);
 })();

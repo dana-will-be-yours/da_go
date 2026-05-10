@@ -1,6 +1,6 @@
 (()=>{
 'use strict';
-const VERSION='1.12.0-modular-runtime';
+const VERSION='1.12.1-perf';
 window.DaGoRuntimeManifest=Object.freeze({
   runtime_name:'da_go_modular_runtime',
   runtime_version:VERSION,
@@ -21,8 +21,6 @@ const scripts=[
   'assets/engine/save.js',
   'assets/engine/export-playlog.js',
   'assets/game-v6-hotfix.js',
-  'assets/scenario-select.js',
-  'assets/game-character-balance-fix.js',
   'assets/game-modular.js'
 ];
 try{if(new URLSearchParams(location.search).has('reset')){localStorage.removeItem('daGoPlayV7');localStorage.removeItem('daGoPlayV6')}}catch{}
