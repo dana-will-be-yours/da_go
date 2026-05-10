@@ -5,9 +5,10 @@
   "type": "commonjs",
   "scripts": {
     "test": "npm run validate",
-    "validate": "node tools/validate-runtime.js && node tools/apply-static-runtime.js && node tools/validate-public-page.js",
+    "validate": "node tools/validate-runtime.js && node tools/apply-static-runtime.js && node tools/validate-public-page.js && node tools/validate-playable-architecture.js",
     "validate:runtime": "node tools/validate-runtime.js",
-    "validate:public": "node tools/apply-static-runtime.js && node tools/validate-public-page.js"
+    "validate:public": "node tools/apply-static-runtime.js && node tools/validate-public-page.js",
+    "validate:playable": "node tools/validate-playable-architecture.js"
   },
   "devDependencies": {}
 }
