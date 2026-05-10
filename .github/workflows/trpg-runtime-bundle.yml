@@ -1,0 +1,53 @@
+name: TRPG Runtime Bundle Sync
+
+on:
+  workflow_dispatch:
+    inputs:
+      run_sql_export:
+        description: 'Run SQL Server export using repository secrets'
+        required: true
+        default: 'false'
+        type: choice
+        options:
+          - 'false'
+          - 'true'
+  pull_request:
+    paths:
+      - 'assets/data/**/*.json'
+      - 'tools/sync-trpg-runtime-bundle.ps1'
+      - 'tools/validate-runtime.js'
+      - '.github/workflows/trpg-runtime-bundle.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  validate-bundle:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Validate current runtime bundle
+        run: node tools/validate-runtime.js
+
+  sql-export:
+    if: github.event_name == 'workflow_dispatch' && inputs.run_sql_export == 'true'
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Export bundle from TRPG Corpus SQL Server
+        shell: pwsh
+        env:
+          DAGO_SQL_SERVER: ${{ secrets.DAGO_SQL_SERVER }}
+          DAGO_SQL_DATABASE: ${{ secrets.DAGO_SQL_DATABASE }}
+        run: |
+          if (-not $env:DAGO_SQL_SERVER) { throw 'Missing secret DAGO_SQL_SERVER' }
+          if (-not $env:DAGO_SQL_DATABASE) { $env:DAGO_SQL_DATABASE = 'TRPG_Corpus_DB' }
+          .\tools\sync-trpg-runtime-bundle.ps1 -Server $env:DAGO_SQL_SERVER -Database $env:DAGO_SQL_DATABASE
+      - name: Validate exported bundle
+        run: node tools/validate-runtime.js
