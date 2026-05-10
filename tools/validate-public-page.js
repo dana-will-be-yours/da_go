@@ -8,7 +8,7 @@ for (const id of requiredIds) {
   if (!html.includes(`id="${id}"`)) throw new Error(`game.html missing #${id}`);
 }
 const requiredScripts = [
-  'assets/game-runtime.js',
+  'assets/game-manifest.js',
   'assets/game-bundle-loader.js',
   'assets/engine/state.js',
   'assets/engine/passage.js',
@@ -17,8 +17,11 @@ const requiredScripts = [
 for (const script of requiredScripts) {
   if (!html.includes(script)) throw new Error(`game.html missing script ${script}`);
 }
+if (html.includes('assets/game-runtime.js?v=')) {
+  throw new Error('published game.html must not load dynamic game-runtime.js');
+}
 const files = [
-  'assets/game-runtime.js',
+  'assets/game-manifest.js',
   'assets/game-bundle-loader.js',
   'assets/engine/state.js',
   'assets/engine/rules.js',
@@ -28,8 +31,7 @@ const files = [
   'assets/engine/save.js',
   'assets/engine/export-playlog.js',
   'assets/game-v6-hotfix.js',
-  'assets/game-modular.js',
-  'assets/game-choice-delegation-fix.js'
+  'assets/game-modular.js'
 ];
 for (const file of files) {
   const full = path.join(root, file);
