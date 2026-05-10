@@ -5,7 +5,7 @@
 公開頁：
 
 ```text
-https://dana-will-be-yours.github.io/da_go/game.html?reset=1&v=1.12.7-panel-check
+https://dana-will-be-yours.github.io/da_go/game.html?reset=1&v=1.12.8-panel-enhance
 ```
 
 ## 目前版本
