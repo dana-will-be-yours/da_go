@@ -1,17 +1,43 @@
 const fs = require('fs');
 const path = require('path');
-
-const file = path.join(__dirname, '..', 'game.html');
-let html = fs.readFileSync(file, 'utf8');
-
-html = html
-  .replaceAll('1.12.1-perf', '1.12.10-card-ui')
-  .replaceAll('1.12.4-combat', '1.12.10-card-ui')
-  .replaceAll('1.12.5-restored-ui', '1.12.10-card-ui')
-  .replaceAll('1.12.6-full-ui', '1.12.10-card-ui')
-  .replaceAll('1.12.7-panel-check', '1.12.10-card-ui')
-  .replaceAll('1.12.8-panel-enhance', '1.12.10-card-ui')
-  .replaceAll('1.12.9-modular-panels', '1.12.10-card-ui');
-
-fs.writeFileSync(file, html, 'utf8');
-console.log('updated game.html runtime version to 1.12.10-card-ui');
+const root = path.join(__dirname, '..');
+const version = '1.12.11-bg-cards';
+const page = path.join(root, 'game.html');
+let html = fs.readFileSync(page, 'utf8');
+for (const v of ['1.12.1-perf','1.12.4-combat','1.12.5-restored-ui','1.12.6-full-ui','1.12.7-panel-check','1.12.8-panel-enhance','1.12.9-modular-panels','1.12.10-card-ui']) html = html.replaceAll(v, version);
+fs.writeFileSync(page, html, 'utf8');
+function replaceFn(src, name, repl) {
+  const start = src.indexOf('function ' + name + '(');
+  if (start < 0) throw new Error('missing function ' + name);
+  const open = src.indexOf('{', start);
+  let depth = 0;
+  for (let i = open; i < src.length; i++) {
+    const ch = src[i];
+    if (ch === '{') depth++;
+    if (ch === '}') depth--;
+    if (depth === 0) return src.slice(0, start) + repl + src.slice(i + 1);
+  }
+  throw new Error('unclosed function ' + name);
+}
+function insertBeforeFn(src, name, code) {
+  const pos = src.indexOf('function ' + name + '(');
+  if (pos < 0) throw new Error('missing insertion point ' + name);
+  if (src.includes(code.split('\n')[0])) return src;
+  return src.slice(0, pos) + code + '\n' + src.slice(pos);
+}
+const gmPath = path.join(root, 'assets', 'game-modular.js');
+let gm = fs.readFileSync(gmPath, 'utf8');
+gm = gm.replace("const H={morning:'晨',noon:'午',dusk:'暮',night:'夜'};", "const H={morning:'卯時',noon:'午時',dusk:'酉時',night:'亥時'};\nfunction monthName(n){return ['正','二','三','四','五','六','七','八','九','十','十一','十二'][Math.max(0,Math.min(11,Number(n||1)-1))]||'正'}\nfunction xunName(d){d=Number(d)||1;return d<=10?'上旬':d<=20?'中旬':'下旬'}\nfunction formatStoryTime(stats={}){const day=Math.max(1,Number(stats.day||1));const idx=day-1;const month=Math.floor(idx/30)%12+1;const dayOfMonth=idx%30+1;const hour=H[stats.hour]||stats.hour||'卯時';return `大興十年${monthName(month)}月${dayOfMonth}日 ${xunName(dayOfMonth)} ${hour}`}" );
+gm = gm.replace("origin:{changshan:'常山縣本地人',tianjin:'天津郡郡城',hengshui:'衡水縣',hengwan:'珩灣縣',cangbei:'滄北邑',nanjing:'南京'}", "origin:{changshan:'常山縣本地人',tianjin:'天津郡郡城',hengshui:'衡水縣',hengwan:'珩灣縣',cangbei:'滄北邑',nanjing:'南京',jiang:'江郡',nanyang:'南陽郡',yinchuan:'銀川郡',kunlun:'崑崙外州',wudu:'洞庭五毒境',huayin:'華陰山麓',donglai:'東萊郡',jiannan:'劍南郡',nanjiang:'南疆邊郡',taihu:'太湖郡',shangqiu:'商丘郡'}");
+gm = gm.replace("specialOrigin:{none:'無',taihu_wei:'太湖魏家旁支',jinling_yang:'金陵陽家旁支',cangbei_bei:'滄北北家舊識',qishan_ye:'岐山葉氏',kunlun_chu:'蓬萊崑崙外系',wanminhui:'萬民會暗語'}", "specialOrigin:{none:'無',taihu_wei:'太湖魏家旁支',jinling_yang:'金陵陽家旁支',cangbei_bei:'滄北北家舊識',daxing_cui:'大興崔氏旁支',jinling_xie:'金陵謝氏遠房',longxi_li:'隴西李氏遠支',general_son:'邊軍將門之子',fallen_captain:'敗軍校尉之後',qishan_ye:'岐山葉氏',kunlun_chu:'蓬萊崑崙外系',dongting_wudu:'洞庭五毒外緣',huayin_jiuqu:'華陰九曲外門',wanminhui:'萬民會暗語'}");
+gm = replaceFn(gm, 'clock', "function clock(){const s=state.stats||{};return `${formatStoryTime(s)}｜第 ${esc(s.turn||0)} 行動`}");
+gm = replaceFn(gm, 'makeStarterDeck', "function makeStarterDeck(){const deck=[];const sk=state.skills||{},pl=state.player||{},roles=new Set(pl.roles||[]);const add=(code,n=1)=>{const card=COMBAT_CARDS[code];if(card)for(let i=0;i<n;i++)deck.push(cloneCard(card))};add('slash_wind',2);add('guard_body',2);add('pierce_bone');add('heavy_staff');add('dust_step');add('speak_peace');if(Number(sk.slash||0)>=2||roles.has('soldier')||roles.has('constable'))add('slash_wind',2);if(Number(sk.pierce||0)>=2||roles.has('disciple')||roles.has('hunter'))add('pierce_bone',2);if(Number(sk.strike||0)>=2||roles.has('strongman')||roles.has('dock_labor'))add('heavy_staff',2);if(Number(sk.outer||0)>=2||roles.has('guard')||roles.has('escort'))add('guard_body',2);if(Number(sk.light||0)>=2||pl.trait==='streetwise')add('dust_step',2);if(Number(sk.threat||0)>=2||pl.trait==='reckless')add('threaten_word',2);if(Number(sk.speech||0)>=2||['silver_tongue','upright','calm'].includes(pl.trait)||roles.has('merchant'))add('speak_peace',2);if(Number(sk.inner||0)>=1||roles.has('disciple')||String(pl.specialOrigin||'').includes('kunlun'))add('qi_wall',2);if(['tianjin','nanjing','jiang','taihu'].includes(pl.origin))add('speak_peace');if(['cangbei','nanyang','yinchuan','nanjiang'].includes(pl.origin))add('guard_body');if(['huayin','kunlun','wudu'].includes(pl.origin))add('dust_step');return shuffle(deck)}");
+gm = insertBeforeFn(gm, 'finishCombat', "function homePassage(){return (bundle?.passages||[]).some(p=>(p.id||p.passage_code)==='Lodging')?'Lodging':((bundle?.passages||[]).find(p=>String(p.title||'').includes('租屋'))?.id||'Gate')}\nfunction nextPurpose(){const p=state.player||{};const roleSet=new Set(p.roles||[]);let goal='先在橋北租屋整頓行囊，再到東門看今日有無穩當活計。';if(roleSet.has('merchant')||roleSet.has('market_broker'))goal='先到市集聽米價與貨路，再找能長久往來的人。';else if(roleSet.has('yamen_clerk')||roleSet.has('runner')||roleSet.has('constable'))goal='先往縣衙門廊問差事，弄清常山縣的文書、人情與規矩。';else if(roleSet.has('soldier')||roleSet.has('strongman')||roleSet.has('escort'))goal='先養足氣力，再尋一件能試身手也能餬口的差事。';else if(roleSet.has('literatus')||roleSet.has('copyist')||roleSet.has('tutor'))goal='先找抄錄與授讀之事，順便記下縣中人事。';else if(roleSet.has('medic'))goal='先問藥材與病患，替人看些小疾來站穩腳跟。';else if(roleSet.has('disciple'))goal='先壓下夢中餘悸，辨明此地是否藏著門派線索。';if(p.trait==='calm')goal+=' 我不必急著出頭，先把路數看清。';if(p.trait==='reckless')goal+=' 但我也不能拖太久，今日就該出門試一試。';if(p.trait==='silver_tongue')goal+=' 多與人說話，或許比悶頭做事更快。';return goal}\nfunction settleAfterDream(resultText){const max=Number(state.stats?.hpMax||state.stats?.vbMax||10);state.stats.hp=max;state.stats.vb=max;state.current_passage=homePassage();state.journal=Array.isArray(state.journal)?state.journal:[];state.notes=Array.isArray(state.notes)?state.notes:[];const text=`夢醒時氣血已復，身在橋北租屋。${nextPurpose()}`;state.journal.push({text,at:new Date().toISOString()});state.notes.push(`夢中衝突${resultText}後，氣血恢復至全滿，地點回到自己家。${nextPurpose()}`)}");
+gm = replaceFn(gm, 'finishCombat', "function finishCombat(r){const c=state.combat;if(!c)return;const txt={win:'目標達成',escape:'脫出',loss:'敗退'}[r]||r;c.phase='finish';c.log.unshift(`衝突結束：${txt}。`);ensureCombatLogs();state.events.push({type:'combat_finish',encounter_code:c.encounter_code,result:r,round:c.round,at:new Date().toISOString()});state.history.push({type:'combat_finish',encounter_code:c.encounter_code,result:r,round:c.round,at:new Date().toISOString()});state.notes.push(`衝突 ${c.encounter_code}：${txt}，歷 ${c.round} 迴。`);state.journal.push({text:`衝突${txt}。`,at:new Date().toISOString()});countAction('combat_finish');if(c.encounter_code==='tutorial-dream-001')settleAfterDream(txt);else state.current_passage=(r==='win'?c.win_passage:r==='escape'?c.escape_passage:c.loss_passage)||c.returnPassage||state.current_passage;state.combat={active:false,phase:'finish',returnPassage:c.returnPassage,round:c.round,enemies:c.enemies,playerGuard:0,drawPile:c.drawPile,discardPile:c.discardPile,exhaustPile:c.exhaustPile,log:c.log,result:r,result_text:txt};state.stats.turn=Number(state.stats.turn||0)+1;window.DaGoSave.save(state);render()}");
+gm = gm.replace('<th>劇情耗時</th><td>第 ${esc(s.day||1)} 日，${esc(H[s.hour]||s.hour)}</td>', '<th>劇情時間</th><td>${clock()}</td>');
+fs.writeFileSync(gmPath, gm, 'utf8');
+const hfPath = path.join(root, 'assets', 'game-v6-hotfix.js');
+let hf = fs.readFileSync(hfPath, 'utf8');
+if (!hf.includes('DaGoOriginSpecialV111')) hf += "\n(()=>{\n'use strict';\nconst origins=[['changshan','常山縣本地人'],['tianjin','天津郡郡城'],['hengshui','衡水縣'],['hengwan','珩灣縣'],['cangbei','滄北邑'],['nanjing','南京'],['jiang','江郡'],['nanyang','南陽郡'],['yinchuan','銀川郡'],['kunlun','崑崙外州'],['wudu','洞庭五毒境'],['huayin','華陰山麓'],['donglai','東萊郡'],['jiannan','劍南郡'],['nanjiang','南疆邊郡'],['taihu','太湖郡'],['shangqiu','商丘郡']];\nconst group={base:[['none','無']],official:[['daxing_cui','大興崔氏旁支'],['jinling_xie','金陵謝氏遠房'],['longxi_li','隴西李氏遠支']],urban:[['market_heir','市牙世業之後'],['guild_scion','坊會舊家子弟']],literati:[['academy_child','郡學博士之後'],['book_house','藏書世家旁支']],military:[['general_son','將軍之子'],['fallen_captain','敗軍校尉之後'],['frontier_guard','邊軍戍戶嫡支']],sect:[['qishan_ye','岐山葉氏'],['kunlun_chu','蓬萊崑崙外系'],['dongting_wudu','洞庭五毒外緣'],['huayin_jiuqu','華陰九曲外門'],['wanminhui','萬民會暗語']]};\nconst has=(r,a)=>r.some(x=>a.includes(x));function rows(r){const o=[...group.base],add=k=>group[k].forEach(x=>{if(!o.some(y=>y[0]===x[0]))o.push(x)});if(has(r,['court_official','local_official','technical_official']))add('official');if(has(r,['urban_household','workshop','teahouse','market_broker','merchant']))add('urban');if(has(r,['literatus','copyist','tutor','poet']))add('literati');if(has(r,['soldier','constable','militia','escort','strongman']))add('military');if(r.includes('disciple'))add('sect');return o}\nfunction patch(){const f=document.getElementById('startForm');if(!f)return;const origin=f.querySelector('[name=\\\"origin\\\"]')?.closest('.field-group');if(origin&&!origin.dataset.moreOrigins){origin.dataset.moreOrigins='1';origin.innerHTML='<span>出身地</span>'+origins.map((x,i)=>`<label><input type=\\\"radio\\\" name=\\\"origin\\\" value=\\\"${x[0]}\\\" ${i===0?'checked':''}> ${x[1]}</label>`).join('')}const first=f.querySelector('[name=\\\"specialOrigin\\\"]');const box=first?.closest('.field-group');if(!box)return;const cur=box.querySelector('[name=\\\"specialOrigin\\\"]:checked')?.value||'none';const role=[...f.querySelectorAll('[name=\\\"roles\\\"]')].map(x=>x.value);const opts=rows(role);box.innerHTML='<span>特殊身世</span>'+opts.map((x,i)=>`<label><input type=\\\"radio\\\" name=\\\"specialOrigin\\\" value=\\\"${x[0]}\\\" ${(cur===x[0]||(!opts.some(y=>y[0]===cur)&&i===0))?'checked':''}> ${x[1]}</label>`).join('')+'<p class=\\\"field-help\\\">特殊身世依身分開放；官員、坊郭戶、文人、兵戶、門派弟子各有不同選項。</p>'}\ndocument.addEventListener('change',e=>{if(e.target?.name==='roles')setTimeout(patch,0)},true);if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',patch,{once:true});else patch();window.DaGoOriginSpecialV111={patch};\n})();\n";
+fs.writeFileSync(hfPath, hf, 'utf8');
+console.log('updated game.html, game-modular.js and game-v6-hotfix.js for 1.12.11-bg-cards');
