@@ -1,22 +1,21 @@
 # da_go
 
-`da_go` 是《大國年代記》的單人網頁文字遊戲前端。現行公開版本為 `1.12.4-combat`，目標是以 `trpg-corpus-sqlserver` 的語料與劇情資料輸出 runtime bundle，再由 `da_go` 讀取並轉成可遊玩的單人文字遊戲。
+`da_go` 是《大國年代記》的單人網頁文字遊戲前端。現行公開版本為 `1.12.6-full-ui`，目標是以 `trpg-corpus-sqlserver` 的語料與劇情資料輸出 runtime bundle，再由 `da_go` 讀取並轉成可遊玩的單人文字遊戲。
 
 公開頁：
 
 ```text
-https://dana-will-be-yours.github.io/da_go/game.html?reset=1&v=1.12.4-combat
+https://dana-will-be-yours.github.io/da_go/game.html?reset=1&v=1.12.6-full-ui
 ```
 
 ## 目前版本
 
 ```text
-Runtime: 1.12.4-combat
+Runtime: 1.12.6-full-ui
 入口頁：game.html
 發布流程：.github/workflows/pages.yml
 部署前修補：tools/apply-static-runtime.js
 公開頁驗證：tools/validate-public-page.js
-runtime manifest：assets/game-manifest.js
 資料包載入：assets/game-bundle-loader.js
 狀態核心：assets/engine/state.js
 規則核心：assets/engine/rules.js
@@ -26,25 +25,64 @@ runtime manifest：assets/game-manifest.js
 存檔核心：assets/engine/save.js
 語料輸出：assets/engine/export-playlog.js
 角色建立修正：assets/game-v6-hotfix.js
+角色建立預覽：assets/character-create-ui.js + assets/game-rules-ui-fix.js
+完整左欄狀態：assets/game-rules-ui-fix.js
 主遊戲與戰鬥：assets/game-modular.js
 預設資料包：assets/data/dago-changshan-v1-bundle.json
 劇本摘要：assets/data/scenarios/xiaocheng-jiushi.json
 ```
 
-`game.html` 保留完整角色建立頁。GitHub Pages 部署時會執行 `tools/apply-static-runtime.js`，將公開 artifact 改成靜態 `defer` script 順序載入，避免 runtime loader 重複載入 engine。
+## 1.12.6-full-ui 修正重點
 
-## 已修正的公開頁問題
-
-目前主分支已處理下列硬錯：
+此版本針對公開頁與 UI 做兩項硬性修正：
 
 ```text
-1. 舊公開頁仍吃 v=1.12.1-perf 快取。
-2. Pages artifact 曾同時載入 game-runtime.js 與靜態 engine，導致重複初始化。
-3. game-choice-delegation-fix.js 可能造成遞迴或雙重觸發，發布清單已不再載入該檔。
-4. 公開頁部署前會跑 validate-public-page.js，檢查 startForm、playPanel、choiceList 與核心 runtime symbol。
+1. 角色預覽必須顯示調整值與技能值。
+2. 進入遊戲後左側狀態欄禁止使用簡化欄，必須顯示完整狀態。
 ```
 
-目前仍需注意：瀏覽器 DevTools 顯示的 CSP `unsafe-eval` 警告若未指向 `assets/*.js`，通常不是 `da_go` 主程式直接觸發。主倉庫搜尋不應出現 `eval` 或 `new Function` 作為遊戲 runtime 的執行路徑。
+`assets/game-rules-ui-fix.js` 現在會補上：
+
+```text
+角色預覽：body / tech / mind 技能總和與調整值
+角色預覽：技能值列表
+左側欄：角色名、日期、turn
+左側欄：精神、鎮定、疑心、疲勞、飢餓、錢、氣血
+左側欄：body / tech / mind 調整值
+左側欄：技能值
+左側欄：戰鬥狀態與行動數
+左側欄：人物關係
+```
+
+`tools/validate-public-page.js` 會檢查 `game-rules-ui-fix.js` 中存在下列必要項：
+
+```text
+preview-detail-block
+full-status-sidebar
+renderFullSidebar
+addPreviewDetail
+```
+
+## Runtime 載入順序
+
+公開頁仍以完整 dynamic runtime 載入，不使用簡易頁，不使用極小 CSP boot 頁：
+
+```text
+assets/scenario-select.js
+assets/game-bundle-loader.js
+assets/engine/state.js
+assets/engine/rules.js
+assets/engine/checks.js
+assets/engine/effects.js
+assets/engine/passage.js
+assets/engine/save.js
+assets/engine/export-playlog.js
+assets/game-v6-hotfix.js
+assets/character-create-ui.js
+assets/game-rules-ui-fix.js
+assets/game-character-balance-fix.js
+assets/game-modular.js
+```
 
 ## 劇本設定
 
@@ -103,7 +141,7 @@ runtime manifest：assets/game-manifest.js
 
 狀態會影響檢定：精神過低、鎮定過低、疑心過高、疲勞過高、飢餓過高都會造成減值。
 
-## 1.12.4-combat 戰鬥系統
+## 戰鬥系統
 
 `assets/game-modular.js` 已加入教學戰鬥。角色建立後會進入夢中戰鬥，使用接近 DoL 的狀態驅動戰鬥結構：
 
@@ -178,13 +216,7 @@ EXEC dbo.usp_Export_DaGo_Runtime_Bundle
 `da_go` 提供同步工具：
 
 ```powershell
-.	ools	sync-trpg-runtime-bundle.ps1
-```
-
-正確檔名為：
-
-```powershell
-.	ools\sync-trpg-runtime-bundle.ps1 -Server ".\SQLEXPRESS" -Database "TRPG_Corpus_DB"
+.\tools\sync-trpg-runtime-bundle.ps1 -Server ".\SQLEXPRESS" -Database "TRPG_Corpus_DB"
 ```
 
 輸出位置：
@@ -224,7 +256,7 @@ python -m http.server 8080
 測試網址：
 
 ```text
-http://localhost:8080/game.html?reset=1&v=1.12.4-combat
+http://localhost:8080/game.html?reset=1&v=1.12.6-full-ui
 ```
 
 ## GitHub Pages 部署
@@ -235,21 +267,7 @@ GitHub Pages workflow：
 .github/workflows/pages.yml
 ```
 
-部署前會修補公開 artifact 的 `game.html`，使其載入靜態 engine 清單：
-
-```text
-assets/game-manifest.js
-assets/game-bundle-loader.js
-assets/engine/state.js
-assets/engine/rules.js
-assets/engine/checks.js
-assets/engine/effects.js
-assets/engine/passage.js
-assets/engine/save.js
-assets/engine/export-playlog.js
-assets/game-v6-hotfix.js
-assets/game-modular.js
-```
+部署前會將 `game.html` 的 runtime 版本字串修補為 `1.12.6-full-ui`，並執行公開頁驗證。
 
 ## 相關 repository
 
