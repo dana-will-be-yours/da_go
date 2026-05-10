@@ -1,6 +1,6 @@
 (()=>{
 'use strict';
-const VERSION='1.12.6-full-ui';
+const VERSION='1.12.7-panel-check';
 window.DaGoRuntimeManifest=Object.freeze({runtime_name:'da_go_modular_runtime',runtime_version:VERSION,active_engine:'assets/game-modular.js',canonical_runtime:'assets/game-modular.js',bundle_loader:'assets/game-bundle-loader.js',default_bundle:'assets/data/dago-changshan-v1-bundle.json',legacy_engine:'assets/game-playable-v6.js',authoring_page:'https://dana-will-be-yours.github.io/trpg-corpus-sqlserver/web/dago-authoring.html',mode:'dynamic-full'});
 const scripts=['assets/scenario-select.js','assets/game-bundle-loader.js','assets/engine/state.js','assets/engine/rules.js','assets/engine/checks.js','assets/engine/effects.js','assets/engine/passage.js','assets/engine/save.js','assets/engine/export-playlog.js','assets/game-v6-hotfix.js','assets/character-create-ui.js','assets/game-rules-ui-fix.js','assets/game-character-balance-fix.js','assets/game-modular.js'];
 try{if(new URLSearchParams(location.search).has('reset')){localStorage.removeItem('daGoPlayV7');localStorage.removeItem('daGoPlayV6')}}catch{}
