@@ -2,129 +2,39 @@
 'use strict';
 const $=id=>document.getElementById(id);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-let bundle=null, state=null;
-const COMBAT_ACTIONS=Object.freeze([
-  {code:'slash',text:'斬擊',skill:'slash',dc:10,type:'attack',damage:[3,5],tags:['武器','行動']},
-  {code:'pierce',text:'刺擊',skill:'pierce',dc:10,type:'attack',damage:[2,6],tags:['精準','行動']},
-  {code:'strike',text:'鈍擊',skill:'strike',dc:10,type:'attack',damage:[2,4],anger:1,tags:['壓制','行動']},
-  {code:'guard',text:'防守',skill:'outer',dc:8,type:'guard',guard:4,tags:['防禦']},
-  {code:'dodge',text:'閃避',skill:'light',dc:10,type:'dodge',guard:3,tags:['機動']},
-  {code:'threat',text:'威嚇',skill:'threat',dc:11,type:'threat',anger:2,trust:-1,tags:['交涉']},
-  {code:'negotiate',text:'求和',skill:'speech',dc:11,type:'negotiate',trust:3,anger:-2,tags:['交涉']},
-  {code:'item',text:'使用持有物',skill:'medicine',dc:8,type:'item',heal:2,tags:['道具']}
-]);
-const COMBAT_DEFAULT_ENEMY=Object.freeze({code:'dream-guard',name:'夢中持棍者',hp:18,hpMax:18,trust:0,anger:1,damage:3,tags:['tutorial','dream']});
+let bundle=null,state=null;
+const H={morning:'晨',noon:'午',dusk:'暮',night:'夜'};
+const L={body:'體魄',tech:'技巧',mind:'智識',outer:'外功',light:'輕功',slash:'斬擊',pierce:'刺擊',strike:'打擊',observe:'觀察',medicine:'醫術',office:'政務',hide:'躲藏',speech:'口才',study:'學藝',wealth:'財富',jianghu:'江湖',spirit:'精神',composure:'鎮定',suspicion:'疑心',fatigue:'疲勞',hunger:'飢餓',coin:'錢',hp:'氣血',hpMax:'氣血上限',turn:'行動',day:'日期',hour:'時段',trust:'信任',anger:'怒氣'};
+const A={outer:'body',light:'body',slash:'body',pierce:'body',strike:'body',observe:'tech',medicine:'tech',office:'tech',hide:'tech',speech:'mind',study:'mind',wealth:'mind',jianghu:'mind'};
+const COMBAT_ACTIONS=[{code:'slash',text:'斬擊',skill:'slash',dc:10,type:'attack',damage:[3,5]},{code:'pierce',text:'刺擊',skill:'pierce',dc:10,type:'attack',damage:[2,6]},{code:'strike',text:'鈍擊',skill:'strike',dc:10,type:'attack',damage:[2,4],anger:1},{code:'guard',text:'防守',skill:'outer',dc:8,type:'guard',guard:4},{code:'dodge',text:'閃避',skill:'light',dc:10,type:'guard',guard:3},{code:'threat',text:'威嚇',skill:'threat',dc:11,type:'threat',anger:2,trust:-1},{code:'negotiate',text:'求和',skill:'speech',dc:11,type:'negotiate',trust:3,anger:-2},{code:'item',text:'使用持有物',skill:'medicine',dc:8,type:'item',heal:2}];
+const ENEMY={code:'dream-guard',name:'夢中持棍者',hp:18,hpMax:18,trust:0,anger:1,damage:3,tags:['tutorial','dream']};
 function formCharacter(){const fd=new FormData($('startForm'));return {name:String(fd.get('playerName')||'旅人'),roles:fd.getAll('roles'),gender:fd.get('gender'),origin:fd.get('origin'),trait:fd.get('trait'),skills:{observe:1,speech:1,outer:1,study:1,slash:1,pierce:1,strike:1,light:1,threat:1,medicine:1}}}
-function ensureStart(){const form=$('startForm');if(!form||form.dataset.modularBound)return;form.dataset.modularBound='1';form.addEventListener('submit',ev=>{ev.preventDefault();startGame(formCharacter())});}
-function startGame(character){state=window.DaGoState.initialState(bundle,character);window.DaGoRules.recalcAttrs(state);startCombat({encounter_code:'tutorial-dream-001',returnPassage:state.current_passage,enemy_json:[COMBAT_DEFAULT_ENEMY],combat_tags:['tutorial','card-combat','research'],intro:'你已進入一個夢。霧像翻動的牌面一樣鋪開，一名持棍者擋在前方。這場教學戰鬥用行動卡呈現，每次選擇都會記錄到行動統計與 playlog。'});window.DaGoSave.save(state);$('startPanel').hidden=true;$('playPanel').hidden=false;render();}
-function loadExisting(){const old=window.DaGoSave.load();if(old){state=old;window.DaGoRules.recalcAttrs(state);$('startPanel').hidden=true;$('playPanel').hidden=false;render();return true}return false}
-function statLine(){const s=state.stats;return `精神 ${s.spirit}｜鎮定 ${s.composure}｜疑心 ${s.suspicion}｜疲勞 ${s.fatigue}｜飢餓 ${s.hunger}｜錢 ${s.coin}｜氣血 ${s.hp}/${s.hpMax}`}
-function renderOverview(){const box=$('overviewBox');if(!box||!state)return;box.innerHTML=`<p>${esc(state.player?.name||'旅人')}</p><p>${esc(statLine())}</p><p>第 ${esc(state.stats.day)} 日 / ${esc(state.stats.hour)}</p><p>來源：${esc(bundle.__bundle_source||'unknown')}</p>${state.combat?.active?'<p>戰鬥中</p>':''}`}
-function choiceHtml(c,i){const chance=(c.skill&&c.dc&&window.DaGoChecks)?window.DaGoChecks.chance(c.skill,c.dc,state):null;const meta=[];if(c.skill)meta.push(c.skill);if(c.dc)meta.push('DC '+c.dc);if(chance!==null)meta.push(chance+'%');return `<button type="button" data-choice="${i}"><span>${esc(c.text||c.choice_text||'選項')}</span>${meta.length?`<small>${esc(meta.join(' / '))}</small>`:''}</button>`}
-function combatActionHtml(a){const chance=window.DaGoChecks?.chance(a.skill,a.dc,state);const tags=Array.isArray(a.tags)?a.tags.join('、'):'';return `<button type="button" class="combat-card" data-combat-action="${esc(a.code)}"><strong>${esc(a.text)}</strong><small>${esc(a.skill)} / DC ${esc(a.dc)}${chance!==null&&chance!==undefined?' / '+esc(chance)+'%':''}</small>${tags?`<small>${esc(tags)}</small>`:''}</button>`}
-function startCombat(cfg={}){
-  if(!state)return;
-  const enemies=(Array.isArray(cfg.enemy_json)?cfg.enemy_json:[cfg.enemy_json||COMBAT_DEFAULT_ENEMY]).filter(Boolean).map((e,i)=>({
-    code:String(e.code||e.enemy_code||('enemy-'+(i+1))),
-    name:String(e.name||e.enemy_name||('敵人'+(i+1))),
-    hp:Number(e.hp??e.max_hp??10),
-    hpMax:Number(e.hpMax??e.max_hp??e.hp??10),
-    trust:Number(e.trust??e.enemytrust??0),
-    anger:Number(e.anger??e.enemyanger??0),
-    damage:Number(e.damage??e.base_damage??2),
-    tags:Array.isArray(e.tags)?e.tags:[]
-  }));
-  state.combat={
-    active:true,
-    encounter_code:cfg.encounter_code||'encounter-local',
-    returnPassage:cfg.returnPassage||state.current_passage,
-    win_passage:cfg.win_passage||cfg.winPassage||cfg.returnPassage||state.current_passage,
-    escape_passage:cfg.escape_passage||cfg.escapePassage||cfg.returnPassage||state.current_passage,
-    loss_passage:cfg.loss_passage||cfg.lossPassage||cfg.returnPassage||state.current_passage,
-    combat_tags:Array.isArray(cfg.combat_tags)?cfg.combat_tags:[],
-    round:1,
-    enemies,
-    playerGuard:0,
-    log:[cfg.intro||'戰鬥開始。']
-  };
-  state.events=Array.isArray(state.events)?state.events:[];
-  state.events.push({type:'combat_start',encounter_code:state.combat.encounter_code,at:new Date().toISOString(),tags:state.combat.combat_tags});
-}
-function liveEnemies(){return (state.combat?.enemies||[]).filter(e=>e.hp>0)}
-function enemyStateText(e){const hpRate=e.hp/Math.max(1,e.hpMax);if(e.anger>=6)return '暴怒';if(e.trust>=5)return '可談';if(hpRate<=0.25)return '退縮';if(hpRate<=0.55)return '吃痛';return '氣勢正盛'}
-function enemyPanelHtml(){return liveEnemies().map(e=>`<article class="combat-enemy"><h3>${esc(e.name)}</h3><p>氣血 ${esc(e.hp)}/${esc(e.hpMax)}｜信任 ${esc(e.trust)}｜怒氣 ${esc(e.anger)}｜${esc(enemyStateText(e))}</p></article>`).join('')||'<p>敵人已退場。</p>'}
-function renderCombat(){
-  const c=state.combat;
-  $('passageTitle').textContent='夢中戰鬥';
-  $('passageMeta').textContent=`${c.encounter_code}｜第 ${c.round} 回合`;
-  $('passageText').innerHTML=`<p>你已進入一個夢。霧面像牌桌一樣展開，敵人的血量、怒氣與信任會改變回饋狀態。</p><p>你的護勢：${esc(c.playerGuard)}。玩家氣血：${esc(state.stats.hp)}/${esc(state.stats.hpMax)}。</p>${enemyPanelHtml()}<section class="combat-log"><h3>戰鬥紀錄</h3>${(c.log||[]).slice(0,8).map(x=>`<p>${esc(x)}</p>`).join('')}</section>`;
-  $('choiceList').innerHTML=COMBAT_ACTIONS.map(combatActionHtml).join('');
-  $('choiceList').querySelectorAll('[data-combat-action]').forEach(btn=>btn.addEventListener('click',()=>combatRound(btn.dataset.combatAction)));
-  $('passageFooter').textContent='教學戰鬥：攻擊、防守、逃離與談判均使用 da_go 4d3 檢定。';
-  renderOverview();
-}
-function combatRound(actionCode){
-  const c=state.combat;if(!c?.active)return;
-  const action=COMBAT_ACTIONS.find(a=>a.code===actionCode);if(!action)return;
-  const enemy=liveEnemies()[0];
-  const check=window.DaGoChecks.test({skill:action.skill,dc:action.dc},state);
-  state.actionCounts=state.actionCounts||{};state.actionCounts[action.code]=(state.actionCounts[action.code]||0)+1;
-  state.history=Array.isArray(state.history)?state.history:[];
-  const entry={type:'combat_action',encounter_code:c.encounter_code,round:c.round,action_code:action.code,skill:action.skill,dc:action.dc,success:check.success,total:check.total,at:new Date().toISOString()};
-  state.history.push(entry);
-  c.log.unshift(`${action.text}檢定：${check.total}/${check.dc}，${check.success?'成功':'失敗'}。`);
-  if(action.type==='attack'&&enemy){
-    if(check.success){const [min,max]=action.damage;const dmg=min+Math.floor(Math.random()*(max-min+1));enemy.hp=Math.max(0,enemy.hp-dmg);enemy.anger+=Number(action.anger||0);c.log.unshift(`${enemy.name}受到 ${dmg} 點傷害，狀態為${enemyStateText(enemy)}。`);if(enemy.hp<=0)c.log.unshift(`${enemy.name}退場。`);}else{enemy.anger+=1;c.log.unshift(`${enemy.name}看穿了你的攻勢。`);}
-  }
-  if(action.type==='guard'){c.playerGuard=check.success?c.playerGuard+action.guard:c.playerGuard+1;c.log.unshift(check.success?`你穩住架勢，護勢增加 ${action.guard}。`:'你勉強抬手，護勢增加 1。');}
-  if(action.type==='dodge'){c.playerGuard=check.success?c.playerGuard+action.guard:c.playerGuard;c.log.unshift(check.success?'你讓開敵人的進路。':'你沒有完全脫離攻擊線。');}
-  if(action.type==='threat'&&enemy){enemy.anger+=check.success?Number(action.anger||0):1;enemy.trust+=check.success?Number(action.trust||0):-1;c.log.unshift(check.success?'你壓住對手氣勢，但敵意升高。':'威嚇失準，對方更加不信任你。');}
-  if(action.type==='negotiate'&&enemy){enemy.trust+=check.success?Number(action.trust||0):0;enemy.anger+=check.success?Number(action.anger||0):1;c.log.unshift(check.success?'你讓對手遲疑，局面轉向可談。':'求和沒有立即奏效。');if(enemy.trust>=6){finishCombat('escape');return;}}
-  if(action.type==='item'){if(check.success){state.stats.hp=Math.min(Number(state.stats.hpMax)||10,(Number(state.stats.hp)||0)+Number(action.heal||1));c.log.unshift('你用隨身物穩住氣血。');}else c.log.unshift('你沒能及時用上持有物。');}
-  if(liveEnemies().length===0){finishCombat('win');return;}
-  enemyTurn();
-  if(Number(state.stats.hp)<=0){finishCombat('loss');return;}
-  c.round+=1;c.playerGuard=0;window.DaGoSave.save(state);renderCombat();
-}
-function enemyTurn(){
-  const c=state.combat;const enemies=liveEnemies();let total=0;
-  for(const e of enemies){const mood=enemyStateText(e);let dmg=e.damage+(e.anger>=6?2:0);if(mood==='退縮'||mood==='可談')dmg=Math.max(1,dmg-1);total+=dmg;c.log.unshift(`${e.name}${mood==='暴怒'?'猛攻':'出手'}，威脅 ${dmg}。`)}
-  const blocked=Math.min(c.playerGuard,total);const harm=Math.max(0,total-blocked);state.stats.hp=Math.max(0,(Number(state.stats.hp)||0)-harm);c.log.unshift(`你以護勢抵消 ${blocked}，承受 ${harm} 點傷害。`);
-}
-function advanceAfterCombat(){
-  const order=['morning','noon','dusk','night'];const cur=String(state.stats.hour||'morning');const idx=order.indexOf(cur);state.stats.hour=order[(idx+1+order.length)%order.length];if(cur==='night')state.stats.day=Number(state.stats.day||1)+1;state.stats.turn=Number(state.stats.turn||0)+1;
-}
-function finishCombat(result){
-  const c=state.combat;if(!c)return;
-  const resultText={win:'勝利',escape:'脫離',loss:'戰敗'}[result]||result;
-  c.log.unshift(`戰鬥結束：${resultText}。`);
-  state.events=Array.isArray(state.events)?state.events:[];state.notes=Array.isArray(state.notes)?state.notes:[];state.journal=Array.isArray(state.journal)?state.journal:[];
-  state.events.push({type:'combat_finish',encounter_code:c.encounter_code,result,round:c.round,at:new Date().toISOString()});
-  state.notes.push(`戰鬥 ${c.encounter_code}：${resultText}，共 ${c.round} 回合。`);
-  state.journal.push({text:`夢中戰鬥${resultText}。`,at:new Date().toISOString()});
-  const next=result==='win'?c.win_passage:result==='escape'?c.escape_passage:c.loss_passage;
-  state.current_passage=next||c.returnPassage||state.current_passage;
-  state.combat={active:false,returnPassage:c.returnPassage,round:c.round,enemies:c.enemies,playerGuard:0,log:c.log,result};
-  advanceAfterCombat();
-  window.DaGoSave.save(state);render();
-}
-function render(){if(state?.combat?.active){renderCombat();return;}const p=window.DaGoPassage.byId(bundle,state.current_passage);if(!p)return;window.DaGoPassage.enter(state,bundle,p.id||p.passage_code);$('passageTitle').textContent=p.title||p.id;$('passageMeta').textContent=p.location||p.location_name||'';$('passageText').innerHTML='<p>'+esc(window.DaGoPassage.textOf(p)).replace(/\n\n/g,'</p><p>')+'</p>';const choices=window.DaGoPassage.choicesOf(p,state);$('choiceList').innerHTML=choices.map(choiceHtml).join('');$('choiceList').querySelectorAll('[data-choice]').forEach(btn=>btn.addEventListener('click',()=>choose(choices[Number(btn.dataset.choice)])));$('passageFooter').textContent=state.last_result?.check?.used?`檢定：${state.last_result.check.skill} ${state.last_result.check.total}/${state.last_result.check.dc} ${state.last_result.result}`:'';renderOverview();}
-function choose(choice){if(choice?.encounter_code||choice?.enemy_json){startCombat(Object.assign({},choice,{returnPassage:choice.returnPassage||state.current_passage}));window.DaGoSave.save(state);render();return;}window.DaGoPassage.applyChoice(state,bundle,choice);window.DaGoSave.save(state);render();}
-function table(obj){return '<dl class="sidebar-kv">'+Object.entries(obj||{}).map(([k,v])=>`<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join('')+'</dl>'}
-function panel(name){
-  if(!state)return '<p>尚未開始遊戲。</p>';
-  if(name==='saves')return `<button id="saveNow">保存</button> <button id="exportSave">下載存檔</button> <button id="restartGame">重開</button> <button id="exportLog">匯出語料 playlog</button>`;
-  if(name==='journal')return (state.journal||[]).slice(-30).map(x=>`<p>${esc(x.text)}</p>`).join('')||'<p>尚無日誌。</p>';
-  if(name==='stats')return table(state.stats);
-  if(name==='social')return Object.entries(state.relationships||{}).map(([code,row])=>`<article><h3>${esc(row.name||code)}</h3>${table(row)}</article>`).join('')||'<p>尚無人物關係。</p>';
-  if(name==='attributes')return table(state.attrs||{});
-  if(name==='traits')return `<p>角色：${esc(state.player?.name||'旅人')}</p><p>身分：${esc((state.player?.roles||[]).join('、')||'未設定')}</p><p>出身：${esc(state.player?.origin||'未設定')}</p><p>性格：${esc(state.player?.trait||'未設定')}</p>`;
-  if(name==='achievements')return `<p>目前場景：${esc(state.current_passage)}</p><p>已記錄行動：${esc((state.history||[]).length)}</p>${state.combat?.result?`<p>最近戰鬥：${esc(state.combat.result)}</p>`:''}`;
-  if(name==='options')return `<p>存檔格式：${esc(state.schema_version)}</p><p>Bundle：${esc(state.bundle_source||bundle.__bundle_source||'unknown')}</p>`;
-  return '<p>此面板尚未實作。</p>';
-}
-function bindPanels(){document.querySelectorAll('[data-action="panel"]').forEach(btn=>{if(btn.dataset.panelBound)return;btn.dataset.panelBound='1';btn.addEventListener('click',()=>{if(!state)return;const name=btn.dataset.panel;$('overlayTitle').textContent=btn.textContent;$('overlayContent').innerHTML=panel(name);$('overlayBackdrop').classList.remove('hidden');$('saveNow')?.addEventListener('click',()=>window.DaGoSave.save(state));$('exportSave')?.addEventListener('click',()=>window.DaGoSave.download(state));$('restartGame')?.addEventListener('click',()=>{window.DaGoSave.clear();location.search='?reset=1'});$('exportLog')?.addEventListener('click',()=>window.DaGoExportPlaylog.download(state));});});$('closeOverlay')?.addEventListener('click',()=>$('overlayBackdrop').classList.add('hidden'));}
-async function boot(){bundle=window.DaGoState.normalizeBundle(await window.DaGoRuntimeBundlePromise);ensureStart();bindPanels();if(new URLSearchParams(location.search).has('reset'))window.DaGoSave.clear();loadExisting();}
-window.DaGoModularRuntime=Object.freeze({boot,startCombat,renderCombat,combatRound,finishCombat});
-boot();
+function mod(n){n=Number(n)||0;if(n<=0)return-2;if(n===1)return-1;if(n<=3)return 0;if(n<=5)return 1;if(n<=8)return 2;if(n<=11)return 3;if(n<=15)return 4;if(n<=19)return 5;return 6}
+function recalc(){window.DaGoRules?.recalcAttrs?.(state);if(!state.attrSums){const r={body:0,tech:0,mind:0};Object.entries(state.skills||{}).forEach(([k,v])=>r[A[k]||'mind']+=Number(v)||0);state.attrSums=r;state.attrs={body:mod(r.body),tech:mod(r.tech),mind:mod(r.mind)}}}
+function kv(rows){return '<dl class="sidebar-kv">'+rows.map(r=>`<dt>${esc(r[0])}</dt><dd>${esc(r[1])}</dd>`).join('')+'</dl>'}
+function card(t,b){return `<article class="dago-detail-card"><h3>${esc(t)}</h3>${b}</article>`}
+function chips(rows){return '<div class="skill-cloud">'+(rows.length?rows.map(r=>`<span>${esc(r[0])} ${esc(r[1])}</span>`).join(''):'<span>無</span>')+'</div>'}
+function skills(group){return Object.entries(state.skills||{}).filter(([k])=>(A[k]||'mind')===group).sort((a,b)=>b[1]-a[1]).map(([k,v])=>[L[k]||k,v])}
+function allSkills(){return Object.entries(state.skills||{}).sort((a,b)=>b[1]-a[1]).map(([k,v])=>[L[k]||k,v])}
+function attrs(){recalc();const s=state.attrSums||{}, a=state.attrs||{};return kv([['體魄',`${s.body||0} / ${Number(a.body||0)>=0?'+':''}${a.body||0}`],['技巧',`${s.tech||0} / ${Number(a.tech||0)>=0?'+':''}${a.tech||0}`],['智識',`${s.mind||0} / ${Number(a.mind||0)>=0?'+':''}${a.mind||0}`]])}
+function clock(){const s=state.stats||{};return `大興十年｜第 ${esc(s.day||1)} 日｜${esc(H[s.hour]||s.hour||'晨')}｜第 ${esc(s.turn||0)} 行動`}
+function renderOverview(){const b=$('overviewBox');if(!b||!state)return;const s=state.stats||{};b.innerHTML=`<section class="full-status-sidebar">${card(state.player?.name||'旅人',kv([['劇情時間',clock()],['目前場景',$('passageTitle')?.textContent||state.current_passage],['場景資訊',$('passageMeta')?.textContent||'未標示'],['來源',bundle.__bundle_source||'unknown']]))}${card('角色狀態',kv([['精神',s.spirit],['鎮定',s.composure],['疑心',s.suspicion],['疲勞',s.fatigue],['飢餓',s.hunger],['錢',s.coin],['氣血',`${s.hp}/${s.hpMax}`]]))}${card('調整值',attrs())}${card('技能值',chips(allSkills()))}${state.combat?.active?card('戰鬥',kv([['狀態','戰鬥中'],['回合',state.combat.round],['護勢',state.combat.playerGuard]])):''}</section>`}
+function ensureStart(){const f=$('startForm');if(!f||f.dataset.modularBound)return;f.dataset.modularBound='1';f.addEventListener('submit',e=>{e.preventDefault();startGame(formCharacter())})}
+function startGame(ch){state=window.DaGoState.initialState(bundle,ch);recalc();startCombat({returnPassage:state.current_passage,enemy_json:[ENEMY],intro:'你已進入一個夢。霧像翻動的牌面一樣鋪開，一名持棍者擋在前方。'});window.DaGoSave.save(state);$('startPanel').hidden=true;$('playPanel').hidden=false;render()}
+function loadExisting(){const x=window.DaGoSave.load();if(!x)return false;state=x;recalc();$('startPanel').hidden=true;$('playPanel').hidden=false;render();return true}
+function startCombat(c={}){const es=(Array.isArray(c.enemy_json)?c.enemy_json:[c.enemy_json||ENEMY]).map((e,i)=>({code:e.code||'enemy-'+i,name:e.name||'敵人',hp:Number(e.hp??10),hpMax:Number(e.hpMax??e.hp??10),trust:Number(e.trust||0),anger:Number(e.anger||0),damage:Number(e.damage||2),tags:e.tags||[]}));state.combat={active:true,encounter_code:c.encounter_code||'tutorial-dream-001',returnPassage:c.returnPassage||state.current_passage,win_passage:c.win_passage||c.returnPassage||state.current_passage,escape_passage:c.escape_passage||c.returnPassage||state.current_passage,loss_passage:c.loss_passage||c.returnPassage||state.current_passage,round:1,enemies:es,playerGuard:0,log:[c.intro||'戰鬥開始。']};state.events=Array.isArray(state.events)?state.events:[];state.events.push({type:'combat_start',encounter_code:state.combat.encounter_code,at:new Date().toISOString()})}
+function live(){return (state.combat?.enemies||[]).filter(e=>e.hp>0)}
+function enemyHtml(){return live().map(e=>`<article class="combat-enemy"><h3>${esc(e.name)}</h3><p>氣血 ${esc(e.hp)}/${esc(e.hpMax)}｜信任 ${esc(e.trust)}｜怒氣 ${esc(e.anger)}</p></article>`).join('')||'<p>敵人已退場。</p>'}
+function actionHtml(a){const ch=window.DaGoChecks?.chance?.(a.skill,a.dc,state);return `<button type="button" class="combat-card" data-combat-action="${esc(a.code)}"><strong>${esc(a.text)}</strong><small>${esc(a.skill)} / DC ${esc(a.dc)}${ch!=null?' / '+esc(ch)+'%':''}</small></button>`}
+function renderCombat(){const c=state.combat;$('passageTitle').textContent='夢中戰鬥';$('passageMeta').textContent=`${c.encounter_code}｜第 ${c.round} 回合`;$('passageText').innerHTML=`<p>這場教學戰鬥用行動卡呈現。護勢：${esc(c.playerGuard)}。氣血：${esc(state.stats.hp)}/${esc(state.stats.hpMax)}。</p>${enemyHtml()}<section class="combat-log"><h3>戰鬥紀錄</h3>${(c.log||[]).slice(0,8).map(x=>`<p>${esc(x)}</p>`).join('')}</section>`;$('choiceList').innerHTML=COMBAT_ACTIONS.map(actionHtml).join('');$('choiceList').querySelectorAll('[data-combat-action]').forEach(b=>b.addEventListener('click',()=>combatRound(b.dataset.combatAction)));$('passageFooter').textContent='教學戰鬥：攻擊、防守、談判均使用 4d3 檢定。';renderOverview()}
+function combatRound(code){const c=state.combat,a=COMBAT_ACTIONS.find(x=>x.code===code),e=live()[0];if(!c||!a)return;const chk=window.DaGoChecks.test({skill:a.skill,dc:a.dc},state);state.history=Array.isArray(state.history)?state.history:[];state.history.push({type:'combat_action',round:c.round,action_code:a.code,success:chk.success,total:chk.total,dc:chk.dc,at:new Date().toISOString()});c.log.unshift(`${a.text}檢定：${chk.total}/${chk.dc}，${chk.success?'成功':'失敗'}。`);if(a.type==='attack'&&e&&chk.success){const dmg=a.damage[0]+Math.floor(Math.random()*(a.damage[1]-a.damage[0]+1));e.hp=Math.max(0,e.hp-dmg);c.log.unshift(`${e.name}受到 ${dmg} 點傷害。`)}if(a.type==='guard')c.playerGuard+=chk.success?(a.guard||2):1;if(a.type==='threat'&&e){e.anger+=chk.success?2:1;e.trust-=chk.success?1:0}if(a.type==='negotiate'&&e){e.trust+=chk.success?3:0;e.anger+=chk.success?-2:1;if(e.trust>=6)return finishCombat('escape')}if(a.type==='item'&&chk.success)state.stats.hp=Math.min(state.stats.hpMax,state.stats.hp+(a.heal||1));if(live().length===0)return finishCombat('win');enemyTurn();if(Number(state.stats.hp)<=0)return finishCombat('loss');c.round++;c.playerGuard=0;window.DaGoSave.save(state);renderCombat()}
+function enemyTurn(){const c=state.combat;let total=0;live().forEach(e=>total+=e.damage+(e.anger>=6?2:0));const block=Math.min(c.playerGuard,total), harm=Math.max(0,total-block);state.stats.hp=Math.max(0,state.stats.hp-harm);c.log.unshift(`你以護勢抵消 ${block}，承受 ${harm} 點傷害。`)}
+function finishCombat(r){const c=state.combat, txt={win:'勝利',escape:'脫離',loss:'戰敗'}[r]||r;state.journal=Array.isArray(state.journal)?state.journal:[];state.journal.push({text:`夢中戰鬥${txt}。`,at:new Date().toISOString()});state.current_passage=(r==='win'?c.win_passage:r==='escape'?c.escape_passage:c.loss_passage)||c.returnPassage;state.combat={active:false,round:c.round,enemies:c.enemies,log:c.log,result:r};state.stats.turn=Number(state.stats.turn||0)+1;window.DaGoSave.save(state);render()}
+function choiceHtml(c,i){const ch=(c.skill&&c.dc&&window.DaGoChecks)?window.DaGoChecks.chance(c.skill,c.dc,state):null;return `<button type="button" data-choice="${i}"><span>${esc(c.text||c.choice_text||'選項')}</span>${ch!=null?`<small>${esc(c.skill)} / DC ${esc(c.dc)} / ${esc(ch)}%</small>`:''}</button>`}
+function render(){if(state?.combat?.active)return renderCombat();const p=window.DaGoPassage.byId(bundle,state.current_passage);if(!p)return;window.DaGoPassage.enter(state,bundle,p.id||p.passage_code);$('passageTitle').textContent=p.title||p.id;$('passageMeta').textContent=p.location||p.location_name||'';$('passageText').innerHTML='<p>'+esc(window.DaGoPassage.textOf(p)).replace(/\n\n/g,'</p><p>')+'</p>';const cs=window.DaGoPassage.choicesOf(p,state);$('choiceList').innerHTML=cs.map(choiceHtml).join('');$('choiceList').querySelectorAll('[data-choice]').forEach(b=>b.addEventListener('click',()=>choose(cs[Number(b.dataset.choice)])));$('passageFooter').textContent=state.last_result?.check?.used?`檢定：${state.last_result.check.skill} ${state.last_result.check.total}/${state.last_result.check.dc} ${state.last_result.result}`:'';renderOverview()}
+function choose(c){if(c?.encounter_code||c?.enemy_json){startCombat(Object.assign({},c,{returnPassage:c.returnPassage||state.current_passage}));window.DaGoSave.save(state);return render()}window.DaGoPassage.applyChoice(state,bundle,c);window.DaGoSave.save(state);render()}
+function panel(name){if(!state)return '<p>尚未開始遊戲。</p>';const s=state.stats||{};if(name==='attributes')return card('屬性調整值',attrs())+card('體魄技能',chips(skills('body')))+card('技巧技能',chips(skills('tech')))+card('智識技能',chips(skills('mind')));if(name==='social')return Object.entries(state.relationships||{}).map(([k,v])=>card(v.name||k,kv(Object.entries(v).map(([a,b])=>[L[a]||a,b])))).join('')||card('人物關係','<p>尚未建立人物關係。</p>');if(name==='traits')return card('角色資料',kv([['角色',state.player?.name||'旅人'],['身分',(state.player?.roles||[]).join('、')||'未設定'],['出身',state.player?.origin||'未設定'],['性格',state.player?.trait||'未設定']]))+card('調整值',attrs())+card('技能值',chips(allSkills()));if(name==='journal')return card('劇情時間',kv([['時間',clock()]]))+((state.journal||[]).slice(-30).map(x=>`<article class="log-card"><p>${esc(x.text||x)}</p></article>`).join('')||card('日誌','<p>尚無日誌。</p>'));if(name==='stats')return card('劇情時間',kv([['時間',clock()],['目前場景',$('passageTitle')?.textContent||state.current_passage],['場景資訊',$('passageMeta')?.textContent||'未標示']]))+card('完整狀態',kv([['精神',s.spirit],['鎮定',s.composure],['疑心',s.suspicion],['疲勞',s.fatigue],['飢餓',s.hunger],['錢',s.coin],['氣血',`${s.hp}/${s.hpMax}`],['日期',s.day],['時段',H[s.hour]||s.hour],['行動',s.turn]]));if(name==='achievements')return card('地圖與場景',kv([['劇情時間',clock()],['目前場景',state.current_passage||'未定'],['行動紀錄',(state.history||[]).length],['最近戰鬥',state.combat?.result||'無']]));if(name==='options'||name==='saves')return card('存檔與資料來源',kv([['存檔格式',state.schema_version||'da_go_save_v7'],['Bundle',state.bundle_source||bundle.__bundle_source||'unknown'],['行動紀錄',(state.history||[]).length]]))+(name==='saves'?'<p><button id="saveNow">保存</button> <button id="exportSave">下載存檔</button> <button id="restartGame">重開</button> <button id="exportLog">匯出語料 playlog</button></p>':'');return '<p>此面板尚未實作。</p>'}
+function bindPanels(){document.querySelectorAll('[data-action="panel"]').forEach(btn=>{if(btn.dataset.panelBound)return;btn.dataset.panelBound='1';btn.addEventListener('click',()=>{if(!state)return;const n=btn.dataset.panel;$('overlayTitle').textContent=btn.textContent;$('overlayContent').innerHTML='<section class="dago-panel-detail">'+panel(n)+'</section>';$('overlayBackdrop').classList.remove('hidden');$('saveNow')?.addEventListener('click',()=>window.DaGoSave.save(state));$('exportSave')?.addEventListener('click',()=>window.DaGoSave.download(state));$('restartGame')?.addEventListener('click',()=>{window.DaGoSave.clear();location.search='?reset=1'});$('exportLog')?.addEventListener('click',()=>window.DaGoExportPlaylog.download(state))})});$('closeOverlay')?.addEventListener('click',()=>$('overlayBackdrop').classList.add('hidden'))}
+async function boot(){bundle=window.DaGoState.normalizeBundle(await window.DaGoRuntimeBundlePromise);ensureStart();bindPanels();if(new URLSearchParams(location.search).has('reset'))window.DaGoSave.clear();loadExisting()}
+window.DaGoModularRuntime=Object.freeze({boot,startCombat,renderCombat,combatRound,finishCombat});boot();
 })();
