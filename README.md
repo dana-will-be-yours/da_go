@@ -5,7 +5,7 @@
 公開頁：
 
 ```text
-https://dana-will-be-yours.github.io/da_go/game.html?reset=1&v=1.12.10-card-ui
+[https://dana-will-be-yours.github.io/da_go/game.html?reset=1&v=1.12.10-card-ui](https://dana-will-be-yours.github.io/da_go/game.html?reset=1&v=1.12.11-bg-cards)
 ```
 
 ## 目前版本
