@@ -1,0 +1,24 @@
+{
+  "bundle_patch_format": "da_go_runtime_bundle_patch_v1",
+  "patch_code": "changshan_life_events_v1",
+  "passages": [
+    {"id":"Dock","title":"南河埠","location":"天津郡 / 常山縣 / 南河埠","body":"南河埠潮氣重，船工搬貨、牙人看秤，夜裡還會有人談起外縣米船。","choices":[{"id":"dock_work","text":"替老裴搬一趟貨","target":"Dock","check":{"skill":"outer","dc":10},"effects":[{"op":"add","path":"stats.coin","value":4},{"op":"add","path":"stats.fatigue","value":6}]},{"id":"dock_rumor","text":"聽船工說夜運傳聞","target":"RiverPath","check":{"skill":"listen","dc":10},"effects":[{"op":"gain","value":"夜運傳聞"}]},{"id":"dock_back","text":"回東門","target":"Gate","effects":[]}]},
+    {"id":"RiverPath","title":"河岸小路","location":"天津郡 / 常山縣 / 河岸","body":"河岸蘆草密，白日有漁戶曬網，入夜則只剩水聲與遠處犬吠。","choices":[{"id":"river_observe","text":"沿河觀察新腳印","target":"RiverPath","check":{"skill":"observe","dc":12},"effects":[{"op":"gain","value":"河岸腳印"}]},{"id":"river_back","text":"回南河埠","target":"Dock","effects":[]}]},
+    {"id":"Field","title":"東畝田埂","location":"天津郡 / 常山縣 / 田里","body":"田埂旁水渠半乾，趙禾正算著明日雇工人數。田里能養人，也最能磨人。","choices":[{"id":"field_work","text":"下田修渠半日","target":"Field","check":{"skill":"outer","dc":8},"effects":[{"op":"add","path":"stats.coin","value":4},{"op":"add","path":"stats.fatigue","value":9},{"op":"add","path":"stats.hunger","value":6}]},{"id":"field_back","text":"回東門","target":"Gate","effects":[]}]},
+    {"id":"Clinic","title":"林家醫鋪","location":"天津郡 / 常山縣 / 醫鋪","body":"醫鋪藥味苦，林菱在櫃後碾藥。小傷小病、行旅跌打，都先到這裡問。","choices":[{"id":"clinic_help","text":"替林菱分揀藥材","target":"Clinic","check":{"skill":"medicine","dc":10},"effects":[{"op":"add","path":"stats.coin","value":2},{"op":"gain","value":"藥材名錄"}]},{"id":"clinic_back","text":"回市集","target":"Market","effects":[]}]},
+    {"id":"Shrine","title":"城隍廟","location":"天津郡 / 常山縣 / 城隍廟","body":"廟前香火不盛，阿芫卻記得每個來過的人。求神的人說的是願，旁觀的人聽的是事。","choices":[{"id":"shrine_talk","text":"問阿芫近日誰常來","target":"Shrine","check":{"skill":"empathy","dc":10},"effects":[{"op":"gain","value":"廟前人名"}]},{"id":"shrine_back","text":"回市集","target":"Market","effects":[]}]},
+    {"id":"Workshop","title":"車棚工坊","location":"天津郡 / 常山縣 / 工坊","body":"車棚裡木屑、鐵釘和油布堆在一起。工匠只問手穩不穩，不問來處多貴。","choices":[{"id":"workshop_repair","text":"幫忙修一架小車","target":"Workshop","check":{"skill":"craft","dc":10},"effects":[{"op":"add","path":"stats.coin","value":4},{"op":"add","path":"stats.fatigue","value":4}]},{"id":"workshop_back","text":"回市集","target":"Market","effects":[]}]}
+  ],
+  "relationships": [
+    {"npc_code":"npc_lao_pei","npc_name":"老裴","npc_type":"boatman","location_name":"南河埠","metrics":[{"key":"trust","default":0,"min":-100,"max":100,"label":"信任"}]},
+    {"npc_code":"npc_zhao_he","npc_name":"趙禾","npc_type":"farmer","location_name":"東畝田埂","metrics":[{"key":"trust","default":0,"min":-100,"max":100,"label":"信任"}]},
+    {"npc_code":"npc_lin_ling","npc_name":"林菱","npc_type":"apprentice_medic","location_name":"林家醫鋪","metrics":[{"key":"trust","default":0,"min":-100,"max":100,"label":"信任"}]},
+    {"npc_code":"npc_a_yuan","npc_name":"阿芫","npc_type":"shrine_keeper","location_name":"城隍廟","metrics":[{"key":"trust","default":0,"min":-100,"max":100,"label":"信任"}]}
+  ],
+  "event_pools": [
+    {"event_code":"evt_rain_market","title":"午後驟雨","trigger":{"passage":"Market","time":"dusk"},"summary":"市集突降驟雨，貨郎收攤，路人擠到茶棚避雨。","effects":[{"op":"add","path":"stats.fatigue","value":1}]},
+    {"event_code":"evt_yamen_rollcall","title":"縣衙點名","trigger":{"passage":"Yamen","suspicion_gte":3},"summary":"沈簿忽然查問幾名常在衙前徘徊的人。","effects":[{"op":"add","path":"stats.suspicion","value":2}]},
+    {"event_code":"evt_dock_night_boat","title":"夜船靠埠","trigger":{"passage":"Dock","flag":"夜運傳聞"},"summary":"一艘無燈的小船靠近河埠，老裴示意你別多問。","effects":[{"op":"gain","value":"夜船記號"}]},
+    {"event_code":"evt_field_shortage","title":"田里缺工","trigger":{"passage":"Field","fatigue_lte":60},"summary":"趙禾說明日缺人，願意先記你一份工。","effects":[{"op":"gain","value":"明日田工約定"}]}
+  ]
+}
