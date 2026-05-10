@@ -1,0 +1,13 @@
+(()=>{
+'use strict';
+const SKILL_ATTR={inner:'body',outer:'body',light:'body',swim:'body',climb:'body',pierce:'body',slash:'body',strike:'body',sense:'body',sleight:'tech',craft:'tech',appraise:'tech',medicine:'tech',pharma:'tech',ride:'tech',hide:'tech',observe:'tech',listen:'tech',smell:'tech',office:'tech',animal:'tech',threat:'tech',art:'tech',elegance:'tech',appearance:'mind',resource:'mind',wealth:'mind',court:'mind',jianghu:'mind',geo:'mind',nature:'mind',history:'mind',religion:'mind',study:'mind',will:'mind',language:'mind',social:'mind',empathy:'mind',speech:'mind'};
+const SKILL_LABEL={inner:'內功',outer:'外功',light:'輕功',swim:'水性',climb:'攀行',pierce:'刺擊',slash:'斬擊',strike:'打擊',sense:'感知',sleight:'巧手',craft:'工藝',appraise:'辨別',medicine:'醫術',pharma:'調藥',ride:'騎術',hide:'躲藏',observe:'觀察',listen:'聆聽',smell:'品嗅',office:'政務',animal:'馴養',threat:'威嚇',art:'表達',elegance:'雅藝',appearance:'相貌',resource:'資源',wealth:'財富',court:'官場',jianghu:'江湖',geo:'地理',nature:'自然',history:'歷史',religion:'宗教',study:'學藝',will:'意志',language:'語言',social:'交際',empathy:'共情',speech:'口才'};
+function skillAttr(skill){return SKILL_ATTR[skill]||'mind'}
+function skillName(skill){return SKILL_LABEL[skill]||skill||''}
+function attrMod(sum){sum=Number(sum)||0;if(sum<=0)return-2;if(sum===1)return-1;if(sum<=3)return 0;if(sum<=5)return 1;if(sum<=8)return 2;if(sum<=11)return 3;if(sum<=15)return 4;if(sum<=19)return 5;return 6}
+function recalcAttrs(st){const sums={body:0,tech:0,mind:0};Object.entries(st.skills||{}).forEach(([skill,value])=>{sums[skillAttr(skill)]+=Number(value)||0});st.attrSums=sums;st.attrs={body:attrMod(sums.body),tech:attrMod(sums.tech),mind:attrMod(sums.mind)};return st.attrs}
+function advanceTime(st,hours=1){const order=['morning','noon','dusk','night'];let idx=order.indexOf(st.stats.hour);if(idx<0)idx=0;for(let i=0;i<hours;i++){idx++;if(idx>=order.length){idx=0;st.stats.day=(Number(st.stats.day)||1)+1}}st.stats.hour=order[idx];return st}
+function afterAction(st){st.stats.turn=(Number(st.stats.turn)||0)+1;advanceTime(st,1);return st}
+function collapseCheck(st){const s=st.stats||{};if(s.fatigue<95&&s.hunger<95)return null;const risk=Math.min(80,10+(s.fatigue>95?25:0)+(s.hunger>95?25:0));if(Math.random()*100>=risk)return null;s.hp=Math.max(0,Number(s.hp||10)-2);s.fatigue=Math.max(40,Number(s.fatigue||0)-35);s.hunger=Math.max(45,Number(s.hunger||0)-25);return {title:'你已暈厥',text:'疲勞與飢餓壓過身體，你在恍惚中回到上一個存檔點。',target:st.save_point||st.current_passage||'Gate'} }
+window.DaGoRules=Object.freeze({SKILL_ATTR,SKILL_LABEL,skillAttr,skillName,attrMod,recalcAttrs,advanceTime,afterAction,collapseCheck});
+})();

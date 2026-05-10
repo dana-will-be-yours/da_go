@@ -1,0 +1,25 @@
+name: Validate da_go runtime
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+      - refactor/modular-runtime-bundle-loader
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Validate runtime bundle and JS syntax
+        run: npm test
