@@ -1,0 +1,11 @@
+{
+  "name": "da_go",
+  "version": "1.12.0-modular-runtime",
+  "private": true,
+  "type": "commonjs",
+  "scripts": {
+    "test": "node tools/validate-runtime.js",
+    "validate": "node tools/validate-runtime.js"
+  },
+  "devDependencies": {}
+}
