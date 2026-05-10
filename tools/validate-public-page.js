@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const root = path.resolve(__dirname, '..');
+const expectedVersion = '1.12.13-deckbuilder';
 const html = fs.readFileSync(path.join(root, 'game.html'), 'utf8');
 const runtime = fs.readFileSync(path.join(root, 'assets/game-runtime.js'), 'utf8');
 const modular = fs.readFileSync(path.join(root, 'assets/game-modular.js'), 'utf8');
@@ -9,7 +10,8 @@ const rules = fs.readFileSync(path.join(root, 'assets/game-rules-ui-fix.js'), 'u
 for (const id of ['startForm','playPanel','choiceList','buildPreview','randomizeCharacter','overviewBox']) {
   if (!html.includes(`id="${id}"`)) throw new Error(`missing #${id}`);
 }
-if (!html.includes('assets/game-runtime.js?v=1.12.12-events-time')) throw new Error('wrong public runtime version');
+if (!html.includes(`assets/game-runtime.js?v=${expectedVersion}`)) throw new Error('wrong public runtime version');
+if (!runtime.includes(`const VERSION='${expectedVersion}';`)) throw new Error('wrong runtime manifest version');
 for (const s of ['scenario-select.js','game-bundle-loader.js','engine/state.js','engine/rules.js','engine/checks.js','engine/effects.js','engine/passage.js','engine/save.js','engine/export-playlog.js','game-v6-hotfix.js','character-create-ui.js','game-rules-ui-fix.js','game-character-balance-fix.js','game-modular.js']) {
   if (!runtime.includes(s)) throw new Error(`runtime missing ${s}`);
 }
@@ -25,10 +27,10 @@ for (const token of ['formatStoryTime','monthName','xunName','大興十年','mak
 for (const token of ['poolEventsFor','relationshipChoices','eventChoices','applyDailyEvent','event_hook']) {
   if (!modular.includes(token)) throw new Error(`event runtime missing ${token}`);
 }
-for (const token of ['DaGoOriginSpecialV112','特殊身世依身分開放','將軍之子','大興崔氏旁支','崑崙外州']) {
+for (const token of ['DaGoOriginSpecialV113','依五項身分開放大國世家','將門之子','大興崔氏旁支','崑崙外州']) {
   if (!hotfix.includes(token)) throw new Error(`hotfix missing ${token}`);
 }
 for (const token of ['preview-detail-block','full-status-sidebar','renderFullSidebar','addPreviewDetail']) {
   if (!rules.includes(token)) throw new Error(`rules ui missing ${token}`);
 }
-console.log('Event pool and story time runtime validation passed.');
+console.log('Deckbuilder runtime validation passed.');
