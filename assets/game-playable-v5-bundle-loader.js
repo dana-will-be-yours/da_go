@@ -1,4 +1,4 @@
-﻿(() => {
+(() => {
   "use strict";
 
   window.DaGoLegacyRuntime = Object.assign({}, window.DaGoLegacyRuntime || {}, {
@@ -10,7 +10,7 @@
   }
 
   const script = document.createElement("script");
-  script.src = "assets/game-runtime.js?v=1.11.0-changshan-year";
+  script.src = "assets/game-runtime.js?v=1.11.1-xiaocheng-local";
   script.dataset.loadedBy = "assets/game-playable-v5-bundle-loader.js";
   document.body.appendChild(script);
 })();

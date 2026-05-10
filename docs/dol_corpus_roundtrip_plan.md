@@ -42,16 +42,16 @@ da_go 讀取 manifest：
   "manifest_format": "da_go_world_manifest_v1",
   "metadata": {
     "source": "trpg-corpus-sqlserver",
-    "project_code": "DAGUO",
-    "team_code": "DAGUO-T01",
+    "project_code": "DAGO",
+    "team_code": "DAGO-T01",
     "session_code": "DA20-CORPUS-RPG-001"
   },
   "config": {
     "database_name": "TRPG_Corpus_DB",
-    "project_code": "DAGUO",
-    "team_code": "DAGUO-T01",
+    "project_code": "DAGO",
+    "team_code": "DAGO-T01",
     "session_code": "DA20-CORPUS-RPG-001",
-    "import_batch_code": "DAGO_DAGUO-T01_DA20-CORPUS-RPG-001",
+    "import_batch_code": "DAGO_DA20-CORPUS-RPG-001",
     "gm_code": "TM-GM",
     "researcher_code": "TM-RESEARCHER"
   },

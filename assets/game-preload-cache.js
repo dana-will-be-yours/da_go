@@ -1,6 +1,6 @@
 (()=>{
 'use strict';
-const VERSION='1.11.0-changshan-year';
+const VERSION='1.11.1-xiaocheng-local';
 const CACHE_NAME='da_go_runtime_'+VERSION;
 const ASSETS=[['assets/game-screen.css','介面樣式',1,''],['assets/game-v4.css','卡片與地圖樣式',1,''],['assets/game-v6-hotfix.js','角色建立修正',1,'ROLE_GROUPS'],['assets/game-playable-v6.js','常山縣規則引擎',1,'identity-rank-attr-formula'],['assets/data/dago-changshan-v1-bundle.json','常山縣備用資料包',0,'json']];
 const SCROLL_LINES=[

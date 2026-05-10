@@ -1,6 +1,6 @@
 (()=>{
 'use strict';
-const VERSION='1.11.0-changshan-year';
+const VERSION='1.11.1-xiaocheng-local';
 const STORE='daGoPlayV6';
 window.DaGoRulesUiFix=Object.freeze({version:VERSION});
 const ATTR={inner:'body',outer:'body',light:'body',swim:'body',climb:'body',pierce:'body',slash:'body',strike:'body',sense:'body',sleight:'tech',craft:'tech',appraise:'tech',medicine:'tech',pharma:'tech',ride:'tech',hide:'tech',observe:'tech',listen:'tech',smell:'tech',office:'tech',animal:'tech',threat:'tech',art:'tech',elegance:'tech',appearance:'mind',resource:'mind',wealth:'mind',court:'mind',jianghu:'mind',geo:'mind',nature:'mind',history:'mind',religion:'mind',study:'mind',will:'mind',language:'mind',social:'mind',empathy:'mind',speech:'mind'};

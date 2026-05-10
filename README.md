@@ -1,17 +1,17 @@
 # da_go
 
-`da_go` 是《大國年代記》的單人網頁文字遊戲。現行版本將劇本重設為「大興十年，天津郡常山縣」，玩家從常山縣東門進入，經由客棧、市集、縣衙、河埠、工坊、田里與借住小院展開長期生活型文字沙盒。
+`da_go` 是《大國年代記》的單人網頁文字遊戲。現行劇本為「小城舊事」，時間是大興十年，地點是天津郡常山縣。玩家是常山縣本地人，從東門、客棧、市集、縣衙、河埠、工坊、田里與橋北租屋展開長期生活型文字遊戲。
 
 公開頁：
 
 ```text
-https://dana-will-be-yours.github.io/da_go/game.html?v=1.11.0-changshan-year
+https://dana-will-be-yours.github.io/da_go/game.html?v=1.11.1-xiaocheng-local
 ```
 
 ## 目前版本
 
 ```text
-Runtime: 1.11.0-changshan-year
+Runtime: 1.11.1-xiaocheng-local
 入口：assets/game-runtime.js
 主遊戲：assets/game-playable-v6.js
 角色建立：assets/game-v6-hotfix.js
@@ -50,7 +50,7 @@ Runtime: 1.11.0-changshan-year
 文字外觀：標準、書卷、夜讀、大字
 ```
 
-岐山葉氏可由非門派弟子選取。其他江湖門派外緣仍需至少一個身分為「門派弟子」。
+岐山葉氏與其他江湖門派外緣都需至少一個身分為「門派弟子」才可選取。
 
 ## 身分與品級
 
@@ -74,7 +74,7 @@ Runtime: 1.11.0-changshan-year
 持有物
 ```
 
-角色建立技能值已降量：每個身分提供固定技能組，重複身分只在 3 次與 5 次時追加少量加值，技能上限為 5。技能值高於 5 時顯示：
+角色建立技能值已降量：每個身分只給一項起始技能，屬性點配置、出身地、性格與特殊身世各自提供少量技能或狀態變化，技能上限為 5。技能值高於 5 時顯示：
 
 ```text
 此項已達最大值，鑽研再深入亦無用
@@ -118,7 +118,7 @@ DC 表：
 飢餓過高：減值
 ```
 
-減值發生時，玩家會在行動結果看到「狀態影響」訊息。
+減值發生時，玩家會在行動結果看到「狀態減值」訊息。
 
 ## 暈厥與武器
 
@@ -194,7 +194,7 @@ python -m http.server 8080
 ```
 
 ```text
-http://localhost:8080/game.html?v=1.11.0-changshan-year&reset=1
+http://localhost:8080/game.html?v=1.11.1-xiaocheng-local&reset=1
 ```
 
 ## 相關 repository

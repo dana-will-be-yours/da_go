@@ -1,6 +1,6 @@
 (()=>{
 'use strict';
-const VERSION='1.11.0-changshan-year';
+const VERSION='1.11.1-xiaocheng-local';
 window.DaGoRuntimeManifest=Object.freeze({
   runtime_name:'da_go_unified_runtime',
   runtime_version:VERSION,

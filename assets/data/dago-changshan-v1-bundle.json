@@ -1,9 +1,9 @@
 {
   "bundle_format": "da_go_runtime_bundle_v1",
-  "bundle_version": "1.11.0-changshan-year",
+  "bundle_version": "1.11.1-xiaocheng-local",
   "scenario": {
-    "code": "changshan_year",
-    "name": "常山縣一年",
+    "code": "xiaocheng_jiushi",
+    "name": "小城舊事",
     "time": "大興十年",
     "location": "天津郡 常山縣",
     "start_passage": "Gate"
@@ -15,7 +15,11 @@
     {"code": "Market", "name": "市集", "type": "market"},
     {"code": "Yamen", "name": "縣衙", "type": "government"},
     {"code": "Dock", "name": "南河埠", "type": "harbour"},
-    {"code": "Lodging", "name": "借住小院", "type": "save_point"}
+    {"code": "Lodging", "name": "借住小院", "type": "save_point"},
+    {"code": "Tianjin", "name": "天津郡郡城", "type": "prefecture"},
+    {"code": "Hengshui", "name": "衡水縣方向", "type": "county"},
+    {"code": "Hengwan", "name": "珩灣縣方向", "type": "county"},
+    {"code": "Cangbei", "name": "滄北邑方向", "type": "town"}
   ],
   "rules": {
     "check_formula": "4D3+調整值+技能值 >= DC",

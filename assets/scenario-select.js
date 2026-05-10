@@ -1,15 +1,15 @@
 (()=>{
 'use strict';
-const VERSION='1.11.0-changshan-year';
+const VERSION='1.11.1-xiaocheng-local';
 const STORE='daGoScenarioSelection';
 const DEFAULT_SCENARIO_URL='assets/data/scenarios/xiaocheng-jiushi.json?v='+encodeURIComponent(VERSION);
 const $=id=>document.getElementById(id);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const DEFAULT_FEATURES=[
-  '在東門、客棧、市集、縣衙與河埠之間尋找活計。',
-  '從短工、人情與地方消息累積立足線索。',
-  '以疲勞、飢餓、精神與鎮定管理每日行動。',
-  '和常山縣人物往來，逐步打開更多去處。'
+  '玩家是常山縣本地人，從東門、客棧、市集、縣衙、河埠與田里開始生活。',
+  '天津郡下含常山縣、衡水縣、珩灣縣；滄北邑隸屬珩灣縣。',
+  '技能檢定採 4D3 + 調整值 + 技能值，成功與失敗都會寫入遊玩紀錄。',
+  '飢餓、疲勞、精神、鎮定與疑心會影響行動結果，過高壓力會帶來暈厥風險。'
 ];
 let scenarios=[];
 let selected=null;
@@ -42,11 +42,11 @@ function addStyle(){
 }
 function fallbackScenario(){
   return {
-    scenario_code:'changshan_year',
-    scenario_name:'常山縣一年',
+    scenario_code:'xiaocheng_jiushi',
+    scenario_name:'小城舊事',
     scenario_subtitle:'大興十年天津郡常山縣',
     intro:{
-      summary:'大興十年，你抵達天津郡常山縣。縣城不大，客棧、市集、縣衙、河埠與田里各有活計與消息。',
+      summary:'大興十年，你是天津郡常山縣本地人。縣城不大，客棧、市集、縣衙、河埠與田里各有活計與消息。',
       features:DEFAULT_FEATURES.slice()
     }
   };
@@ -66,7 +66,7 @@ function renderScenario(s){
   const panel=$('scenarioSelectPanel');
   if(!panel||!s)return;
   const features=(s.intro?.features||DEFAULT_FEATURES).map(x=>`<li>${esc(x)}</li>`).join('');
-  panel.querySelector('#scenarioCurrentName').textContent=s.scenario_name||'常山縣一年';
+  panel.querySelector('#scenarioCurrentName').textContent=s.scenario_name||'小城舊事';
   panel.querySelector('#scenarioDetail').innerHTML=`
     <h2 class="scenario-title">${esc(s.scenario_name)}</h2>
     <p class="scenario-subtitle">${esc(s.scenario_subtitle||'')}</p>
@@ -85,11 +85,11 @@ function installPanel(){
     <div class="scenario-actions">
       <button type="button" id="scenarioInfoBtn">查看劇本摘要</button>
       <button type="button" id="scenarioImportBtn">匯入劇本 JSON</button>
-      <select id="scenarioSwitch" title="切換劇本"><option value="changshan_year">常山縣一年</option></select>
+      <select id="scenarioSwitch" title="切換劇本"><option value="xiaocheng_jiushi">小城舊事</option></select>
       <button type="button" id="scenarioEnterBtn">進入劇本</button>
       <input id="scenarioImportInput" class="scenario-hidden-input" type="file" accept="application/json,.json">
     </div>
-    <p class="scenario-current">目前劇本：<b id="scenarioCurrentName">常山縣一年</b></p>
+    <p class="scenario-current">目前劇本：<b id="scenarioCurrentName">小城舊事</b></p>
     <div id="scenarioDetail"></div>
   </div>`;
   startPanel.insertBefore(panel,form);

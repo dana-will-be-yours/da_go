@@ -1,6 +1,6 @@
 (()=>{
 'use strict';
-const VERSION='1.11.0-changshan-year';
+const VERSION='1.11.1-xiaocheng-local';
 const STORE='daGoPlayV6';
 const RANKS=['戊','丁','丙','乙','甲'];
 const ROLE_ROWS=[
@@ -77,8 +77,8 @@ window.DaGoRoleRankPhraseRows=Object.freeze(ROLE_ROWS.map(row=>Object.freeze({..
 window.DaGoRoleRankPhraseTable=ROLE_TABLE;
 window.DaGoCharacterBalanceFix=Object.freeze({version:VERSION,roleCount:ROLE_ROWS.length,rankCount:RANKS.length,bonusPolicy:'no-extra-starting-bonus'});
 const oldSet=localStorage.setItem.bind(localStorage);
-if(!localStorage.__daGoBalanceFixV1110Changshan){
-  Object.defineProperty(localStorage,'__daGoBalanceFixV1110Changshan',{value:1});
+if(!localStorage.__daGoBalanceFixV1111Xiaocheng){
+  Object.defineProperty(localStorage,'__daGoBalanceFixV1111Xiaocheng',{value:1});
   localStorage.setItem=function(k,v){if(k===STORE){try{v=JSON.stringify(fix(JSON.parse(v)))}catch{}}return oldSet(k,v)};
 }
 const st=read();

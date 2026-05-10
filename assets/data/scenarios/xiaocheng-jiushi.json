@@ -1,7 +1,7 @@
 {
   "schema_version": "da_go_scenario_bundle_v1",
-  "scenario_code": "changshan_year",
-  "scenario_name": "常山縣一年",
+  "scenario_code": "xiaocheng_jiushi",
+  "scenario_name": "小城舊事",
   "scenario_subtitle": "大興十年天津郡常山縣",
   "time_span": {
     "era": "大興",
@@ -14,12 +14,12 @@
     "restriction": "玩家活動以常山縣為主，縣外資訊以書信、商旅、縣衙案卷與人物口述進入劇情。"
   },
   "intro": {
-    "summary": "大興十年，你抵達天津郡常山縣。縣城不大，客棧、市集、縣衙、河埠與田里各有活計與消息。",
+    "summary": "大興十年，你是天津郡常山縣本地人。縣城不大，客棧、市集、縣衙、河埠與田里各有活計與消息。",
     "features": [
-      "在東門、客棧、市集、縣衙與河埠之間尋找活計。",
-      "從短工、人情與地方消息累積立足線索。",
-      "以疲勞、飢餓、精神與鎮定管理每日行動。",
-      "和常山縣人物往來，逐步打開更多去處。"
+      "玩家是常山縣本地人，從東門、客棧、市集、縣衙、河埠與田里開始生活。",
+      "天津郡下含常山縣、衡水縣、珩灣縣；滄北邑隸屬珩灣縣。",
+      "技能檢定採 4D3 + 調整值 + 技能值，成功與失敗都會寫入遊玩紀錄。",
+      "飢餓、疲勞、精神、鎮定與疑心會影響行動結果，過高壓力會帶來暈厥風險。"
     ],
     "gm_note": "研究者用隱藏設定：玩家需在此地找到工作並生活一年；一年內以 NPC 關係、短工、地方消息與突發事件形成分支，不在玩家端直接顯示。"
   },
@@ -29,14 +29,19 @@
     "themes": ["立足", "活計", "人情", "地方秩序", "長期生活"]
   },
   "geography": {
+    "prefecture": "天津郡",
     "city": "常山縣",
     "districts": [
+      {"code": "tianjin_prefecture", "name": "天津郡", "locations": ["天津郡郡城", "郡城文移", "倉運路線"]},
       {"code": "east_gate", "name": "東門", "locations": ["常山縣東門", "活計牌"]},
       {"code": "market", "name": "市集", "locations": ["常山市集", "醫鋪", "工坊"]},
       {"code": "office", "name": "縣衙", "locations": ["縣衙門廊", "舊案房"]},
       {"code": "river", "name": "河埠", "locations": ["南河埠", "河岸小路"]},
       {"code": "lodging", "name": "住處", "locations": ["借住小院", "客棧"]},
-      {"code": "field", "name": "田里", "locations": ["城外田埂", "水渠"]}
+      {"code": "field", "name": "田里", "locations": ["城外田埂", "水渠"]},
+      {"code": "hengshui_county", "name": "衡水縣", "locations": ["衡水縣水渠", "西面田路"]},
+      {"code": "hengwan_county", "name": "珩灣縣", "locations": ["珩灣縣水路", "船家客店"]},
+      {"code": "cangbei_town", "name": "滄北邑", "parent": "珩灣縣", "locations": ["滄北邑驛口", "北家舊宅"]}
     ]
   },
   "characters": [

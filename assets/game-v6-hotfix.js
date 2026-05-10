@@ -11,7 +11,8 @@ const ROLE_GROUPS={
   '其他身分':[['house_scion','門閥子弟'],['merchant','行商'],['medic','坊郭醫'],['artist','伎伶俳優'],['disciple','門派弟子']]
 };
 window.ROLE_GROUPS=ROLE_GROUPS;
-const sectOnly=new Set(['dongting_wudu','kunlun_chu','jiuqu_huayin','donglai_xuanhai','jiannan_yuezong','nanjiang_xiaoyao','wanminhui']);
+const sectOnly=new Set(['qishan_ye','dongting_wudu','kunlun_chu','jiuqu_huayin','donglai_xuanhai','jiannan_yuezong','nanjiang_xiaoyao','wanminhui']);
+const roleValues=new Set(Object.values(ROLE_GROUPS).flat().map(([value])=>value));
 function roleOptions(selected){
   return Object.entries(ROLE_GROUPS).map(([group,rows])=>`<optgroup label="${group}">${rows.map(([value,text])=>`<option value="${value}" ${value===selected?'selected':''}>${text}</option>`).join('')}</optgroup>`).join('');
 }
@@ -20,7 +21,7 @@ function patchRoles(){
   if(!grid||grid.dataset.v6RolePatched)return;
   grid.dataset.v6RolePatched='1';
   const defaults=['yamen_clerk','wanderer','merchant','medic','soldier'];
-  const current=[...grid.querySelectorAll('[name="roles"]')].map((x,i)=>x.value||defaults[i]).slice(0,5);
+  const current=[...grid.querySelectorAll('[name="roles"]')].map((x,i)=>roleValues.has(x.value)?x.value:defaults[i]).slice(0,5);
   while(current.length<5)current.push(defaults[current.length]);
   grid.innerHTML=current.map((value,i)=>`<label>身分 ${i+1}<select name="roles">${roleOptions(value)}</select></label>`).join('');
 }
