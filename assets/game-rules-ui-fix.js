@@ -1,66 +1,24 @@
 (()=>{
 'use strict';
-const VERSION='1.11.1-xiaocheng-local';
-const STORE='daGoPlayV6';
+const VERSION='1.12.6-full-ui';
+const STORE7='daGoPlayV7';
+const STORE6='daGoPlayV6';
 window.DaGoRulesUiFix=Object.freeze({version:VERSION});
 const ATTR={inner:'body',outer:'body',light:'body',swim:'body',climb:'body',pierce:'body',slash:'body',strike:'body',sense:'body',sleight:'tech',craft:'tech',appraise:'tech',medicine:'tech',pharma:'tech',ride:'tech',hide:'tech',observe:'tech',listen:'tech',smell:'tech',office:'tech',animal:'tech',threat:'tech',art:'tech',elegance:'tech',appearance:'mind',resource:'mind',wealth:'mind',court:'mind',jianghu:'mind',geo:'mind',nature:'mind',history:'mind',religion:'mind',study:'mind',will:'mind',language:'mind',social:'mind',empathy:'mind',speech:'mind'};
 function clamp(n,a,b){return Math.max(a,Math.min(b,Number(n)||0))}
 function attrMod(sum){if(sum<=0)return-2;if(sum===1)return-1;if(sum<=3)return 0;if(sum<=5)return 1;if(sum<=8)return 2;if(sum<=11)return 3;if(sum<=15)return 4;if(sum<=19)return 5;return 6}
-function recalc(st){
-  if(!st||!st.skills)return;
-  const sums={body:0,tech:0,mind:0};
-  Object.entries(st.skills).forEach(([k,v])=>{sums[ATTR[k]||'mind']+=Number(v)||0});
-  st.attrSums=sums;
-  st.attrs={body:attrMod(sums.body),tech:attrMod(sums.tech),mind:attrMod(sums.mind)};
-}
-function hpMax(st){
-  const roles=st?.player?.roles||[];
-  const skills=st?.skills||{};
-  const attrs=st?.attrs||{body:0};
-  const heavy=new Set(['constable','soldier','strongman','escort','dock_labor','militia','hunter','disciple']);
-  const light=new Set(['literatus','copyist','tutor','poet']);
-  let base=6;
-  if(roles.some(r=>heavy.has(r)))base=8;
-  else if(roles.some(r=>light.has(r)))base=4;
-  return Math.max(1,base+(Number(attrs.body)||0)+(Number(skills.inner)||0)+(Number(skills.outer)||0)*2);
-}
-function normalize(st){
-  if(!st||typeof st!=='object')return st;
-  if(st.skills)Object.keys(st.skills).forEach(k=>{st.skills[k]=clamp(st.skills[k],-3,5)});
-  if(st.player)st.player.renownLevel=1;
-  if(st.renown)st.renown.level=1;
-  recalc(st);
-  if(st.stats){
-    const max=hpMax(st);
-    st.stats.vbMax=max;
-    st.stats.vb=Number.isFinite(Number(st.stats.vb))?clamp(st.stats.vb,0,max):max;
-  }
-  return st;
-}
-function getState(){try{return JSON.parse(localStorage.getItem(STORE)||'{}')}catch{return {}}}
-function setState(st){try{localStorage.setItem(STORE,JSON.stringify(st))}catch{}}
-function normalizeStore(){
-  const st=getState();
-  if(Object.keys(st).length)setState(normalize(st));
-}
-function patchStaticText(){
-  const sub=document.getElementById('story-subtitle');
-  if(sub)sub.textContent='天津郡常山縣';
-  document.querySelectorAll('[name="renownLevel"]').forEach(input=>{
-    input.value='1';
-    input.disabled=true;
-    const label=input.closest('label');
-    if(label)label.hidden=true;
-  });
-}
-const oldSet=localStorage.setItem.bind(localStorage);
-localStorage.setItem=function(k,v){
-  if(k===STORE){
-    try{v=JSON.stringify(normalize(JSON.parse(v)))}catch{}
-  }
-  return oldSet(k,v);
-};
-document.addEventListener('DOMContentLoaded',()=>{patchStaticText();normalizeStore()},{once:true});
-document.addEventListener('click',()=>setTimeout(patchStaticText,30),true);
+function readStore(){for(const k of [STORE7,STORE6]){try{const st=JSON.parse(localStorage.getItem(k)||'null');if(st&&typeof st==='object')return {key:k,st};}catch{}}return {key:STORE7,st:null}}
+function recalc(st){if(!st||!st.skills)return;const sums={body:0,tech:0,mind:0};Object.entries(st.skills).forEach(([k,v])=>{sums[ATTR[k]||'mind']+=Number(v)||0});st.attrSums=sums;st.attrs={body:attrMod(sums.body),tech:attrMod(sums.tech),mind:attrMod(sums.mind)};}
+function hpMax(st){const roles=st?.player?.roles||[];const skills=st?.skills||{};const attrs=st?.attrs||{body:0};const heavy=new Set(['constable','soldier','strongman','escort','dock_labor','militia','hunter','disciple']);const light=new Set(['literatus','copyist','tutor','poet']);let base=6;if(roles.some(r=>heavy.has(r)))base=8;else if(roles.some(r=>light.has(r)))base=4;return Math.max(1,base+(Number(attrs.body)||0)+(Number(skills.inner)||0)+(Number(skills.outer)||0)*2);}
+function normalize(st){if(!st||typeof st!=='object')return st;if(st.skills)Object.keys(st.skills).forEach(k=>{st.skills[k]=clamp(st.skills[k],-3,5)});if(st.player)st.player.renownLevel=1;if(st.renown)st.renown.level=1;recalc(st);if(st.stats){const max=hpMax(st);st.stats.vbMax=max;st.stats.vb=Number.isFinite(Number(st.stats.vb))?clamp(st.stats.vb,0,max):max;}return st;}
+function setState(key,st){try{localStorage.setItem(key,JSON.stringify(st))}catch{}}
+function normalizeStore(){const x=readStore();if(x.st)setState(x.key,normalize(x.st));}
+function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function patchStaticText(){const sub=document.getElementById('story-subtitle');if(sub)sub.textContent='天津郡常山縣';document.querySelectorAll('[name="renownLevel"]').forEach(input=>{input.value='1';input.disabled=true;const label=input.closest('label');if(label)label.hidden=true;});}
+function renderFullSidebar(){const box=document.getElementById('overviewBox');if(!box)return;const st=readStore().st;if(!st||!st.stats)return;recalc(st);const stats=st.stats||{}, attrs=st.attrs||{}, sums=st.attrSums||{}, skills=st.skills||{};const skillText=Object.entries(skills).sort((a,b)=>b[1]-a[1]).slice(0,18).map(([k,v])=>`${k}:${v}`).join('　');const relText=Object.entries(st.relationships||{}).slice(0,8).map(([k,v])=>`${v.name||k} ${Object.entries(v).filter(x=>x[0]!=='name').map(x=>x.join(':')).join('/')}`).join('<br>')||'無';box.innerHTML=`<section class="full-status-sidebar"><h3>${esc(st.player?.name||'旅人')}</h3><p>第 ${esc(stats.day||1)} 日 / ${esc(stats.hour||'morning')} / turn ${esc(stats.turn||0)}</p><h4>狀態</h4><p>精神 ${esc(stats.spirit)}｜鎮定 ${esc(stats.composure)}｜疑心 ${esc(stats.suspicion)}｜疲勞 ${esc(stats.fatigue)}｜飢餓 ${esc(stats.hunger)}｜錢 ${esc(stats.coin)}｜氣血 ${esc(stats.hp)}/${esc(stats.hpMax||stats.vbMax||10)}</p><h4>調整值</h4><p>body ${esc(sums.body||0)} / ${attrs.body>=0?'+':''}${esc(attrs.body||0)}｜tech ${esc(sums.tech||0)} / ${attrs.tech>=0?'+':''}${esc(attrs.tech||0)}｜mind ${esc(sums.mind||0)} / ${attrs.mind>=0?'+':''}${esc(attrs.mind||0)}</p><h4>技能值</h4><p>${esc(skillText)}</p><h4>戰鬥</h4><p>${st.combat?.active?'戰鬥中｜回合 '+esc(st.combat.round):'未進入戰鬥'}｜行動數 ${esc((st.history||[]).length)}</p><h4>人物關係</h4><p>${relText}</p></section>`;}
+function addPreviewDetail(){const form=document.getElementById('startForm'), box=document.getElementById('buildPreview');if(!form||!box)return;box.querySelector('.preview-detail-block')?.remove();const st={skills:{observe:1,speech:1,outer:1,study:1,slash:1,pierce:1,strike:1,light:1,medicine:1}};form.querySelectorAll('[name="roles"]').forEach(x=>{if(String(x.value).includes('yamen')){st.skills.office=(st.skills.office||0)+1;st.skills.observe+=1}if(['guard','soldier','disciple'].includes(x.value)){st.skills.outer+=1;st.skills.slash+=1}if(x.value==='merchant'){st.skills.wealth=(st.skills.wealth||0)+1;st.skills.speech+=1}if(x.value==='medic')st.skills.medicine+=1;if(x.value==='wanderer'){st.skills.hide=(st.skills.hide||0)+1;st.skills.jianghu=(st.skills.jianghu||0)+1}});recalc(st);const skills=Object.entries(st.skills).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`${k} ${v}`).join('、');box.insertAdjacentHTML('beforeend',`<section class="preview-detail-block"><h4>調整值</h4><p>body ${st.attrSums.body} / ${st.attrs.body>=0?'+':''}${st.attrs.body}｜tech ${st.attrSums.tech} / ${st.attrs.tech>=0?'+':''}${st.attrs.tech}｜mind ${st.attrSums.mind} / ${st.attrs.mind>=0?'+':''}${st.attrs.mind}</p><h4>技能值</h4><p>${esc(skills)}</p></section>`);}
+const oldSet=localStorage.setItem.bind(localStorage);localStorage.setItem=function(k,v){if(k===STORE6||k===STORE7){try{v=JSON.stringify(normalize(JSON.parse(v)))}catch{}}const r=oldSet(k,v);setTimeout(renderFullSidebar,0);return r;};
+document.addEventListener('DOMContentLoaded',()=>{patchStaticText();normalizeStore();addPreviewDetail();renderFullSidebar();},{once:true});
+document.addEventListener('click',()=>setTimeout(()=>{patchStaticText();addPreviewDetail();renderFullSidebar();},30),true);document.addEventListener('change',()=>setTimeout(()=>{addPreviewDetail();renderFullSidebar();},0),true);
 normalizeStore();
 })();
