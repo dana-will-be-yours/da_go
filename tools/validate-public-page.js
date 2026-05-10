@@ -9,7 +9,7 @@ const rules = fs.readFileSync(path.join(root, 'assets/game-rules-ui-fix.js'), 'u
 for (const id of ['startForm','playPanel','choiceList','buildPreview','randomizeCharacter','overviewBox']) {
   if (!html.includes(`id="${id}"`)) throw new Error(`missing #${id}`);
 }
-if (!html.includes('assets/game-runtime.js?v=1.12.11-bg-cards')) throw new Error('wrong public runtime version');
+if (!html.includes('assets/game-runtime.js?v=1.12.12-events-time')) throw new Error('wrong public runtime version');
 for (const s of ['scenario-select.js','game-bundle-loader.js','engine/state.js','engine/rules.js','engine/checks.js','engine/effects.js','engine/passage.js','engine/save.js','engine/export-playlog.js','game-v6-hotfix.js','character-create-ui.js','game-rules-ui-fix.js','game-character-balance-fix.js','game-modular.js']) {
   if (!runtime.includes(s)) throw new Error(`runtime missing ${s}`);
 }
@@ -22,10 +22,13 @@ for (const f of ['assets/scenario-select.js','assets/game-bundle-loader.js','ass
 for (const token of ['formatStoryTime','monthName','xunName','大興十年','makeStarterDeck','settleAfterDream','nextPurpose']) {
   if (!modular.includes(token)) throw new Error(`runtime missing ${token}`);
 }
-for (const token of ['DaGoOriginSpecialV111','特殊身世依身分開放','將軍之子','大興崔氏旁支','崑崙外州']) {
+for (const token of ['poolEventsFor','relationshipChoices','eventChoices','applyDailyEvent','event_hook']) {
+  if (!modular.includes(token)) throw new Error(`event runtime missing ${token}`);
+}
+for (const token of ['DaGoOriginSpecialV112','特殊身世依身分開放','將軍之子','大興崔氏旁支','崑崙外州']) {
   if (!hotfix.includes(token)) throw new Error(`hotfix missing ${token}`);
 }
 for (const token of ['preview-detail-block','full-status-sidebar','renderFullSidebar','addPreviewDetail']) {
   if (!rules.includes(token)) throw new Error(`rules ui missing ${token}`);
 }
-console.log('Background card runtime validation passed.');
+console.log('Event pool and story time runtime validation passed.');
