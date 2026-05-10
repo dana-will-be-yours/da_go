@@ -28,6 +28,10 @@ jobs:
         uses: actions/configure-pages@v5
         with:
           enablement: true
+      - name: Prepare static runtime page
+        run: |
+          node tools/apply-static-runtime.js
+          node tools/validate-public-page.js
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:

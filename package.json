@@ -1,11 +1,13 @@
 {
   "name": "da_go",
-  "version": "1.12.0-modular-runtime",
+  "version": "1.12.3-static-runtime",
   "private": true,
   "type": "commonjs",
   "scripts": {
-    "test": "node tools/validate-runtime.js",
-    "validate": "node tools/validate-runtime.js"
+    "test": "npm run validate",
+    "validate": "node tools/validate-runtime.js && node tools/apply-static-runtime.js && node tools/validate-public-page.js",
+    "validate:runtime": "node tools/validate-runtime.js",
+    "validate:public": "node tools/apply-static-runtime.js && node tools/validate-public-page.js"
   },
   "devDependencies": {}
 }
