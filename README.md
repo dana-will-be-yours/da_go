@@ -1,17 +1,17 @@
-# da_go
+﻿# da_go
 
-`da_go` 是《大國年代記》的單人網頁文字遊戲前端。現行公開版本為 `1.12.6-full-ui`，目標是以 `trpg-corpus-sqlserver` 的語料與劇情資料輸出 runtime bundle，再由 `da_go` 讀取並轉成可遊玩的單人文字遊戲。
+`da_go` 是《大國年代記》的單人網頁文字遊戲前端。現行公開版本為 `1.12.10-card-ui`，目標是以 `trpg-corpus-sqlserver` 的語料與劇情資料輸出 runtime bundle，再由 `da_go` 讀取並轉成可遊玩的單人文字遊戲。
 
 公開頁：
 
 ```text
-https://dana-will-be-yours.github.io/da_go/game.html?reset=1&v=1.12.9-modular-panels
+https://dana-will-be-yours.github.io/da_go/game.html?reset=1&v=1.12.10-card-ui
 ```
 
 ## 目前版本
 
 ```text
-Runtime: 1.12.6-full-ui
+Runtime: 1.12.10-card-ui
 入口頁：game.html
 發布流程：.github/workflows/pages.yml
 部署前修補：tools/apply-static-runtime.js
@@ -32,7 +32,7 @@ Runtime: 1.12.6-full-ui
 劇本摘要：assets/data/scenarios/xiaocheng-jiushi.json
 ```
 
-## 1.12.6-full-ui 修正重點
+## 1.12.10-card-ui 修正重點
 
 此版本針對公開頁與 UI 做兩項硬性修正：
 
@@ -143,41 +143,55 @@ assets/game-modular.js
 
 ## 戰鬥系統
 
-`assets/game-modular.js` 已加入教學戰鬥。角色建立後會進入夢中戰鬥，使用接近 DoL 的狀態驅動戰鬥結構：
+`assets/game-modular.js` 已把教學衝突改為手札式文字卡牌。角色建立後會進入夢中衝突，流程為起式、用行令出式牌、收合、敵方合：
 
 ```text
 state.combat.active
+state.combat.encounter_code
 state.combat.returnPassage
+state.combat.win_passage
+state.combat.escape_passage
+state.combat.loss_passage
+state.combat.combat_tags
 state.combat.round
+state.combat.phase
+state.combat.energy / energyMax
 state.combat.enemies
 state.combat.playerGuard
+state.combat.playerTags
+state.combat.drawPile
+state.combat.hand
+state.combat.discardPile
+state.combat.exhaustPile
 state.combat.log
 ```
 
-敵人狀態包含：
+敵手狀態包含：
 
 ```text
 hp / hpMax
 trust
 anger
 damage
+intent
 tags
 ```
 
-玩家行動以按鈕卡形式呈現：
+玩家行動以式牌呈現：
 
 ```text
-斬擊
-刺擊
-鈍擊
-防守
-閃避
-威嚇
-求和
-使用持有物
+式囊
+手札
+棄式
+絕式
+行令
+守勢
+敵勢
+收合
+目標達成 / 脫出 / 敗退
 ```
 
-每個行動會進行 `4D3` 檢定，並把結果寫入 `state.history` 與 `state.events`。戰鬥結束後會回到 runtime bundle 指定場景，並寫入 journal 與 notes。
+每張式牌沿用 `window.DaGoChecks.test({ skill, dc }, state)`。結果會寫入 `state.history`、`state.events`、`state.notes`、`state.journal`、`state.actionCounts`。
 
 ## Runtime bundle
 
@@ -256,7 +270,7 @@ python -m http.server 8080
 測試網址：
 
 ```text
-http://localhost:8080/game.html?reset=1&v=1.12.6-full-ui
+http://localhost:8080/game.html?reset=1&v=1.12.10-card-ui
 ```
 
 ## GitHub Pages 部署
@@ -267,7 +281,7 @@ GitHub Pages workflow：
 .github/workflows/pages.yml
 ```
 
-部署前會將 `game.html` 的 runtime 版本字串修補為 `1.12.6-full-ui`，並執行公開頁驗證。
+部署前會將 `game.html` 的 runtime 版本字串修補為 `1.12.10-card-ui`，並執行公開頁驗證。
 
 ## 相關 repository
 

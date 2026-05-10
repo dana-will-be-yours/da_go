@@ -1,6 +1,6 @@
 {
   "name": "da_go",
-  "version": "1.12.3-static-runtime",
+  "version": "1.12.10-card-ui",
   "private": true,
   "type": "commonjs",
   "scripts": {
