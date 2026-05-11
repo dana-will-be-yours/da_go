@@ -1,9 +1,9 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="zh-Hant">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>憭批?撟港誨閮?/title>
+  <title>大國年代記</title>
   <link rel="stylesheet" href="assets/game-screen.css">
   <link rel="stylesheet" href="assets/game-v4.css">
 </head>
@@ -11,67 +11,7 @@
   <div id="story" role="main">
     <div id="passages" aria-live="polite">
       <article id="passage" class="passage">
-        <section id="startPanel" class="start-panel">
-          <h1>憭批?撟港誨閮?/h1>
-          <p class="version">撠???嚚之??撟湛?憭拇揖?∪虜撅梁腦</p>
-          <form id="startForm" class="start-form">
-            <label>閫??              <input id="playerName" name="playerName" type="text" value="撣詨控鈭? maxlength="16" autocomplete="off">
-            </label>
-            <fieldset>
-              <legend>頨恍?</legend>
-              <div class="field-group"><span>?批</span><label><input type="radio" name="gender" value="female" checked> 憟喳?</label><label><input type="radio" name="gender" value="male"> ?瑕?</label><label><input type="radio" name="gender" value="undisclosed"> ?芾???/label></div>
-              <div class="field-group"><span>頨恍?</span><label><input type="radio" name="height" value="very_short"> ?桀?</label><label><input type="radio" name="height" value="short"> ?亦</label><label><input type="radio" name="height" value="average" checked> 銝剔?</label><label><input type="radio" name="height" value="tall"> 擃?</label><label><input type="radio" name="height" value="very_tall"> 擃之</label></div>
-              <div class="field-group"><span>擃?</span><label><input type="radio" name="build" value="slender"> 皜</label><label><input type="radio" name="build" value="lean"> 蝯祕</label><label><input type="radio" name="build" value="balanced" checked> ?餌迂</label><label><input type="radio" name="build" value="soft"> 鞊膜</label><label><input type="radio" name="build" value="strong"> 憯臬</label><label><input type="radio" name="build" value="broad"> 撖砍?</label></div>
-              <div class="field-group"><span>頨恍?蝺?</span><label><input type="radio" name="bodyLine" value="straight" checked> ?渡?</label><label><input type="radio" name="bodyLine" value="soft_curve"> ??</label><label><input type="radio" name="bodyLine" value="firm"> 蝺祕</label><label><input type="radio" name="bodyLine" value="angular"> ??</label><label><input type="radio" name="bodyLine" value="rounded"> ?膜</label></div>
-              <div class="field-group"><span>?</span><label><input type="radio" name="skinTone" value="pale" checked> 瘛箇</label><label><input type="radio" name="skinTone" value="warm"> ?</label><label><input type="radio" name="skinTone" value="wheat"> 暻亥</label><label><input type="radio" name="skinTone" value="bronze"> ?日?</label><label><input type="radio" name="skinTone" value="deep"> 瘛梯?</label></div>
-              <div class="field-group"><span>銵??</span><label><input type="radio" name="clothes" value="plain" checked> 蝝??剛﹝</label><label><input type="radio" name="clothes" value="yamen"> 銵??剛?</label><label><input type="radio" name="clothes" value="travel"> 銵楝?剛?</label><label><input type="radio" name="clothes" value="gentry"> ?▼憭?</label><label><input type="radio" name="clothes" value="merchant"> 蝒???</label><label><input type="radio" name="clothes" value="disciple"> ?瘣曉?鋆?/label></div>
-            </fieldset>
-            <fieldset>
-              <legend>?剝</legend>
-              <div class="field-group"><span>?Ｗ捆???/span><label><input type="radio" name="face" value="clear" checked> 皜?</label><label><input type="radio" name="face" value="upright"> 蝡舀迤</label><label><input type="radio" name="face" value="sharp"> ?喳</label><label><input type="radio" name="face" value="gentle"> 皞恍?</label><label><input type="radio" name="face" value="bright"> ?翰</label><label><input type="radio" name="face" value="solemn"> 瘝?</label></div>
-              <div class="field-group"><span>?唾</span><label><input type="radio" name="eyeColor" value="black" checked> 暺</label><label><input type="radio" name="eyeColor" value="brown"> 銴</label><label><input type="radio" name="eyeColor" value="amber"> ?亦???/label><label><input type="radio" name="eyeColor" value="gray"> ?啁</label><label><input type="radio" name="eyeColor" value="hazel"> 璁??/label><label><input type="radio" name="eyeColor" value="dark_blue"> 瘛梢???/label></div>
-              <div class="field-group"><span>擃株</span><label><input type="radio" name="hairColor" value="black" checked> 暺垣</label><label><input type="radio" name="hairColor" value="dark_brown"> 瘛梯?擃?/label><label><input type="radio" name="hairColor" value="tea"> ?嗉?擃?/label><label><input type="radio" name="hairColor" value="chestnut"> ?垣</label><label><input type="radio" name="hairColor" value="silver"> ??賡垣</label><label><input type="radio" name="hairColor" value="ash"> ?圈垣</label></div>
-              <div class="field-group"><span>?剝垣?瑕漲</span><label><input type="radio" name="hairLength" value="cropped"> ?剖?</label><label><input type="radio" name="hairLength" value="short" checked> ?剝垣</label><label><input type="radio" name="hairLength" value="shoulder"> ?</label><label><input type="radio" name="hairLength" value="long"> ?琿垣</label><label><input type="radio" name="hairLength" value="bound"> ?垣</label><label><input type="radio" name="hairLength" value="braided"> 颲桅垣</label></div>
-            </fieldset>
-            <fieldset>
-              <legend>?扳?澈??/legend>
-              <p class="field-help">??頨怠??舫?銴????甈⊥????蝝?鈭活?箇???瘣曉?摮??舫??瘣曇澈銝?/p>
-              <div class="role-stack-grid">
-                <label>蝚砌?頨怠?<select name="roles"><option value="yamen_clerk" selected>?詨?</option><option value="runner">撌桀蝴</option><option value="constable">?蝴</option><option value="urban_household">???/option><option value="workshop">雿???/option><option value="teahouse">?嗆?撟恍?</option><option value="market_broker">撣?鈭?/option><option value="rural_farmer">颲脫</option><option value="hunter">?菜</option><option value="fisher">瞍</option><option value="literatus">憯怠?</option><option value="copyist">?鈭?/option><option value="strongman">憯臬ㄚ</option><option value="escort">?Ｗ恥</option><option value="dock_labor">??井</option><option value="wanderer">??</option><option value="merchant">銵?</option><option value="medic">???/option><option value="disciple">?瘣曉?摮?/option></select></label>
-                <label>蝚砌?頨怠?<select name="roles"><option value="wanderer" selected>??</option><option value="runner">撌桀蝴</option><option value="constable">?蝴</option><option value="urban_household">???/option><option value="workshop">雿???/option><option value="teahouse">?嗆?撟恍?</option><option value="market_broker">撣?鈭?/option><option value="rural_farmer">颲脫</option><option value="hunter">?菜</option><option value="fisher">瞍</option><option value="literatus">憯怠?</option><option value="copyist">?鈭?/option><option value="strongman">憯臬ㄚ</option><option value="escort">?Ｗ恥</option><option value="dock_labor">??井</option><option value="merchant">銵?</option><option value="medic">???/option><option value="disciple">?瘣曉?摮?/option></select></label>
-                <label>蝚砌?頨怠?<select name="roles"><option value="merchant" selected>銵?</option><option value="runner">撌桀蝴</option><option value="constable">?蝴</option><option value="urban_household">???/option><option value="workshop">雿???/option><option value="teahouse">?嗆?撟恍?</option><option value="market_broker">撣?鈭?/option><option value="rural_farmer">颲脫</option><option value="hunter">?菜</option><option value="fisher">瞍</option><option value="literatus">憯怠?</option><option value="copyist">?鈭?/option><option value="strongman">憯臬ㄚ</option><option value="escort">?Ｗ恥</option><option value="dock_labor">??井</option><option value="wanderer">??</option><option value="medic">???/option><option value="disciple">?瘣曉?摮?/option></select></label>
-                <label>蝚砍?頨怠?<select name="roles"><option value="medic" selected>???/option><option value="runner">撌桀蝴</option><option value="constable">?蝴</option><option value="urban_household">???/option><option value="workshop">雿???/option><option value="teahouse">?嗆?撟恍?</option><option value="market_broker">撣?鈭?/option><option value="rural_farmer">颲脫</option><option value="hunter">?菜</option><option value="fisher">瞍</option><option value="literatus">憯怠?</option><option value="copyist">?鈭?/option><option value="strongman">憯臬ㄚ</option><option value="escort">?Ｗ恥</option><option value="dock_labor">??井</option><option value="wanderer">??</option><option value="merchant">銵?</option><option value="disciple">?瘣曉?摮?/option></select></label>
-                <label>蝚砌?頨怠?<select name="roles"><option value="soldier" selected>?菜</option><option value="runner">撌桀蝴</option><option value="constable">?蝴</option><option value="urban_household">???/option><option value="workshop">雿???/option><option value="teahouse">?嗆?撟恍?</option><option value="market_broker">撣?鈭?/option><option value="rural_farmer">颲脫</option><option value="hunter">?菜</option><option value="fisher">瞍</option><option value="literatus">憯怠?</option><option value="copyist">?鈭?/option><option value="strongman">憯臬ㄚ</option><option value="escort">?Ｗ恥</option><option value="dock_labor">??井</option><option value="wanderer">??</option><option value="merchant">銵?</option><option value="medic">???/option><option value="disciple">?瘣曉?摮?/option></select></label>
-              </div>
-            </fieldset>
-            <fieldset>
-              <legend>?</legend>
-              <div class="field-group"><span>?箄澈</span><label><input type="radio" name="origin" value="changshan" checked> 撣詨控蝮??唬犖</label><label><input type="radio" name="origin" value="tianjin"> 憭拇揖?⊿??/label><label><input type="radio" name="origin" value="hengshui"> 銵⊥偌蝮?/label><label><input type="radio" name="origin" value="hengwan"> ?拍蝮?/label><label><input type="radio" name="origin" value="cangbei"> 皛???/label><label><input type="radio" name="origin" value="nanjing"> ?漪</label></div>
-              <div class="field-group"><span>?扳</span><label><input type="radio" name="trait" value="calm" checked> ?琿?</label><label><input type="radio" name="trait" value="streetwise"> ?楝</label><label><input type="radio" name="trait" value="silver_tongue"> ??</label><label><input type="radio" name="trait" value="sturdy"> ??</label><label><input type="radio" name="trait" value="upright"> ?迤</label><label><input type="radio" name="trait" value="reckless"> ?亦?</label></div>
-              <div class="field-group"><span>撅祆折??蔭</span><label><input type="radio" name="attributePlan" value="balanced" checked> ?﹛</label><label><input type="radio" name="attributePlan" value="body"> 擃?</label><label><input type="radio" name="attributePlan" value="tech"> ?撌?/label><label><input type="radio" name="attributePlan" value="mind"> ?箄?</label><label><input type="radio" name="attributePlan" value="social"> 鈭日?</label><label><input type="radio" name="attributePlan" value="travel"> 銵楝</label></div>
-              <div class="field-group"><span>?寞?頨思?</span><label><input type="radio" name="specialOrigin" value="none" checked> ??/label><label><input type="radio" name="specialOrigin" value="taihu_wei"> 憭芣?擳振?</label><label><input type="radio" name="specialOrigin" value="jinling_yang"> ??賢振?</label><label><input type="radio" name="specialOrigin" value="cangbei_bei"> 皛??振??</label><label><input type="radio" name="specialOrigin" value="qishan_ye" data-requires-role="disciple"> 撗控??</label><label><input type="radio" name="specialOrigin" value="kunlun_chu" data-requires-role="disciple"> ?祈?撏?憭頂</label><label><input type="radio" name="specialOrigin" value="wanminhui"> ?祆???隤?/label></div>
-              <div id="buildPreview" class="build-preview"></div>
-            </fieldset>
-            <fieldset>
-              <legend>?閮剔蔭</legend>
-              <div class="field-group"><span>韏瑕???</span><label><input type="radio" name="startSeason" value="spring" checked> ?亙?</label><label><input type="radio" name="startSeason" value="summer"> 憭?</label><label><input type="radio" name="startSeason" value="autumn"> 蝘</label><label><input type="radio" name="startSeason" value="winter"> ?祈?</label></div>
-              <div class="field-group"><span>?璅∪?</span><label><input type="radio" name="gameMode" value="story"> ??</label><label><input type="radio" name="gameMode" value="standard" checked> 璅?</label><label><input type="radio" name="gameMode" value="survival"> ??</label></div>
-              <div class="field-group"><span>??漲</span><label><input type="radio" name="difficulty" value="relaxed"> 撖祇?</label><label><input type="radio" name="difficulty" value="standard" checked> 璅?</label><label><input type="radio" name="difficulty" value="pressure"> 憯?</label></div>
-              <div class="field-group"><span>瑼Ｗ?</span><label><input type="checkbox" name="showCheckRate" checked> 憿舐內??賣炎摰???</label></div>
-            </fieldset>
-            <fieldset>
-              <legend>??憿舐內</legend>
-              <label><input type="radio" name="textStyle" value="standard" checked> 璅?</label>
-              <label><input type="radio" name="textStyle" value="scroll"> ?瑕?</label>
-              <label><input type="radio" name="textStyle" value="night"> 憭?</label>
-              <label><input type="radio" name="textStyle" value="large"> 憭批?</label>
-            </fieldset>
-            <div class="start-actions">
-              <button id="randomizeCharacter" type="button">?冽???/button>
-              <button id="startButton" type="submit">???</button>
-            </div>
-          </form>
-        </section>
+        <section id="startPanel" class="start-panel"></section>
         <section id="playPanel" hidden>
           <header class="passage-header"><h2 id="passageTitle"></h2><p id="passageMeta"></p></header>
           <section id="passageText" class="passage-text"></section>
@@ -85,38 +25,25 @@
     <div id="ui-bar-body">
       <header id="title" role="banner">
         <div id="story-banner"></div>
-        <h1 id="story-title">憭批?撟港誨閮?/h1>
-        <div id="story-subtitle">憭拇揖?∪虜撅梁腦</div>
+        <h1 id="story-title">大國年代記</h1>
+        <div id="story-subtitle">天津郡常山縣</div>
       </header>
       <nav id="ui-actions">
-        <button type="button" class="panel-wide" data-action="panel" data-panel="attributes">撅祆?/button>
-        <button type="button" class="panel-wide" data-action="panel" data-panel="social">蝷曆漱</button>
-        <button type="button" data-action="panel" data-panel="traits">?寡釭</button>
-        <button type="button" data-action="panel" data-panel="journal">?亥?</button>
-        <button type="button" data-action="panel" data-panel="stats">蝯梯?</button>
-        <button type="button" data-action="panel" data-panel="achievements">?啣?</button>
-        <button type="button" data-action="panel" data-panel="options">?賊?</button>
-        <button type="button" data-action="panel" data-panel="saves">摮?</button>
+        <button type="button" class="panel-wide" data-action="panel" data-panel="attributes">屬性</button>
+        <button type="button" class="panel-wide" data-action="panel" data-panel="journal">日誌</button>
+        <button type="button" data-action="panel" data-panel="stats">統計</button>
+        <button type="button" data-action="panel" data-panel="rules">規則</button>
+        <button type="button" data-action="panel" data-panel="saves">存檔</button>
       </nav>
-      <section class="sidebar-block">
-        <h2>璁汗</h2>
-        <div id="overviewBox" class="sidebar-list"></div>
-      </section>
+      <section class="sidebar-block"><h2>概覽</h2><div id="overviewBox" class="sidebar-list"></div></section>
     </div>
   </aside>
   <div id="overlayBackdrop" class="overlay-backdrop hidden">
     <section id="overlay" class="overlay">
-      <header class="overlay-head"><h2 id="overlayTitle"></h2><button type="button" id="closeOverlay">??</button></header>
+      <header class="overlay-head"><h2 id="overlayTitle"></h2><button type="button" id="closeOverlay">關閉</button></header>
       <div id="overlayContent" class="overlay-content"></div>
     </section>
   </div>
-  <script src="assets/game-runtime.js?v=1.15.5-stable-preview-pages"></script>
+  <script defer src="assets/dago-dol-like-runtime.js?v=1.16.0-dol-like-playable"></script>
 </body>
 </html>
-
-
-
-
-
-
-
