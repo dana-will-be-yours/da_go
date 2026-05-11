@@ -1,4 +1,4 @@
-﻿(()=>{
+(()=>{
 'use strict';
 const VERSION='1.15.0-balanced-character-preview';
 const STORE7='daGoPlayV7';
