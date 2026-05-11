@@ -1,17 +1,30 @@
 # da_go
 
-現行修正版本：`1.14.9-preview-roles-chinese-only`
+現行版本：`1.15.0-balanced-character-preview`
 
-公開頁測試：
+公開頁：
 
 ```text
-https://dana-will-be-yours.github.io/da_go/game.html?reset=1&v=1.14.9-preview-roles-chinese-only
+https://dana-will-be-yours.github.io/da_go/game.html?reset=1&v=1.15.0-balanced-character-preview
 ```
 
-## 1.14.9 修正範圍
+## 1.15.0 修正重點
 
-本版只處理一個需求：角色創建預覽中「身分」列顯示的所有身分必須是中文。
+本版只針對角色創建預覽與角色創建加成修正：
 
-修正方式為新增 `assets/character-preview-role-zh-only.js`。此檔只修改 `#buildPreview` 內的文字節點，不覆寫整個角色預覽，不刪除「調整值」、「技能值」、「身分與背景加成」、「特殊特技」等既有段落。
+1. 角色預覽中所有已選身分名稱，均以角色下拉選單或身分對照表的中文名稱顯示。
+2. 不再把已選身分顯示為「地方人士」、「未定身分」或其他不一致名稱。
+3. 每一項身分、出身地、性格、屬性點配置、特殊身世都提供 4 點技能值。
+4. 加成預覽列出每一個已選項目的技能值與特技，避免有的選項多、有的選項少。
 
-它會優先讀取目前 `select[name="roles"] option` 的中文顯示文字，所以若角色選項由其他模組動態插入，也會使用該選項原本的中文名稱。沒有對應到的舊代碼才會用內建表補齊。舊的「未定身分／未定項目」會轉為「地方人士」，不再出現在預覽畫面。
+新增檔案：
+
+```text
+assets/character-balanced-effects.js
+```
+
+## 驗證
+
+```powershell
+npm.cmd test
+```
