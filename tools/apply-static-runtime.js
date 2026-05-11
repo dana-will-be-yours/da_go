@@ -32,7 +32,13 @@ function patchVersion(text) {
 }
 for (const file of ['game.html','assets/game-runtime.js']) {
   const full = path.join(root, file);
-  fs.writeFileSync(full, patchVersion(fs.readFileSync(full, 'utf8')), 'utf8');
+  let text = patchVersion(fs.readFileSync(full, 'utf8'));
+  if (file === 'game.html') text = text.replace('<legend>性格與身分</legend>', '<legend>身分</legend>');
+  if (file === 'assets/game-runtime.js') {
+    text = text.replace(/'assets\/dago-dol-like-runtime\.js',?/g, '');
+    if (!text.includes('assets/character-setup-hotfix-1150.js')) text = text.replace("'assets/game-no-code-finalizer.js'", "'assets/game-no-code-finalizer.js','assets/character-setup-hotfix-1150.js'");
+  }
+  fs.writeFileSync(full, text, 'utf8');
 }
 require('./v113_time.js')(root);
 require('./patch-deckbuilder-v114.js')(root);
