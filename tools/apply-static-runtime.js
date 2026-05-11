@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const root = path.join(__dirname, '..');
-const version = '1.14.6-full-code-cleanup';
+const version = '1.14.9-preview-roles-chinese-only';
 function patchVersion(text) {
   return text
     .replaceAll('1.12.1-perf', version)

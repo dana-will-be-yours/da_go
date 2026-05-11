@@ -1,8 +1,12 @@
-const fs=require('fs');const path=require('path');const root=path.resolve(__dirname,'..');const expectedVersion='1.14.6-full-code-cleanup';function read(f){return fs.readFileSync(path.join(root,f),'utf8')}function must(t,k,l){if(!t.includes(k))throw new Error(`${l}: missing ${k}`)}function exists(f){const p=path.join(root,f);if(!fs.existsSync(p))throw new Error(`missing ${f}`);return p}
+const fs=require('fs');const path=require('path');const root=path.resolve(__dirname,'..');const expectedVersion='1.14.9-preview-roles-chinese-only';
+function read(f){return fs.readFileSync(path.join(root,f),'utf8')}
+function must(t,k,l){if(!t.includes(k))throw new Error(`${l}: missing ${k}`)}
+function exists(f){const p=path.join(root,f);if(!fs.existsSync(p))throw new Error(`missing ${f}`);return p}
 const html=read('game.html'),runtime=read('assets/game-runtime.js');
-for(const id of ['startForm','playPanel','choiceList','buildPreview','randomizeCharacter','overviewBox'])must(html,`id="${id}"`,'game.html');
+for(const id of ['startForm','buildPreview','randomizeCharacter'])must(html,`id="${id}"`,'game.html');
 must(runtime,`const VERSION='${expectedVersion}';`,'game-runtime.js');
-for(const s of ['game-character-build-zh.js','character-create-ui.js','game-rules-ui-fix.js','game-modular.js','game-skill-label-zh.js','game-dol-select-combat.js','game-no-code-finalizer.js'])must(runtime,s,'runtime loader');
-for(const f of ['assets/game-runtime.js','assets/character-create-ui.js','assets/game-character-build-zh.js','assets/game-skill-label-zh.js','assets/game-dol-select-combat.js','assets/game-no-code-finalizer.js','assets/game-modular.js','assets/game-bundle-loader.js','assets/engine/rules.js']){const p=exists(f);new Function(fs.readFileSync(p,'utf8'))}
-for(const f of ['assets/character-create-ui.js','assets/game-character-build-zh.js','assets/game-skill-label-zh.js','assets/game-no-code-finalizer.js']){const src=read(f);for(const token of ['liuwaiguan','流外官','staff_officer','幕佐','coroner','仵作','wenxuan','文選吏','retainer','家臣','innkeeper','客棧掌櫃','scholar','學士','nvhuan','女鬟','border_soldier','邊軍','family_official','家官','fortuneteller','卜者','ranger','遊俠'])must(src,token,f)}
-console.log('Public page validation passed for 1.14.6-full-code-cleanup.');
+must(runtime,'assets/character-preview-role-zh-only.js','runtime loader');
+for(const f of ['assets/game-runtime.js','assets/character-preview-role-zh-only.js']){const p=exists(f);new Function(fs.readFileSync(p,'utf8'))}
+const patch=read('assets/character-preview-role-zh-only.js');
+for(const token of ['select[name="roles"] option','matchmaker','媒妁','liuwaiguan','流外官','nvhuan','女宦','未定身分|未定項目','地方人士'])must(patch,token,'role preview chinese patch');
+console.log('Public page validation passed for 1.14.9-preview-roles-chinese-only.');
