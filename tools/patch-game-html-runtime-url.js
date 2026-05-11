@@ -7,8 +7,8 @@ let html = fs.readFileSync(file, 'utf8');
 
 html = html.replace(
   /assets\/game-runtime\.js\?v=[^"]+/g,
-  'assets/game-runtime.js?v=1.14.2-dol-select-combat'
+  'assets/game-runtime.js?v=1.14.3-character-build-select-combat'
 );
 
 fs.writeFileSync(file, html, 'utf8');
-console.log('Patched game.html runtime URL to 1.14.2-dol-select-combat.');
+console.log('Patched game.html runtime URL to 1.14.3-character-build-select-combat.');

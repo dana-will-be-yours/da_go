@@ -1,6 +1,6 @@
 (()=>{
 'use strict';
-const VERSION='1.14.2-dol-select-combat';
+const VERSION='1.14.3-character-build-select-combat';
 window.DaGoRuntimeManifest=Object.freeze({
   runtime_name:'da_go_modular_runtime',
   runtime_version:VERSION,
@@ -10,7 +10,7 @@ window.DaGoRuntimeManifest=Object.freeze({
   default_bundle:'assets/data/dago-changshan-v1-bundle.json',
   legacy_engine:'assets/game-playable-v6.js',
   authoring_page:'https://dana-will-be-yours.github.io/trpg-corpus-sqlserver/web/dago-authoring.html',
-  mode:'dynamic-zh-dol-select-combat'
+  mode:'dynamic-zh-dol-select-combat-character-build'
 });
 const scripts=[
   'assets/scenario-select.js',
@@ -29,6 +29,7 @@ const scripts=[
   'assets/character-create-ui.js',
   'assets/game-rules-ui-fix.js',
   'assets/game-character-balance-fix.js',
+  'assets/game-character-build-zh.js',
   'assets/game-modular.js',
   'assets/game-skill-label-zh.js',
   'assets/game-dol-select-combat.js'
@@ -51,6 +52,6 @@ function add(src){
 }
 (async()=>{
   for(const src of scripts)await add(src);
-  document.body.classList.add('dago-ready','dago-modular-ready','dago-full-ui-ready','dago-dol-select-combat-ready');
+  document.body.classList.add('dago-ready','dago-modular-ready','dago-full-ui-ready','dago-dol-select-combat-ready','dago-character-build-ready');
 })();
 })();

@@ -1,6 +1,6 @@
 {
   "name": "da_go",
-  "version": "1.14.2-dol-select-combat",
+  "version": "1.14.3-character-build-select-combat",
   "private": true,
   "type": "commonjs",
   "scripts": {

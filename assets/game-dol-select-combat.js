@@ -1,6 +1,6 @@
 (()=>{
 'use strict';
-const VERSION='1.14.2-dol-select-combat';
+const VERSION='1.14.3-character-build-select-combat';
 const STYLE_ID='dago-dol-select-combat-style';
 let lastKey='';
 const ACTIONS=[
@@ -30,28 +30,15 @@ function addStyle(){
   ].join('\n');
   document.head.appendChild(css);
 }
-function inCombat(){
-  return !!document.querySelector('[data-card-index],[data-combat-command],.combat-board,.combat-enemy');
-}
-function combatSignature(){
-  return [
-    document.getElementById('passageTitle')?.textContent||'',
-    document.getElementById('passageMeta')?.textContent||'',
-    document.querySelectorAll('[data-card-index]:not([disabled])').length,
-    document.querySelectorAll('.combat-enemy').length
-  ].join('|');
-}
-function optionsHtml(){
-  return ACTIONS.map(a=>`<option value="${esc(a.code)}">${esc(a.label)}</option>`).join('');
-}
+function inCombat(){return !!document.querySelector('[data-card-index],[data-combat-command],.combat-board,.combat-enemy')}
+function combatSignature(){return [document.getElementById('passageTitle')?.textContent||'',document.getElementById('passageMeta')?.textContent||'',document.querySelectorAll('[data-card-index]:not([disabled])').length,document.querySelectorAll('.combat-enemy').length].join('|')}
+function optionsHtml(){return ACTIONS.map(a=>`<option value="${esc(a.code)}">${esc(a.label)}</option>`).join('')}
 function panelHtml(){
   return `<section class="dago-select-combat" data-dago-select-combat="1">
     <h3>衝突行動</h3>
     <p>選擇你要對敵人或現場執行的舉動。系統會依角色能力、場景與目前局勢結算。</p>
     <div class="dago-select-combat-grid">
-      <label>本次舉動
-        <select data-dago-combat-action>${optionsHtml()}</select>
-      </label>
+      <label>本次舉動<select data-dago-combat-action>${optionsHtml()}</select></label>
       <button type="button" data-dago-combat-submit>執行</button>
     </div>
     <p class="dago-select-combat-hint" data-dago-combat-hint>${esc(ACTIONS[0].hint)}</p>
@@ -60,22 +47,9 @@ function panelHtml(){
 }
 function refreshText(){
   const footer=document.getElementById('passageFooter');
-  if(footer){
-    footer.textContent=footer.textContent
-      .replaceAll('牌組','行動')
-      .replaceAll('手札','行動')
-      .replaceAll('式牌','行動')
-      .replaceAll('戰鬥','衝突')
-      .replaceAll('DaGoCombat','衝突系統')
-      .replaceAll('DaGoDeck','行動系統');
-  }
+  if(footer)footer.textContent=footer.textContent.replaceAll('牌組','行動').replaceAll('手札','行動').replaceAll('式牌','行動').replaceAll('戰鬥','衝突').replaceAll('DaGoCombat','衝突系統').replaceAll('DaGoDeck','行動系統');
   const meta=document.getElementById('passageMeta');
-  if(meta){
-    meta.textContent=meta.textContent
-      .replaceAll('牌組戰鬥','簡易衝突')
-      .replaceAll('DaGoCombat','簡易衝突')
-      .replaceAll('combat','衝突');
-  }
+  if(meta)meta.textContent=meta.textContent.replaceAll('牌組戰鬥','簡易衝突').replaceAll('DaGoCombat','簡易衝突').replaceAll('combat','衝突');
 }
 function apply(){
   addStyle();
@@ -91,9 +65,7 @@ function apply(){
   refreshText();
 }
 function pickHiddenControl(actionCode){
-  if(actionCode==='wait'){
-    return document.querySelector('[data-combat-command="end"],[data-end-turn="1"]');
-  }
+  if(actionCode==='wait')return document.querySelector('[data-combat-command="end"],[data-end-turn="1"]');
   const action=ACTIONS.find(x=>x.code===actionCode)||ACTIONS[0];
   const cards=[...document.querySelectorAll('[data-card-index]:not([disabled])')];
   if(!cards.length)return document.querySelector('[data-combat-command="end"],[data-end-turn="1"]');
@@ -103,7 +75,7 @@ function pickHiddenControl(actionCode){
   }
   return cards[0];
 }
-function writeLog(actionCode, success){
+function writeLog(actionCode,success){
   const action=ACTIONS.find(x=>x.code===actionCode)||ACTIONS[0];
   const log=document.querySelector('[data-dago-combat-log]');
   if(log)log.textContent=success?`已執行：${action.label}。`:`無可用行動，已改為觀望。`;
@@ -127,11 +99,7 @@ document.addEventListener('click',e=>{
   }
   setTimeout(apply,20);
 });
-function boot(){
-  addStyle();
-  setTimeout(apply,30);
-  document.body.classList.add('dago-dol-select-combat-ready');
-}
+function boot(){addStyle();setTimeout(apply,30);document.body.classList.add('dago-dol-select-combat-ready')}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();
-window.DaGoDolSelectCombat=Object.freeze({version:VERSION,apply});
+window.DaGoDolSelectCombat=Object.freeze({version:VERSION,ACTIONS,apply});
 })();

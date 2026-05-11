@@ -1,18 +1,20 @@
 # da_go
 
-`da_go` 是《大國年代記》的單人網頁文字遊戲前端。現行版本為 `1.14.2-dol-select-combat`，以 `trpg-corpus-sqlserver` 的 runtime bundle 作為劇本資料來源。
+`da_go` 是《大國年代記》的單人網頁文字遊戲前端。現行版本為 `1.14.3-character-build-select-combat`，以 `trpg-corpus-sqlserver` 的 runtime bundle 作為劇本資料來源。
 
 公開頁：
 
 ```text
-https://dana-will-be-yours.github.io/da_go/game.html?reset=1&v=1.14.2-dol-select-combat
+https://dana-will-be-yours.github.io/da_go/game.html?reset=1&v=1.14.3-character-build-select-combat
 ```
 
-## 1.14.2 修正重點
+## 1.14.3 修正重點
+
+本版補強角色創建。所有身分、出身、性格、屬性配置與特殊身世都會給予角色技能值與特殊特技。角色預覽會列出「身分與背景加成」、「技能值」、「特殊特技」。
+
+本版修正技能值顯示仍出現英文鍵名的問題。`assets/game-skill-label-zh.js` 改用正確邊界替換，並由 `assets/game-character-build-zh.js` 在源頭輸出中文技能名稱。
 
 本版關閉卡牌戰鬥介面，改為下拉式衝突行動。玩家在衝突中以選單選擇「攻擊、自衛、說服、觀察環境、利用環境、使用物品、退避、觀望」。
-
-本版修正技能值顯示仍出現英文鍵名的問題。`assets/game-skill-label-zh.js` 會在角色預覽、左側狀態欄、場景文字與覆蓋面板中將技能鍵名轉為繁體中文。
 
 本版保留完整 `assets/game-modular.js` 作為遊戲本體。禁止用精簡頁或薄殼覆蓋主遊戲。
 
@@ -23,6 +25,7 @@ https://dana-will-be-yours.github.io/da_go/game.html?reset=1&v=1.14.2-dol-select
 Runtime：assets/game-runtime.js
 完整遊戲本體：assets/game-modular.js
 資料包載入：assets/game-bundle-loader.js
+角色創建加成：assets/game-character-build-zh.js
 中文技能標籤：assets/game-skill-label-zh.js
 下拉式衝突：assets/game-dol-select-combat.js
 事件核心：assets/engine/events.js
@@ -65,5 +68,5 @@ python -m http.server 8080
 ```
 
 ```text
-http://localhost:8080/game.html?reset=1&v=1.14.2-dol-select-combat
+http://localhost:8080/game.html?reset=1&v=1.14.3-character-build-select-combat
 ```
