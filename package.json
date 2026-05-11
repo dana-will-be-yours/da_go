@@ -1,6 +1,6 @@
 {
   "name": "da_go",
-  "version": "1.16.0-dol-like-playable",
+  "version": "1.16.1-preserve-settings-dol-grammar",
   "private": true,
   "type": "commonjs",
   "scripts": {

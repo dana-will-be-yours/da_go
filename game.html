@@ -11,7 +11,68 @@
   <div id="story" role="main">
     <div id="passages" aria-live="polite">
       <article id="passage" class="passage">
-        <section id="startPanel" class="start-panel"></section>
+        <section id="startPanel" class="start-panel">
+          <h1>大國年代記</h1>
+          <p class="version">小城舊事｜大興十年｜天津郡常山縣</p>
+          <form id="startForm" class="start-form">
+            <label>角色名
+              <input id="playerName" name="playerName" type="text" value="常山人" maxlength="16" autocomplete="off">
+            </label>
+            <fieldset>
+              <legend>身體</legend>
+              <div class="field-group"><span>性別</span><label><input type="radio" name="gender" value="female" checked> 女子</label><label><input type="radio" name="gender" value="male"> 男子</label><label><input type="radio" name="gender" value="undisclosed"> 未言明</label></div>
+              <div class="field-group"><span>身高</span><label><input type="radio" name="height" value="very_short"> 矮小</label><label><input type="radio" name="height" value="short"> 略矮</label><label><input type="radio" name="height" value="average" checked> 中等</label><label><input type="radio" name="height" value="tall"> 高挑</label><label><input type="radio" name="height" value="very_tall"> 高大</label></div>
+              <div class="field-group"><span>體型</span><label><input type="radio" name="build" value="slender"> 清瘦</label><label><input type="radio" name="build" value="lean"> 結實</label><label><input type="radio" name="build" value="balanced" checked> 勻稱</label><label><input type="radio" name="build" value="soft"> 豐潤</label><label><input type="radio" name="build" value="strong"> 壯健</label><label><input type="radio" name="build" value="broad"> 寬厚</label></div>
+              <div class="field-group"><span>身體線條</span><label><input type="radio" name="bodyLine" value="straight" checked> 直線</label><label><input type="radio" name="bodyLine" value="soft_curve"> 柔和</label><label><input type="radio" name="bodyLine" value="firm"> 緊實</label><label><input type="radio" name="bodyLine" value="angular"> 分明</label><label><input type="radio" name="bodyLine" value="rounded"> 圓潤</label></div>
+              <div class="field-group"><span>膚色</span><label><input type="radio" name="skinTone" value="pale" checked> 淺白</label><label><input type="radio" name="skinTone" value="warm"> 暖白</label><label><input type="radio" name="skinTone" value="wheat"> 麥色</label><label><input type="radio" name="skinTone" value="bronze"> 古銅</label><label><input type="radio" name="skinTone" value="deep"> 深褐</label></div>
+              <div class="field-group"><span>衣著</span><label><input type="radio" name="clothes" value="plain" checked> 素布短衣</label><label><input type="radio" name="clothes" value="yamen"> 衙門短褐</label><label><input type="radio" name="clothes" value="travel"> 行路短裝</label><label><input type="radio" name="clothes" value="gentry"> 青衿外袍</label><label><input type="radio" name="clothes" value="merchant"> 窄袖商服</label><label><input type="radio" name="clothes" value="disciple"> 門派勁裝</label></div>
+            </fieldset>
+            <fieldset>
+              <legend>頭部</legend>
+              <div class="field-group"><span>面容儀態</span><label><input type="radio" name="face" value="clear" checked> 清朗</label><label><input type="radio" name="face" value="upright"> 端正</label><label><input type="radio" name="face" value="sharp"> 銳利</label><label><input type="radio" name="face" value="gentle"> 溫雅</label><label><input type="radio" name="face" value="bright"> 明快</label><label><input type="radio" name="face" value="solemn"> 沉靜</label></div>
+              <div class="field-group"><span>瞳色</span><label><input type="radio" name="eyeColor" value="black" checked> 黑瞳</label><label><input type="radio" name="eyeColor" value="brown"> 褐瞳</label><label><input type="radio" name="eyeColor" value="amber"> 琥珀瞳</label><label><input type="radio" name="eyeColor" value="gray"> 灰瞳</label><label><input type="radio" name="eyeColor" value="hazel"> 榛色瞳</label><label><input type="radio" name="eyeColor" value="dark_blue"> 深青瞳</label></div>
+              <div class="field-group"><span>髮色</span><label><input type="radio" name="hairColor" value="black" checked> 黑髮</label><label><input type="radio" name="hairColor" value="dark_brown"> 深褐髮</label><label><input type="radio" name="hairColor" value="tea"> 茶褐髮</label><label><input type="radio" name="hairColor" value="chestnut"> 栗髮</label><label><input type="radio" name="hairColor" value="silver"> 銀白髮</label><label><input type="radio" name="hairColor" value="ash"> 灰髮</label></div>
+              <div class="field-group"><span>頭髮長度</span><label><input type="radio" name="hairLength" value="cropped"> 短削</label><label><input type="radio" name="hairLength" value="short" checked> 短髮</label><label><input type="radio" name="hairLength" value="shoulder"> 及肩</label><label><input type="radio" name="hairLength" value="long"> 長髮</label><label><input type="radio" name="hairLength" value="bound"> 束髮</label><label><input type="radio" name="hairLength" value="braided"> 辮髮</label></div>
+            </fieldset>
+            <fieldset>
+              <legend>性格與身分</legend>
+              <p class="field-help">同一身分可重複選取，重複次數會提升品級；五次為甲。非門派弟子不可選取門派身世。</p>
+              <div class="role-stack-grid">
+                <label>第一身分<select name="roles"><option value="yamen_clerk" selected>書吏</option><option value="runner">差役</option><option value="constable">捕役</option><option value="urban_household">坊郭戶</option><option value="workshop">作坊戶</option><option value="teahouse">茶棚幫閒</option><option value="market_broker">市牙人</option><option value="rural_farmer">農戶</option><option value="hunter">獵戶</option><option value="fisher">漁戶</option><option value="literatus">士子</option><option value="copyist">抄書人</option><option value="strongman">壯士</option><option value="escort">鏢客</option><option value="dock_labor">埠頭力夫</option><option value="wanderer">遊手</option><option value="merchant">行商</option><option value="medic">坊郭醫</option><option value="disciple">門派弟子</option></select></label>
+                <label>第二身分<select name="roles"><option value="wanderer" selected>遊手</option><option value="runner">差役</option><option value="constable">捕役</option><option value="urban_household">坊郭戶</option><option value="workshop">作坊戶</option><option value="teahouse">茶棚幫閒</option><option value="market_broker">市牙人</option><option value="rural_farmer">農戶</option><option value="hunter">獵戶</option><option value="fisher">漁戶</option><option value="literatus">士子</option><option value="copyist">抄書人</option><option value="strongman">壯士</option><option value="escort">鏢客</option><option value="dock_labor">埠頭力夫</option><option value="merchant">行商</option><option value="medic">坊郭醫</option><option value="disciple">門派弟子</option></select></label>
+                <label>第三身分<select name="roles"><option value="merchant" selected>行商</option><option value="runner">差役</option><option value="constable">捕役</option><option value="urban_household">坊郭戶</option><option value="workshop">作坊戶</option><option value="teahouse">茶棚幫閒</option><option value="market_broker">市牙人</option><option value="rural_farmer">農戶</option><option value="hunter">獵戶</option><option value="fisher">漁戶</option><option value="literatus">士子</option><option value="copyist">抄書人</option><option value="strongman">壯士</option><option value="escort">鏢客</option><option value="dock_labor">埠頭力夫</option><option value="wanderer">遊手</option><option value="medic">坊郭醫</option><option value="disciple">門派弟子</option></select></label>
+                <label>第四身分<select name="roles"><option value="medic" selected>坊郭醫</option><option value="runner">差役</option><option value="constable">捕役</option><option value="urban_household">坊郭戶</option><option value="workshop">作坊戶</option><option value="teahouse">茶棚幫閒</option><option value="market_broker">市牙人</option><option value="rural_farmer">農戶</option><option value="hunter">獵戶</option><option value="fisher">漁戶</option><option value="literatus">士子</option><option value="copyist">抄書人</option><option value="strongman">壯士</option><option value="escort">鏢客</option><option value="dock_labor">埠頭力夫</option><option value="wanderer">遊手</option><option value="merchant">行商</option><option value="disciple">門派弟子</option></select></label>
+                <label>第五身分<select name="roles"><option value="soldier" selected>兵戶</option><option value="runner">差役</option><option value="constable">捕役</option><option value="urban_household">坊郭戶</option><option value="workshop">作坊戶</option><option value="teahouse">茶棚幫閒</option><option value="market_broker">市牙人</option><option value="rural_farmer">農戶</option><option value="hunter">獵戶</option><option value="fisher">漁戶</option><option value="literatus">士子</option><option value="copyist">抄書人</option><option value="strongman">壯士</option><option value="escort">鏢客</option><option value="dock_labor">埠頭力夫</option><option value="wanderer">遊手</option><option value="merchant">行商</option><option value="medic">坊郭醫</option><option value="disciple">門派弟子</option></select></label>
+              </div>
+            </fieldset>
+            <fieldset>
+              <legend>背景</legend>
+              <div class="field-group"><span>出身</span><label><input type="radio" name="origin" value="changshan" checked> 常山縣本地人</label><label><input type="radio" name="origin" value="tianjin"> 天津郡郡城</label><label><input type="radio" name="origin" value="hengshui"> 衡水縣</label><label><input type="radio" name="origin" value="hengwan"> 珩灣縣</label><label><input type="radio" name="origin" value="cangbei"> 滄北邑</label><label><input type="radio" name="origin" value="nanjing"> 南京</label></div>
+              <div class="field-group"><span>性格</span><label><input type="radio" name="trait" value="calm" checked> 冷靜</label><label><input type="radio" name="trait" value="streetwise"> 熟路</label><label><input type="radio" name="trait" value="silver_tongue"> 善談</label><label><input type="radio" name="trait" value="sturdy"> 耐勞</label><label><input type="radio" name="trait" value="upright"> 雅正</label><label><input type="radio" name="trait" value="reckless"> 急烈</label></div>
+              <div class="field-group"><span>屬性點配置</span><label><input type="radio" name="attributePlan" value="balanced" checked> 均衡</label><label><input type="radio" name="attributePlan" value="body"> 體魄</label><label><input type="radio" name="attributePlan" value="tech"> 技巧</label><label><input type="radio" name="attributePlan" value="mind"> 智識</label><label><input type="radio" name="attributePlan" value="social"> 交際</label><label><input type="radio" name="attributePlan" value="travel"> 行路</label></div>
+              <div class="field-group"><span>特殊身世</span><label><input type="radio" name="specialOrigin" value="none" checked> 無</label><label><input type="radio" name="specialOrigin" value="taihu_wei"> 太湖魏家旁支</label><label><input type="radio" name="specialOrigin" value="jinling_yang"> 金陵陽家旁支</label><label><input type="radio" name="specialOrigin" value="cangbei_bei"> 滄北北家舊識</label><label><input type="radio" name="specialOrigin" value="qishan_ye" data-requires-role="disciple"> 岐山葉氏</label><label><input type="radio" name="specialOrigin" value="kunlun_chu" data-requires-role="disciple"> 蓬萊崑崙外系</label><label><input type="radio" name="specialOrigin" value="wanminhui"> 萬民會暗語</label></div>
+              <div id="buildPreview" class="build-preview"></div>
+            </fieldset>
+            <fieldset>
+              <legend>遊戲設置</legend>
+              <div class="field-group"><span>起始時節</span><label><input type="radio" name="startSeason" value="spring" checked> 春初</label><label><input type="radio" name="startSeason" value="summer"> 夏汛</label><label><input type="radio" name="startSeason" value="autumn"> 秋收</label><label><input type="radio" name="startSeason" value="winter"> 冬藏</label></div>
+              <div class="field-group"><span>遊戲模式</span><label><input type="radio" name="gameMode" value="story"> 敘事</label><label><input type="radio" name="gameMode" value="standard" checked> 標準</label><label><input type="radio" name="gameMode" value="survival"> 生計</label></div>
+              <div class="field-group"><span>難度</span><label><input type="radio" name="difficulty" value="relaxed"> 寬鬆</label><label><input type="radio" name="difficulty" value="standard" checked> 標準</label><label><input type="radio" name="difficulty" value="pressure"> 壓力</label></div>
+              <div class="field-group"><span>檢定</span><label><input type="checkbox" name="showCheckRate" checked> 顯示技能檢定成功率</label></div>
+            </fieldset>
+            <fieldset>
+              <legend>文字顯示</legend>
+              <label><input type="radio" name="textStyle" value="standard" checked> 標準</label>
+              <label><input type="radio" name="textStyle" value="scroll"> 卷宗</label>
+              <label><input type="radio" name="textStyle" value="night"> 夜讀</label>
+              <label><input type="radio" name="textStyle" value="large"> 大字</label>
+            </fieldset>
+            <div class="start-actions">
+              <button id="randomizeCharacter" type="button">隨機化</button>
+              <button id="startButton" type="submit">開始遊戲</button>
+            </div>
+          </form>
+        </section>
         <section id="playPanel" hidden>
           <header class="passage-header"><h2 id="passageTitle"></h2><p id="passageMeta"></p></header>
           <section id="passageText" class="passage-text"></section>
@@ -30,12 +91,18 @@
       </header>
       <nav id="ui-actions">
         <button type="button" class="panel-wide" data-action="panel" data-panel="attributes">屬性</button>
-        <button type="button" class="panel-wide" data-action="panel" data-panel="journal">日誌</button>
+        <button type="button" class="panel-wide" data-action="panel" data-panel="social">社交</button>
+        <button type="button" data-action="panel" data-panel="traits">特質</button>
+        <button type="button" data-action="panel" data-panel="journal">日誌</button>
         <button type="button" data-action="panel" data-panel="stats">統計</button>
-        <button type="button" data-action="panel" data-panel="rules">規則</button>
+        <button type="button" data-action="panel" data-panel="achievements">地圖</button>
+        <button type="button" data-action="panel" data-panel="options">選項</button>
         <button type="button" data-action="panel" data-panel="saves">存檔</button>
       </nav>
-      <section class="sidebar-block"><h2>概覽</h2><div id="overviewBox" class="sidebar-list"></div></section>
+      <section class="sidebar-block">
+        <h2>概覽</h2>
+        <div id="overviewBox" class="sidebar-list"></div>
+      </section>
     </div>
   </aside>
   <div id="overlayBackdrop" class="overlay-backdrop hidden">
@@ -44,6 +111,6 @@
       <div id="overlayContent" class="overlay-content"></div>
     </section>
   </div>
-  <script defer src="assets/dago-dol-like-runtime.js?v=1.16.0-dol-like-playable"></script>
+  <script src="assets/game-runtime.js?v=1.16.1-preserve-settings-dol-grammar"></script>
 </body>
 </html>

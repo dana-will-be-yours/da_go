@@ -1,10 +1,8 @@
-const fs = require('fs');
-const path = require('path');
-const root = path.join(__dirname, '..');
-const version = '1.16.0-dol-like-playable';
-const htmlPath = path.join(root, 'game.html');
-let html = fs.readFileSync(htmlPath, 'utf8');
-html = html.replace(/assets\/dago-dol-like-runtime\.js\?v=[^"']+/g, 'assets/dago-dol-like-runtime.js?v=' + version);
-html = html.replace(/assets\/game-runtime\.js\?v=[^"']+/g, 'assets/dago-dol-like-runtime.js?v=' + version);
-fs.writeFileSync(htmlPath, html, 'utf8');
-console.log('prepared public da_go DoL-like runtime ' + version);
+const fs=require('fs');
+const path=require('path');
+const root=path.resolve(__dirname,'..');
+const version='1.16.1-preserve-settings-dol-grammar';
+function rw(file,fn){const p=path.join(root,file);fs.writeFileSync(p,fn(fs.readFileSync(p,'utf8')),'utf8');}
+rw('game.html',s=>s.replace(/assets\/game-runtime\.js\?v=[^"']+/g,'assets/game-runtime.js?v='+version));
+rw('assets/game-runtime.js',s=>s.replace(/const VERSION='[^']+';/,"const VERSION='"+version+"';"));
+console.log('patched runtime for '+version);

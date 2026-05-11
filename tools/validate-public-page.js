@@ -1,19 +1,14 @@
-const fs = require('fs');
-const path = require('path');
-const vm = require('vm');
-const root = path.resolve(__dirname, '..');
-const expectedVersion = '1.16.0-dol-like-playable';
-function read(file) { return fs.readFileSync(path.join(root, file), 'utf8'); }
-function must(text, token, label) { if (!text.includes(token)) throw new Error(label + ': missing ' + token); }
-function mustNot(text, token, label) { if (text.includes(token)) throw new Error(label + ': forbidden ' + token); }
-const html = read('game.html');
-const runtime = read('assets/dago-dol-like-runtime.js');
-for (const id of ['startPanel','playPanel','choiceList','overviewBox','overlayBackdrop']) must(html, 'id="' + id + '"', 'game.html');
-must(html, 'assets/dago-dol-like-runtime.js?v=' + expectedVersion, 'game.html');
-must(runtime, "const VERSION='" + expectedVersion + "';", 'dago-dol-like-runtime.js');
-for (const token of [':: Gate','<<link','<<if','$fatigue','DoL-like passage grammar runtime','allRowsHaveFourSkillPoints']) must(runtime, token, 'dago-dol-like-runtime.js');
-for (const token of ['game-character-build-zh.js','game-no-code-finalizer.js','character-preview-role-zh-only.js','MutationObserver']) mustNot(runtime, token, 'dago-dol-like-runtime.js');
-for (const token of ['憭','閮','撟','�']) mustNot(html, token, 'game.html encoding');
-new vm.Script(runtime, { filename: 'assets/dago-dol-like-runtime.js' });
-new vm.Script(read('assets/game-runtime.js'), { filename: 'assets/game-runtime.js' });
-console.log('Public page validation passed for ' + expectedVersion);
+const fs=require('fs');const path=require('path');const vm=require('vm');const root=path.resolve(__dirname,'..');const version='1.16.1-preserve-settings-dol-grammar';
+function read(f){return fs.readFileSync(path.join(root,f),'utf8')}
+function must(t,k,l){if(!t.includes(k))throw new Error(l+': missing '+k)}
+function mustNot(t,k,l){if(t.includes(k))throw new Error(l+': forbidden '+k)}
+const html=read('game.html'),runtime=read('assets/game-runtime.js'),dol=read('assets/dago-dol-like-runtime.js');
+for(const bad of ['憭批','撟港','閫','頨恍','�'])mustNot(html,bad,'game.html mojibake');
+for(const id of ['startForm','playPanel','choiceList','buildPreview','randomizeCharacter','overviewBox'])must(html,'id="'+id+'"','game.html');
+must(html,'assets/game-runtime.js?v='+version,'game.html');
+must(runtime,"const VERSION='"+version+"';",'game-runtime.js');
+must(runtime,'assets/dago-dol-like-runtime.js','game-runtime.js');
+for(const token of [':: Start','<<link','<<if','<<set','[[去告示牆看今日招工|WorkBoard]]','DaGoDolLikeRuntime','allRowsHaveFourSkillPoints'])must(dol,token,'DoL-like runtime');
+for(const bad of ['MutationObserver','game-no-code-finalizer.js','game-character-build-zh.js','character-preview-role-zh-only.js'])mustNot(runtime,bad,'game-runtime.js');
+new vm.Script(runtime);new vm.Script(dol);
+console.log('Public page validation passed for '+version);
