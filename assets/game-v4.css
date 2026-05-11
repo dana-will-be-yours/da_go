@@ -79,3 +79,17 @@
 .build-preview {
   cursor: text;
 }
+
+.build-preview,
+.build-preview *,
+.character-balanced-effects-block,
+.character-balanced-effects-block *,
+.character-build-zh-block,
+.character-build-zh-block * {
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+.build-preview {
+  cursor: text;
+}
