@@ -1,0 +1,13 @@
+(()=>{
+'use strict';
+const VERSION='1.13.1-combat';
+function ensure(st){st.combat=st.combat||{};st.combat.log=Array.isArray(st.combat.log)?st.combat.log:[];st.combat.enemies=Array.isArray(st.combat.enemies)?st.combat.enemies:[];return st.combat}
+function start(st,cfg={}){const c=ensure(st);c.active=true;c.round=1;c.returnPassage=cfg.returnPassage||st.current_passage||'Gate';c.enemies=(cfg.enemies||[{code:'tutorial_thug',name:'街口潑皮',hp:12,hpMax:12,anger:1,trust:0,damage:2}]).map(x=>Object.assign({hpMax:x.hp||10,anger:0,trust:0,damage:1},x));c.log.push('戰鬥開始。');if(window.DaGoDeck){window.DaGoDeck.ensure(st);window.DaGoDeck.rebuild(st);window.DaGoDeck.draw(st,3)}return c}
+function activeEnemy(st){return ensure(st).enemies.find(e=>Number(e.hp)>0)||null}
+function end(st,msg='戰鬥結束。'){const c=ensure(st);c.active=false;c.log.push(msg);if(c.returnPassage)st.current_passage=c.returnPassage;return c}
+function cardPower(st,card){let n=Number(card?.power||card?.damage||1);const skill=card?.skill;if(skill&&st.skills)n+=Number(st.skills[skill]||0);return Math.max(1,n)}
+function play(st,cardIndex=0){const c=ensure(st);if(!c.active)return {ok:false,message:'不在戰鬥中'};const card=st.deck?.hand?.[cardIndex];if(!card)return {ok:false,message:'沒有此牌'};const enemy=activeEnemy(st);if(!enemy)return {ok:false,message:'沒有目標'};const power=cardPower(st,card);enemy.hp=Math.max(0,Number(enemy.hp||0)-power);c.log.push('使用 '+(card.name||card.code||'行動')+'，造成 '+power+'。');st.deck.hand.splice(cardIndex,1);st.deck.discard=st.deck.discard||[];st.deck.discard.push(card);if(!activeEnemy(st))return {ok:true,ended:true,combat:end(st,'敵手退去。')};return {ok:true,ended:false,combat:c}}
+function enemyTurn(st){const c=ensure(st);if(!c.active)return c;const enemy=activeEnemy(st);if(!enemy)return end(st,'敵手退去。');const dmg=Math.max(0,Number(enemy.damage||1)-Number(c.playerGuard||0));st.stats=st.stats||{};st.stats.hp=Math.max(0,Number(st.stats.hp??10)-dmg);c.playerGuard=0;c.round=Number(c.round||1)+1;c.log.push((enemy.name||enemy.code)+'反擊 '+dmg+'。');if(st.stats.hp<=0)end(st,'你被迫退下。');else if(window.DaGoDeck)window.DaGoDeck.draw(st,1);return c}
+function html(st){const c=ensure(st);if(!c.active)return '<p>目前不在戰鬥。</p>';const enemy=activeEnemy(st);const hand=st.deck?.hand||[];return '<section class="combat-panel"><h3>衝突</h3><p>回合 '+c.round+'</p><p>敵手：'+(enemy?enemy.name+' '+enemy.hp+'/'+(enemy.hpMax||enemy.hp):'無')+'</p><div>'+hand.map((card,i)=>'<button type="button" data-combat-card="'+i+'">'+(card.name||card.code||'牌')+'</button>').join('')+'</div><pre>'+c.log.slice(-6).join('\n')+'</pre></section>'}
+window.DaGoCombat=Object.freeze({version:VERSION,ensure,start,end,play,enemyTurn,html,activeEnemy});
+})();
