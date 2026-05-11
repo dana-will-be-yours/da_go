@@ -1,17 +1,17 @@
 # da_go
 
-`da_go` 是《大國年代記》的單人網頁文字遊戲前端。現行開發版本為 `1.13.0-ui-core`，以 `trpg-corpus-sqlserver` 的 runtime bundle 作為劇本資料來源，前端負責角色建立、場景互動、事件池、關係、戰鬥手札、存檔與 playlog 匯出。
+`da_go` 是《大國年代記》的單人網頁文字遊戲前端。現行開發版本為 `1.13.1-engine-split`，以 `trpg-corpus-sqlserver` 的 runtime bundle 作為劇本資料來源，前端負責角色建立、場景互動、事件池、關係、戰鬥手札、存檔與 playlog 匯出。
 
 公開頁：
 
 ```text
-https://dana-will-be-yours.github.io/da_go/game.html?reset=1&v=1.13.0-ui-core
+https://dana-will-be-yours.github.io/da_go/game.html?reset=1&v=1.13.1-engine-split
 ```
 
 ## 目前版本
 
 ```text
-Runtime: 1.13.0-ui-core
+Runtime: 1.13.1-engine-split
 入口頁：game.html
 發布流程：.github/workflows/pages.yml
 資料閉環流程：.github/workflows/trpg-runtime-bundle.yml
@@ -27,28 +27,33 @@ runtime 驗證：tools/validate-runtime.js
 效果核心：assets/engine/effects.js
 場景核心：assets/engine/passage.js
 事件核心：assets/engine/events.js
+牌組核心：assets/engine/deck.js
+戰鬥核心：assets/engine/combat.js
+側欄核心：assets/engine/sidebar.js
+拆分載入器：assets/engine-split-loader.js
 存檔核心：assets/engine/save.js
 語料輸出：assets/engine/export-playlog.js
 角色建立修正：assets/game-v6-hotfix.js
-主遊戲與戰鬥：assets/game-modular.js
+主遊戲相容層：assets/game-modular.js
 預設資料包：assets/data/dago-changshan-v1-bundle.json
 常山劇本擴充：assets/data/dago-changshan-v1-extension.json
 ```
 
 ## 本版完成重點
 
-`1.13.0-ui-core` 針對四個結構性缺口處理：
+`1.13.1-engine-split` 針對 `game-modular.js` 負責過重的問題進行第一階段拆分：
 
 ```text
-1. 新增 assets/ui-core.js，將角色預覽與完整左側狀態欄抽象成正式 UI 核心。
-2. 新增 assets/engine/events.js，將事件池觸發、篩選與執行從主遊戲 runtime 拆出。
-3. 新增 assets/data/dago-changshan-v1-extension.json，補常山縣南河埠、河岸、田里、醫鋪、城隍廟、工坊等場景，並補 NPC relationships 與 event_pools。
-4. 新增 .github/workflows/trpg-runtime-bundle.yml，使 TRPG Corpus runtime bundle 可在 CI 中驗證，並可在 workflow_dispatch 時以 repository secrets 執行 SQL Server 匯出。
+1. 新增 assets/engine/deck.js，提供 DaGoDeck，處理 ownedCards、deckCodes、drawPile、hand、discard、抽牌、棄牌與式囊編排 HTML。
+2. 新增 assets/engine/combat.js，提供 DaGoCombat，處理 combat.active、round、enemies、出牌、敵方回合、戰鬥結束與衝突 UI HTML。
+3. 新增 assets/engine/sidebar.js，提供 DaGoSidebar，處理完整左側狀態欄與 panel HTML。
+4. 新增 assets/engine-split-loader.js，在公開 artifact 中補載 deck/combat/sidebar 三個拆分模組。
+5. 更新 tools/validate-runtime.js，驗證 DaGoDeck、DaGoCombat、DaGoSidebar 及 engine-split-loader 的載入關係。
 ```
 
 ## Runtime 載入順序
 
-公開頁使用完整 dynamic runtime，不使用簡易頁：
+公開頁使用完整 dynamic runtime，不使用簡易頁。基礎 loader 會載入：
 
 ```text
 assets/scenario-select.js
@@ -67,6 +72,20 @@ assets/character-create-ui.js
 assets/game-rules-ui-fix.js
 assets/game-character-balance-fix.js
 assets/game-modular.js
+```
+
+Pages artifact 會由 `tools/apply-static-runtime.js` 追加：
+
+```text
+assets/engine-split-loader.js
+```
+
+再由 `engine-split-loader.js` 載入：
+
+```text
+assets/engine/deck.js
+assets/engine/combat.js
+assets/engine/sidebar.js
 ```
 
 ## 劇本資料與事件池
@@ -153,7 +172,7 @@ python -m http.server 8080
 測試網址：
 
 ```text
-http://localhost:8080/game.html?reset=1&v=1.13.0-ui-core
+http://localhost:8080/game.html?reset=1&v=1.13.1-engine-split
 ```
 
 ## 相關 repository
