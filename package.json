@@ -1,6 +1,6 @@
 {
   "name": "da_go",
-  "version": "1.14.5-full-no-code-character-fix",
+  "version": "1.14.6-full-code-cleanup",
   "private": true,
   "type": "commonjs",
   "scripts": {
