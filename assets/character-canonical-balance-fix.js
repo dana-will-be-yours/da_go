@@ -1,18 +1,13 @@
 ﻿(()=>{
 'use strict';
-const VERSION='1.15.4-selection-stable';
-const STORE7='daGoPlayV7';
-const STORE6='daGoPlayV6';
-const RANKS='戊丁丙乙甲';
+const VERSION='1.15.4-canonical-balance';
 
-const SKILL_NAMES={
-  inner:'內功',outer:'外功',light:'輕功',swim:'水性',climb:'攀行',pierce:'刺擊',slash:'斬擊',strike:'打擊',
-  sleight:'巧手',craft:'工藝',appraise:'辨別',medicine:'醫術',pharma:'調藥',hide:'躲藏',observe:'觀察',
-  listen:'聆聽',office:'政務',threat:'威嚇',art:'表達',elegance:'雅藝',resource:'資源',wealth:'財富',
-  court:'官場',jianghu:'江湖',geo:'地理',nature:'自然',history:'歷史',religion:'信仰',study:'學藝',
-  will:'意志',language:'語言',empathy:'共情',speech:'口才'
-};
-
+function form(){return document.getElementById('startForm');}
+function cleanText(s){return String(s||'').replace(/\s+/g,'').trim();}
+function optionName(sel){
+  const opt=sel && sel.options && sel.options[sel.selectedIndex];
+  return cleanText(opt && opt.textContent) || '身分';
+}
 const ROLE_SKILLS={
   yamen_clerk:['office','study','observe','language'],
   runner:['observe','light','jianghu','listen'],
@@ -35,7 +30,6 @@ const ROLE_SKILLS={
   medic:['medicine','pharma','nature','observe'],
   disciple:['inner','light','pierce','jianghu']
 };
-
 const BG_SKILLS={
   changshan:['geo','nature','jianghu','listen'],
   tianjin:['court','speech','resource','office'],
@@ -63,13 +57,6 @@ const BG_SKILLS={
   kunlun_chu:['pierce','light','elegance','inner'],
   wanminhui:['jianghu','listen','hide','speech']
 };
-
-function form(){return document.getElementById('startForm');}
-function cleanText(s){return String(s||'').replace(/\s+/g,'').trim();}
-function optionName(sel){
-  const opt=sel && sel.options && sel.options[sel.selectedIndex];
-  return cleanText(opt && opt.textContent) || '身分';
-}
 function radioRow(name,kind){
   const f=form();
   if(!f) return null;
@@ -98,7 +85,7 @@ function selectedBackgroundRows(){
 }
 function skillsFor(row){
   const source=row.kind==='身分' ? ROLE_SKILLS[row.code] : BG_SKILLS[row.code];
-  return (source || ['observe','speech','listen','will']).slice(0,4).map(k=>[k,1]);
+  return (source || ['observe','speech','listen','will']).slice(0,4);
 }
 function buildRows(){
   return selectedRoleRows().concat(selectedBackgroundRows()).map(row=>({
@@ -109,103 +96,52 @@ function buildRows(){
     talents:[`${row.name}見聞`]
   }));
 }
-function skillText(skills){
-  return skills.map(([k,v])=>`${SKILL_NAMES[k]||k} ${v}`).join('、');
+function addSkill(target,k){
+  target[k]=Math.min(5,(Number(target[k])||0)+1);
 }
-function rankSummary(){
-  const counts={};
-  return selectedRoleRows().map(row=>{
-    counts[row.code]=(counts[row.code]||0)+1;
-    const rank=RANKS[Math.max(0,Math.min(4,counts[row.code]-1))];
-    return `${row.name}${rank}`;
-  }).join('、') || '未選';
-}
-function renderPreviewBlock(){
-  const box=document.getElementById('buildPreview');
-  if(!box) return;
-
-  let idLine=box.querySelector('[data-stable-preview-identity]');
-  if(!idLine){
-    idLine=document.createElement('p');
-    idLine.dataset.stablePreviewIdentity='1';
-    box.prepend(idLine);
-  }
-  idLine.textContent=`身分：${rankSummary()}`;
-
-  const rows=buildRows();
-  const html=[
-    '<h4>身分與背景加成</h4>',
-    ...rows.map(row=>`<p>${row.kind}「${row.name}」：${skillText(row.skills)}；特技：${row.talents.join('、')}</p>`),
-    '<p>平衡規則：每一項身分、出身地、性格、屬性點配置、特殊身世皆提供 4 點技能值。</p>'
-  ].join('');
-
-  let section=box.querySelector('.character-balanced-effects-block');
-  if(!section){
-    section=document.createElement('section');
-    section.className='character-balanced-effects-block preview-detail-block';
-    box.appendChild(section);
-  }
-  if(section.dataset.lastHtml!==html){
-    section.innerHTML=html;
-    section.dataset.lastHtml=html;
-  }
-}
-function addSkill(target,k,v){
-  target[k]=Math.min(5,(Number(target[k])||0)+Number(v||0));
-}
-function applyState(st){
+function normalizeState(st){
   if(!st) return st;
   const rows=buildRows();
-  st.skills={};
+  const skills={};
   const talents=[];
   for(const row of rows){
-    for(const [k,v] of row.skills) addSkill(st.skills,k,v);
+    for(const k of row.skills) addSkill(skills,k);
     for(const t of row.talents) if(!talents.includes(t)) talents.push(t);
   }
+  st.skills=skills;
   st.player=st.player||{};
   st.player.roleNames=selectedRoleRows().map(x=>x.name);
-  st.player.characterBalancedBlocks=rows.map(row=>({
+  st.player.canonicalCharacterRows=rows.map(row=>({
     kind:row.kind,
     code:row.code,
     name:row.name,
-    skills:Object.fromEntries(row.skills),
+    skillPointCount:row.skills.length,
+    skills:Object.fromEntries(row.skills.map(k=>[k,1])),
     talents:row.talents
   }));
   st.player.specialTalents=talents;
-  st.characterBalancedPreviewVersion=VERSION;
+  st.characterCanonicalBalanceVersion=VERSION;
   window.DaGoRules?.recalcAttrs?.(st);
   return st;
 }
-
 const rawSet=localStorage.setItem.bind(localStorage);
-if(!localStorage.__daGoBalancedPreviewV1154){
-  Object.defineProperty(localStorage,'__daGoBalancedPreviewV1154',{value:1});
+if(!localStorage.__daGoCanonicalBalanceV1154){
+  Object.defineProperty(localStorage,'__daGoCanonicalBalanceV1154',{value:1});
   localStorage.setItem=function(k,v){
-    if(k===STORE7 || k===STORE6){
-      try{v=JSON.stringify(applyState(JSON.parse(v)));}catch{}
+    if(k==='daGoPlayV7' || k==='daGoPlayV6'){
+      try{v=JSON.stringify(normalizeState(JSON.parse(v)));}catch{}
     }
     return rawSet(k,v);
   };
 }
-
-function boot(){
-  const f=form();
-  if(f && !f.dataset.balancedPreviewV1154){
-    f.dataset.balancedPreviewV1154=VERSION;
-    f.addEventListener('change',renderPreviewBlock,true);
-    f.addEventListener('input',renderPreviewBlock,true);
-  }
-  renderPreviewBlock();
-  document.body.classList.add('dago-balanced-character-preview-ready','dago-selection-stable-ready');
+function audit(){
+  const rows=buildRows();
+  return {
+    version:VERSION,
+    rowCount:rows.length,
+    allRowsHaveFourSkillPoints:rows.every(row=>row.skills.length===4),
+    rows:rows.map(row=>({kind:row.kind,code:row.code,name:row.name,skillPointCount:row.skills.length,skills:row.skills}))
+  };
 }
-if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',boot,{once:true});
-else boot();
-
-window.DaGoBalancedCharacterPreview=Object.freeze({
-  version:VERSION,
-  patchPreview:renderPreviewBlock,
-  buildRows,
-  selectedRoleRows,
-  selectedBackgroundRows
-});
+window.DaGoCanonicalBalanceFix=Object.freeze({version:VERSION,buildRows,normalizeState,audit});
 })();
