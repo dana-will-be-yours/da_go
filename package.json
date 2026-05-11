@@ -1,14 +1,19 @@
-{
-  "name": "da_go",
-  "version": "1.15.0-balanced-character-preview",
-  "private": true,
-  "type": "commonjs",
-  "scripts": {
-    "test": "npm run validate",
-    "validate": "node tools/validate-runtime.js && node tools/apply-static-runtime.js && node tools/validate-public-page.js && node tools/validate-playable-architecture.js",
-    "validate:runtime": "node tools/validate-runtime.js",
-    "validate:public": "node tools/apply-static-runtime.js && node tools/validate-public-page.js",
-    "validate:playable": "node tools/validate-playable-architecture.js"
-  },
-  "devDependencies": {}
+﻿{
+    "name":  "da_go",
+    "version":  "1.15.0-balanced-character-preview",
+    "private":  true,
+    "type":  "commonjs",
+    "scripts":  {
+                    "test":  "npm run validate",
+                    "validate":  "node tools/validate-runtime.js \u0026\u0026 node tools/apply-static-runtime.js \u0026\u0026 node tools/validate-public-page.js \u0026\u0026 node tools/validate-playable-architecture.js",
+                    "validate:runtime":  "node tools/validate-runtime.js",
+                    "validate:public":  "node tools/apply-static-runtime.js \u0026\u0026 node tools/validate-public-page.js",
+                    "validate:playable":  "node tools/validate-playable-architecture.js"
+                },
+    "devDependencies":  {
+
+                        },
+    "engines":  {
+                    "node":  "\u003e=24 \u003c25"
+                }
 }
