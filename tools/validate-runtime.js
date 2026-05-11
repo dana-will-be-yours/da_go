@@ -11,15 +11,31 @@ const jsFiles = [
   'assets/engine/effects.js',
   'assets/engine/passage.js',
   'assets/engine/events.js',
+  'assets/engine/deck.js',
+  'assets/engine/combat.js',
+  'assets/engine/sidebar.js',
   'assets/engine/save.js',
   'assets/engine/export-playlog.js',
   'assets/ui-core.js',
+  'assets/engine-split-loader.js',
   'assets/game-modular.js',
   'assets/game-runtime.js'
 ];
 for (const file of jsFiles) {
   const code = fs.readFileSync(path.join(root, file), 'utf8');
   new vm.Script(code, { filename: file });
+}
+for (const [file, token] of [
+  ['assets/engine/deck.js', 'window.DaGoDeck'],
+  ['assets/engine/combat.js', 'window.DaGoCombat'],
+  ['assets/engine/sidebar.js', 'window.DaGoSidebar']
+]) {
+  const code = fs.readFileSync(path.join(root, file), 'utf8');
+  if (!code.includes(token)) throw new Error(file + ' missing ' + token);
+}
+const loader = fs.readFileSync(path.join(root, 'assets/engine-split-loader.js'), 'utf8');
+for (const file of ['assets/engine/deck.js','assets/engine/combat.js','assets/engine/sidebar.js']) {
+  if (!loader.includes(file)) throw new Error('engine-split-loader does not load ' + file);
 }
 
 const bundlePath = path.join(root, 'assets/data/dago-changshan-v1-bundle.json');
