@@ -35,3 +35,4 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 window.DaGoBalancedCharacterPreview=Object.freeze({version:VERSION,patchPreview,buildRows,selectedRoleRows,selectedBackgroundRows});
 })();
 
+
