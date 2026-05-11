@@ -7,8 +7,8 @@ let html = fs.readFileSync(file, 'utf8');
 
 html = html.replace(
   /assets\/game-runtime\.js\?v=[^"]+/g,
-  'assets/game-runtime.js?v=1.13.2-direct-split'
+  'assets/game-runtime.js?v=1.14.0-chinese-simple-combat'
 );
 
 fs.writeFileSync(file, html, 'utf8');
-console.log('Patched game.html runtime URL to 1.13.2-direct-split.');
+console.log('Patched game.html runtime URL to 1.14.0-chinese-simple-combat.');
