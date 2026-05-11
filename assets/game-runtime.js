@@ -1,6 +1,6 @@
 ﻿(()=>{
 'use strict';
-const VERSION='1.15.4-stable-preview-runtime';
+const VERSION='1.15.5-stable-preview-pages';
 window.DaGoRuntimeManifest=Object.freeze({
   runtime_name:'da_go_modular_runtime',
   runtime_version:VERSION,
@@ -10,7 +10,7 @@ window.DaGoRuntimeManifest=Object.freeze({
   default_bundle:'assets/data/dago-changshan-v1-bundle.json',
   legacy_engine:'assets/game-playable-v6.js',
   authoring_page:'https://dana-will-be-yours.github.io/trpg-corpus-sqlserver/web/dago-authoring.html',
-  mode:'stable-preview-runtime'
+  mode:'stable-preview-pages'
 });
 const scripts=[
   'assets/scenario-select.js',
@@ -54,6 +54,6 @@ function add(src){
 }
 (async()=>{
   for(const src of scripts) await add(src);
-  document.body.classList.add('dago-ready','dago-modular-ready','dago-full-ui-ready','dago-stable-preview-runtime-ready');
+  document.body.classList.add('dago-ready','dago-modular-ready','dago-full-ui-ready','dago-stable-preview-pages-ready');
 })();
 })();

@@ -1,211 +1,22 @@
 ﻿(()=>{
 'use strict';
-const VERSION='1.15.4-selection-stable';
-const STORE7='daGoPlayV7';
-const STORE6='daGoPlayV6';
+const VERSION='1.15.5-selection-stable';
 const RANKS='戊丁丙乙甲';
-
-const SKILL_NAMES={
-  inner:'內功',outer:'外功',light:'輕功',swim:'水性',climb:'攀行',pierce:'刺擊',slash:'斬擊',strike:'打擊',
-  sleight:'巧手',craft:'工藝',appraise:'辨別',medicine:'醫術',pharma:'調藥',hide:'躲藏',observe:'觀察',
-  listen:'聆聽',office:'政務',threat:'威嚇',art:'表達',elegance:'雅藝',resource:'資源',wealth:'財富',
-  court:'官場',jianghu:'江湖',geo:'地理',nature:'自然',history:'歷史',religion:'信仰',study:'學藝',
-  will:'意志',language:'語言',empathy:'共情',speech:'口才'
-};
-
-const ROLE_SKILLS={
-  yamen_clerk:['office','study','observe','language'],
-  runner:['observe','light','jianghu','listen'],
-  constable:['observe','outer','strike','threat'],
-  soldier:['outer','slash','strike','will'],
-  urban_household:['speech','resource','observe','jianghu'],
-  workshop:['craft','appraise','resource','study'],
-  teahouse:['listen','speech','jianghu','empathy'],
-  market_broker:['appraise','wealth','speech','listen'],
-  rural_farmer:['nature','outer','resource','will'],
-  hunter:['observe','nature','pierce','hide'],
-  fisher:['swim','nature','listen','outer'],
-  literatus:['study','language','history','elegance'],
-  copyist:['study','appraise','observe','language'],
-  strongman:['outer','strike','threat','will'],
-  escort:['slash','pierce','observe','jianghu'],
-  dock_labor:['outer','resource','listen','will'],
-  wanderer:['hide','jianghu','listen','will'],
-  merchant:['wealth','resource','appraise','speech'],
-  medic:['medicine','pharma','nature','observe'],
-  disciple:['inner','light','pierce','jianghu']
-};
-
-const BG_SKILLS={
-  changshan:['geo','nature','jianghu','listen'],
-  tianjin:['court','speech','resource','office'],
-  hengshui:['geo','nature','resource','will'],
-  hengwan:['swim','resource','listen','geo'],
-  cangbei:['jianghu','will','history','listen'],
-  nanjing:['court','study','elegance','speech'],
-  calm:['will','observe','empathy','study'],
-  streetwise:['jianghu','listen','observe','speech'],
-  silver_tongue:['speech','empathy','listen','elegance'],
-  sturdy:['outer','will','nature','resource'],
-  upright:['elegance','empathy','will','speech'],
-  reckless:['slash','threat','outer','will'],
-  balanced:['outer','observe','study','speech'],
-  body:['outer','inner','strike','will'],
-  tech:['sleight','observe','craft','appraise'],
-  mind:['study','history','language','observe'],
-  social:['speech','empathy','elegance','listen'],
-  travel:['light','geo','nature','jianghu'],
-  none:['observe','will','speech','listen'],
-  taihu_wei:['wealth','court','history','speech'],
-  jinling_yang:['study','speech','elegance','language'],
-  cangbei_bei:['jianghu','history','will','listen'],
-  qishan_ye:['slash','outer','will','observe'],
-  kunlun_chu:['pierce','light','elegance','inner'],
-  wanminhui:['jianghu','listen','hide','speech']
-};
-
+const SKILL_NAMES={inner:'內功',outer:'外功',light:'輕功',swim:'水性',pierce:'刺擊',slash:'斬擊',strike:'打擊',sleight:'巧手',craft:'工藝',appraise:'辨別',medicine:'醫術',pharma:'調藥',hide:'躲藏',observe:'觀察',listen:'聆聽',office:'政務',threat:'威嚇',art:'表達',elegance:'雅藝',resource:'資源',wealth:'財富',court:'官場',jianghu:'江湖',geo:'地理',nature:'自然',history:'歷史',study:'學藝',will:'意志',language:'語言',empathy:'共情',speech:'口才'};
+const ROLE_SKILLS={yamen_clerk:['office','study','observe','language'],runner:['observe','light','jianghu','listen'],constable:['observe','outer','strike','threat'],soldier:['outer','slash','strike','will'],urban_household:['speech','resource','observe','jianghu'],workshop:['craft','appraise','resource','study'],teahouse:['listen','speech','jianghu','empathy'],market_broker:['appraise','wealth','speech','listen'],rural_farmer:['nature','outer','resource','will'],hunter:['observe','nature','pierce','hide'],fisher:['swim','nature','listen','outer'],literatus:['study','language','history','elegance'],copyist:['study','appraise','observe','language'],strongman:['outer','strike','threat','will'],escort:['slash','pierce','observe','jianghu'],dock_labor:['outer','resource','listen','will'],wanderer:['hide','jianghu','listen','will'],merchant:['wealth','resource','appraise','speech'],medic:['medicine','pharma','nature','observe'],disciple:['inner','light','pierce','jianghu']};
+const BG_SKILLS={changshan:['geo','nature','jianghu','listen'],tianjin:['court','speech','resource','office'],hengshui:['geo','nature','resource','will'],hengwan:['swim','resource','listen','geo'],cangbei:['jianghu','will','history','listen'],nanjing:['court','study','elegance','speech'],calm:['will','observe','empathy','study'],streetwise:['jianghu','listen','observe','speech'],silver_tongue:['speech','empathy','listen','elegance'],sturdy:['outer','will','nature','resource'],upright:['elegance','empathy','will','speech'],reckless:['slash','threat','outer','will'],balanced:['outer','observe','study','speech'],body:['outer','inner','strike','will'],tech:['sleight','observe','craft','appraise'],mind:['study','history','language','observe'],social:['speech','empathy','elegance','listen'],travel:['light','geo','nature','jianghu'],none:['observe','will','speech','listen'],taihu_wei:['wealth','court','history','speech'],jinling_yang:['study','speech','elegance','language'],cangbei_bei:['jianghu','history','will','listen'],qishan_ye:['slash','outer','will','observe'],kunlun_chu:['pierce','light','elegance','inner'],wanminhui:['jianghu','listen','hide','speech']};
 function form(){return document.getElementById('startForm');}
 function cleanText(s){return String(s||'').replace(/\s+/g,'').trim();}
-function optionName(sel){
-  const opt=sel && sel.options && sel.options[sel.selectedIndex];
-  return cleanText(opt && opt.textContent) || '身分';
-}
-function radioRow(name,kind){
-  const f=form();
-  if(!f) return null;
-  const input=f.querySelector(`[name="${name}"]:checked`);
-  if(!input) return null;
-  return {
-    kind,
-    code:String(input.value||''),
-    name:cleanText(input.parentElement && input.parentElement.textContent) || kind
-  };
-}
-function selectedRoleRows(){
-  const f=form();
-  if(!f) return [];
-  return [...f.querySelectorAll('select[name="roles"]')]
-    .map(sel=>({kind:'身分',code:String(sel.value||''),name:optionName(sel)}))
-    .filter(x=>x.code);
-}
-function selectedBackgroundRows(){
-  return [
-    radioRow('origin','出身地'),
-    radioRow('trait','性格'),
-    radioRow('attributePlan','屬性點配置'),
-    radioRow('specialOrigin','特殊身世')
-  ].filter(Boolean);
-}
-function skillsFor(row){
-  const source=row.kind==='身分' ? ROLE_SKILLS[row.code] : BG_SKILLS[row.code];
-  return (source || ['observe','speech','listen','will']).slice(0,4).map(k=>[k,1]);
-}
-function buildRows(){
-  return selectedRoleRows().concat(selectedBackgroundRows()).map(row=>({
-    kind:row.kind,
-    code:row.code,
-    name:row.name,
-    skills:skillsFor(row),
-    talents:[`${row.name}見聞`]
-  }));
-}
-function skillText(skills){
-  return skills.map(([k,v])=>`${SKILL_NAMES[k]||k} ${v}`).join('、');
-}
-function rankSummary(){
-  const counts={};
-  return selectedRoleRows().map(row=>{
-    counts[row.code]=(counts[row.code]||0)+1;
-    const rank=RANKS[Math.max(0,Math.min(4,counts[row.code]-1))];
-    return `${row.name}${rank}`;
-  }).join('、') || '未選';
-}
-function renderPreviewBlock(){
-  const box=document.getElementById('buildPreview');
-  if(!box) return;
-
-  let idLine=box.querySelector('[data-stable-preview-identity]');
-  if(!idLine){
-    idLine=document.createElement('p');
-    idLine.dataset.stablePreviewIdentity='1';
-    box.prepend(idLine);
-  }
-  idLine.textContent=`身分：${rankSummary()}`;
-
-  const rows=buildRows();
-  const html=[
-    '<h4>身分與背景加成</h4>',
-    ...rows.map(row=>`<p>${row.kind}「${row.name}」：${skillText(row.skills)}；特技：${row.talents.join('、')}</p>`),
-    '<p>平衡規則：每一項身分、出身地、性格、屬性點配置、特殊身世皆提供 4 點技能值。</p>'
-  ].join('');
-
-  let section=box.querySelector('.character-balanced-effects-block');
-  if(!section){
-    section=document.createElement('section');
-    section.className='character-balanced-effects-block preview-detail-block';
-    box.appendChild(section);
-  }
-  if(section.dataset.lastHtml!==html){
-    section.innerHTML=html;
-    section.dataset.lastHtml=html;
-  }
-}
-function addSkill(target,k,v){
-  target[k]=Math.min(5,(Number(target[k])||0)+Number(v||0));
-}
-function applyState(st){
-  if(!st) return st;
-  const rows=buildRows();
-  st.skills={};
-  const talents=[];
-  for(const row of rows){
-    for(const [k,v] of row.skills) addSkill(st.skills,k,v);
-    for(const t of row.talents) if(!talents.includes(t)) talents.push(t);
-  }
-  st.player=st.player||{};
-  st.player.roleNames=selectedRoleRows().map(x=>x.name);
-  st.player.characterBalancedBlocks=rows.map(row=>({
-    kind:row.kind,
-    code:row.code,
-    name:row.name,
-    skills:Object.fromEntries(row.skills),
-    talents:row.talents
-  }));
-  st.player.specialTalents=talents;
-  st.characterBalancedPreviewVersion=VERSION;
-  window.DaGoRules?.recalcAttrs?.(st);
-  return st;
-}
-
-const rawSet=localStorage.setItem.bind(localStorage);
-if(!localStorage.__daGoBalancedPreviewV1154){
-  Object.defineProperty(localStorage,'__daGoBalancedPreviewV1154',{value:1});
-  localStorage.setItem=function(k,v){
-    if(k===STORE7 || k===STORE6){
-      try{v=JSON.stringify(applyState(JSON.parse(v)));}catch{}
-    }
-    return rawSet(k,v);
-  };
-}
-
-function boot(){
-  const f=form();
-  if(f && !f.dataset.balancedPreviewV1154){
-    f.dataset.balancedPreviewV1154=VERSION;
-    f.addEventListener('change',renderPreviewBlock,true);
-    f.addEventListener('input',renderPreviewBlock,true);
-  }
-  renderPreviewBlock();
-  document.body.classList.add('dago-balanced-character-preview-ready','dago-selection-stable-ready');
-}
-if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',boot,{once:true});
-else boot();
-
-window.DaGoBalancedCharacterPreview=Object.freeze({
-  version:VERSION,
-  patchPreview:renderPreviewBlock,
-  buildRows,
-  selectedRoleRows,
-  selectedBackgroundRows
-});
+function optionName(sel){const opt=sel&&sel.options&&sel.options[sel.selectedIndex];return cleanText(opt&&opt.textContent)||'身分';}
+function selectedRoleRows(){const f=form();if(!f)return [];return [...f.querySelectorAll('select[name="roles"]')].map(sel=>({kind:'身分',code:String(sel.value||''),name:optionName(sel)})).filter(x=>x.code);}
+function radioRow(name,kind){const f=form();if(!f)return null;const input=f.querySelector(`[name="${name}"]:checked`);if(!input)return null;return {kind,code:String(input.value||''),name:cleanText(input.parentElement&&input.parentElement.textContent)||kind};}
+function selectedBackgroundRows(){return [radioRow('origin','出身地'),radioRow('trait','性格'),radioRow('attributePlan','屬性點配置'),radioRow('specialOrigin','特殊身世')].filter(Boolean);}
+function skillsFor(row){const src=row.kind==='身分'?ROLE_SKILLS[row.code]:BG_SKILLS[row.code];return (src||['observe','speech','listen','will']).slice(0,4).map(k=>[k,1]);}
+function buildRows(){return selectedRoleRows().concat(selectedBackgroundRows()).map(row=>({kind:row.kind,code:row.code,name:row.name,skills:skillsFor(row),talents:[`${row.name}見聞`]}));}
+function skillText(rows){return rows.map(([k,v])=>`${SKILL_NAMES[k]||k} ${v}`).join('、');}
+function rankSummary(){const c={};return selectedRoleRows().map(row=>{c[row.code]=(c[row.code]||0)+1;return `${row.name}${RANKS[Math.max(0,Math.min(4,c[row.code]-1))]}`;}).join('、')||'未選';}
+function renderPreviewBlock(){const box=document.getElementById('buildPreview');if(!box)return;let id=box.querySelector('[data-stable-preview-identity]');if(!id){id=document.createElement('p');id.dataset.stablePreviewIdentity='1';box.prepend(id);}id.textContent=`身分：${rankSummary()}`;const rows=buildRows();const html=['<h4>身分與背景加成</h4>',...rows.map(row=>`<p>${row.kind}「${row.name}」：${skillText(row.skills)}；特技：${row.talents.join('、')}</p>`),'<p>平衡規則：每一項身分、出身地、性格、屬性點配置、特殊身世皆提供 4 點技能值。</p>'].join('');let sec=box.querySelector('.character-balanced-effects-block');if(!sec){sec=document.createElement('section');sec.className='character-balanced-effects-block preview-detail-block';box.appendChild(sec);}if(sec.dataset.lastHtml!==html){sec.innerHTML=html;sec.dataset.lastHtml=html;}}
+function boot(){const f=form();if(f&&!f.dataset.balancedPreviewV1155){f.dataset.balancedPreviewV1155=VERSION;f.addEventListener('change',renderPreviewBlock,true);f.addEventListener('input',renderPreviewBlock,true);}renderPreviewBlock();document.body.classList.add('dago-selection-stable-ready');}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();
+window.DaGoBalancedCharacterPreview=Object.freeze({version:VERSION,patchPreview:renderPreviewBlock,buildRows,selectedRoleRows,selectedBackgroundRows});
 })();

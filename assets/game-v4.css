@@ -93,3 +93,17 @@
 .build-preview {
   cursor: text;
 }
+
+/* dago-preview-selection-css */
+
+.build-preview,
+.build-preview *,
+.character-balanced-effects-block,
+.character-balanced-effects-block * {
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+.build-preview {
+  cursor: text;
+}
