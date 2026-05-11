@@ -31,7 +31,8 @@ for(const token of [
   'game-no-code-finalizer.js',
   'dago-dol-like-runtime.js',
   '1.16.0-dol-like-playable',
-  '1.16.1-preserve-settings-dol-grammar'
+  '1.16.1-preserve-settings-dol-grammar',
+  'DoL-like grammar'
 ]){
   mustNot(runtime,token,'runtime loader');
   mustNot(html,token,'game.html');
@@ -42,7 +43,8 @@ for(const token of [
   'BG_SKILLS',
   'renderBalancedBlock',
   'patchIdentityLine',
-  '身分與背景加成'
+  '身分與背景加成',
+  '每一項身分、出身地、性格、屬性點配置、特殊身世皆提供 4 點技能值'
 ]){
   must(balanced,token,'balanced character preview');
 }
@@ -64,9 +66,14 @@ for(const token of [
   '頭部',
   '<legend>身分</legend>',
   '背景',
+  '出身',
   '性格',
+  '屬性點配置',
+  '特殊身世',
   '遊戲設置',
-  '文字顯示'
+  '文字顯示',
+  '隨機化',
+  '開始遊戲'
 ]){
   must(html,token,'all previous settings');
 }
@@ -83,10 +90,12 @@ for(const token of [
 
 for(const token of [
   'safeLabel',
-  '屬性點配置',
-  '文字顯示'
+  'renderOverview',
+  'formCharacter',
+  'startGame',
+  'render'
 ]){
-  must(modular,token,'traits panel fix');
+  must(modular,token,'modular runtime');
 }
 
 console.log('Playable architecture validation passed for 1.15.0 preview pipeline fix.');

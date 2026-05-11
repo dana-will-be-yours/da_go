@@ -47,7 +47,9 @@ jobs:
           enablement: true
 
       - name: Prepare static runtime page
+        shell: bash
         run: |
+          set -euxo pipefail
           node tools/validate-runtime.js
           node tools/apply-static-runtime.js
           node tools/validate-public-page.js
