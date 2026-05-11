@@ -1,6 +1,6 @@
 {
   "name": "da_go",
-  "version": "1.12.13-deckbuilder",
+  "version": "1.13.2-direct-split",
   "private": true,
   "type": "commonjs",
   "scripts": {
