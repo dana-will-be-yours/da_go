@@ -1,6 +1,6 @@
 {
   "name": "da_go",
-  "version": "1.16.1-preserve-settings-dol-grammar",
+  "version": "1.15.0-balanced-character-preview",
   "private": true,
   "type": "commonjs",
   "scripts": {
