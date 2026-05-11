@@ -1,6 +1,6 @@
 {
   "name": "da_go",
-  "version": "1.14.0-chinese-simple-combat",
+  "version": "1.14.2-dol-select-combat",
   "private": true,
   "type": "commonjs",
   "scripts": {
