@@ -1,0 +1,9 @@
+{
+  "name": "da-go-dol-worldops",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node tests/runtime-contract.mjs && node tests/static-contract.mjs"
+  }
+}
