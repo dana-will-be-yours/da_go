@@ -102,7 +102,11 @@ export class WorldOpsWidgetRegistry {
         ended_at: this.now(),
         props_hash: await hashRecord(props),
         status: "rejected",
-        error: { name: error?.name || "Error", code: error?.code || null, message: error?.message || "Unknown widget error" },
+        error: {
+          name: error?.name || "Error",
+          code: error?.code || null,
+          message: error?.message || "Unknown widget error",
+        },
       };
       this.#pushReceipt(receipt);
       throw error;
@@ -112,20 +116,54 @@ export class WorldOpsWidgetRegistry {
   async unmount(mountId) {
     const mount = this.mounts.get(mountId);
     if (!mount) return false;
-    if (mount.cleanup) await mount.cleanup();
-    this.mounts.delete(mountId);
-    this.#pushReceipt({
-      mount_id: mountId,
-      widget_id: mount.widgetId,
-      ended_at: this.now(),
-      status: "unmounted",
-    });
-    return true;
+    try {
+      if (mount.cleanup) await mount.cleanup();
+      this.mounts.delete(mountId);
+      this.#pushReceipt({
+        mount_id: mountId,
+        widget_id: mount.widgetId,
+        ended_at: this.now(),
+        status: "unmounted",
+      });
+      return true;
+    } catch (error) {
+      this.#pushReceipt({
+        mount_id: mountId,
+        widget_id: mount.widgetId,
+        ended_at: this.now(),
+        status: "unmount_failed",
+        error: {
+          name: error?.name || "Error",
+          code: error?.code || null,
+          message: error?.message || "Unknown cleanup error",
+        },
+      });
+      throw error;
+    }
   }
 
   async unmountAll() {
     const ids = [...this.mounts.keys()].reverse();
-    for (const id of ids) await this.unmount(id);
+    const errors = [];
+    for (const id of ids) {
+      try {
+        await this.unmount(id);
+      } catch (error) {
+        errors.push({ mount_id: id, error });
+      }
+    }
+    if (errors.length) {
+      throw new RuntimeContractError(
+        "WIDGET_UNMOUNT_FAILED",
+        `${errors.length} widget cleanup operation(s) failed`,
+        {
+          errors: errors.map(entry => ({
+            mount_id: entry.mount_id,
+            message: entry.error?.message || "Unknown cleanup error",
+          })),
+        },
+      );
+    }
   }
 
   #pushReceipt(receipt) {
