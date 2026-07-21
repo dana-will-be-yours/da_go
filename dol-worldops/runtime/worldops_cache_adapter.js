@@ -133,3 +133,5 @@ export class WorldOpsClientCache {
     return cloneValue(this.receipts);
   }
 }
+
+export { MemoryStorage };
