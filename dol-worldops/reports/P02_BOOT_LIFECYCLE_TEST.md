@@ -50,7 +50,7 @@ GitHub Actions workflow 已更新為執行：
 ```text
 npm ci --ignore-scripts
 npm test
-15 個 JavaScript syntax checks
+16 個 JavaScript syntax checks
 ```
 
 本報告不將尚未回傳的 GitHub Actions workflow 標示為通過。CI 狀態需由 GitHub workflow run 獨立確認。
