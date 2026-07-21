@@ -42,11 +42,11 @@ const required = [
   "server/worldops/p04_runtime.py",
   "server/worldops/p04_app_factory.py",
   "database/migrations/001_wop_authoritative_runtime.sql",
-  "database/migrations/002_wop_snapshot_migration_handoff.sql",
+  "database/migrations/003_wop_snapshot_migration_handoff.sql",
   "database/validation/001_wop_authoritative_runtime_validation.sql",
-  "database/validation/002_wop_snapshot_migration_handoff_validation.sql",
+  "database/validation/003_wop_snapshot_migration_handoff_validation.sql",
   "database/synthetic/001_wop_authoritative_runtime_dry_run.sql",
-  "database/synthetic/002_wop_snapshot_migration_handoff_dry_run.sql",
+  "database/synthetic/003_wop_snapshot_migration_handoff_dry_run.sql",
   "tests/runtime-contract.mjs",
   "tests/p02-boot-lifecycle.mjs",
   "tests/p04-offline-queue.mjs",
@@ -141,7 +141,7 @@ assert.doesNotMatch(handoff, /self\.records\[[^\]]+\]\s*=\s*[^\n]*handoff_token/
 const reconnect = await readFile(join(root, "server/worldops/reconnect.py"), "utf8");
 assert.match(reconnect, /RECONNECT_CURSOR_AHEAD/);
 assert.match(reconnect, /RECONNECT_EVENT_GAP/);
-const p04Sql = await readFile(join(root, "database/migrations/002_wop_snapshot_migration_handoff.sql"), "utf8");
+const p04Sql = await readFile(join(root, "database/migrations/003_wop_snapshot_migration_handoff.sql"), "utf8");
 assert.match(p04Sql, /token_hash CHAR\(64\)/);
 assert.doesNotMatch(p04Sql, /handoff_token\s+(?:N?VARCHAR|CHAR)/i);
 const demo = await readFile(join(root, "demo/index.html"), "utf8");

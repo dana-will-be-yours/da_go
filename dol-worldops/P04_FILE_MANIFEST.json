@@ -23,26 +23,26 @@
       "source_path": "README.md",
       "target_path": "dol-worldops/README.md",
       "action": "update",
-      "bytes": 4325,
-      "sha256": "bf540440742fc259aa2810f8f2fb3e778817a25cd8361020ef98acd954da05ad"
+      "bytes": 4535,
+      "sha256": "592925cd58404b47e64158448d75fae53d28208af2db4450089c61dd152f027a"
     },
     {
-      "source_path": "database/migrations/002_wop_snapshot_migration_handoff.sql",
-      "target_path": "dol-worldops/database/migrations/002_wop_snapshot_migration_handoff.sql",
+      "source_path": "database/migrations/003_wop_snapshot_migration_handoff.sql",
+      "target_path": "dol-worldops/database/migrations/003_wop_snapshot_migration_handoff.sql",
       "action": "create",
       "bytes": 22842,
       "sha256": "8ac79b01e4af8720a08039b0dc6191f4a6a091e66503b66ddf38ba16460e9907"
     },
     {
-      "source_path": "database/synthetic/002_wop_snapshot_migration_handoff_dry_run.sql",
-      "target_path": "dol-worldops/database/synthetic/002_wop_snapshot_migration_handoff_dry_run.sql",
+      "source_path": "database/synthetic/003_wop_snapshot_migration_handoff_dry_run.sql",
+      "target_path": "dol-worldops/database/synthetic/003_wop_snapshot_migration_handoff_dry_run.sql",
       "action": "create",
       "bytes": 4886,
       "sha256": "f1ac3d43a16032fc19130325982e04455d6bda5dc1880bdd2ad65f7e7f52561f"
     },
     {
-      "source_path": "database/validation/002_wop_snapshot_migration_handoff_validation.sql",
-      "target_path": "dol-worldops/database/validation/002_wop_snapshot_migration_handoff_validation.sql",
+      "source_path": "database/validation/003_wop_snapshot_migration_handoff_validation.sql",
+      "target_path": "dol-worldops/database/validation/003_wop_snapshot_migration_handoff_validation.sql",
       "action": "create",
       "bytes": 3998,
       "sha256": "ced861d0b666ed78748a0815065b344600840287e39651902d7f8c63899f8760"
@@ -94,7 +94,7 @@
       "target_path": "dol-worldops/reports/SESSION_HANDOFF.md",
       "action": "update",
       "bytes": 1592,
-      "sha256": "eae7db85ce6c65d332cea35a37f8a3a3e1bc34e415f01d1c3712d20962980f1e"
+      "sha256": "77d38fa6aaa53eaa81fe3ac944a932a18edab06ae1d9f7f73f63385110100600"
     },
     {
       "source_path": "runtime/worldops_device_handoff.js",
@@ -185,7 +185,7 @@
       "target_path": "dol-worldops/tests/static-contract.mjs",
       "action": "update",
       "bytes": 6974,
-      "sha256": "8eb8522af87c7d6edadddfe782b33fe247dcfdc4377f15eb602df75a54074b9b"
+      "sha256": "e7f42533298154ea2ef637321995b6d5349ff05840ae183bd96607565767de39"
     },
     {
       "source_path": "tests/test_p04_app_factory.py",
@@ -227,7 +227,7 @@
       "target_path": "dol-worldops/tests/test_p04_sql_contract.py",
       "action": "create",
       "bytes": 2942,
-      "sha256": "ee7668e6b5946062f55e19a0d112942ae92fd25d34fb2c9382f5fccd4512faa8"
+      "sha256": "2848fc8b26062c9de2670cbcf1ff1e37e460498013e39ffcb3238d9ad4782c58"
     }
   ],
   "controls": {

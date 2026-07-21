@@ -29,7 +29,7 @@
 ## 尚待外部環境驗證
 
 - GitHub Actions。
-- SQL Server `002` migration、constraint trust、procedures 及 synthetic dry run。
+- SQL Server `003` migration、constraint trust、procedures 及 synthetic dry run。
 - 真實 Android／iOS／desktop handoff。
 - 真實 WebSocket reconnect、network partition、backpressure 與多 worker coordination。
 

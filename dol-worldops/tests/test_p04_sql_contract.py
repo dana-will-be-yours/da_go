@@ -4,9 +4,9 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
-MIGRATION = ROOT / "database/migrations/002_wop_snapshot_migration_handoff.sql"
-VALIDATION = ROOT / "database/validation/002_wop_snapshot_migration_handoff_validation.sql"
-SYNTHETIC = ROOT / "database/synthetic/002_wop_snapshot_migration_handoff_dry_run.sql"
+MIGRATION = ROOT / "database/migrations/003_wop_snapshot_migration_handoff.sql"
+VALIDATION = ROOT / "database/validation/003_wop_snapshot_migration_handoff_validation.sql"
+SYNTHETIC = ROOT / "database/synthetic/003_wop_snapshot_migration_handoff_dry_run.sql"
 
 
 def read(path: Path) -> str:

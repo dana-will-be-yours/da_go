@@ -113,9 +113,12 @@ Offline queue 永遠為 `authoritative = false`。Conflict 發生後，後續 se
 database/migrations/001_wop_authoritative_runtime.sql
 database/validation/001_wop_authoritative_runtime_validation.sql
 database/synthetic/001_wop_authoritative_runtime_dry_run.sql
-database/migrations/002_wop_snapshot_migration_handoff.sql
-database/validation/002_wop_snapshot_migration_handoff_validation.sql
-database/synthetic/002_wop_snapshot_migration_handoff_dry_run.sql
+database/migrations/002_wop_authoritative_runtime_hardening.sql
+database/validation/002_wop_authoritative_runtime_hardening_validation.sql
+database/synthetic/002_wop_authoritative_runtime_hardening_dry_run.sql
+database/migrations/003_wop_snapshot_migration_handoff.sql
+database/validation/003_wop_snapshot_migration_handoff_validation.sql
+database/synthetic/003_wop_snapshot_migration_handoff_dry_run.sql
 ```
 
 P04 新增：
