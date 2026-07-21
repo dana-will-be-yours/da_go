@@ -1,0 +1,22 @@
+{
+  "policies": [
+    {
+      "id": "room.enter.allow",
+      "resource": "room.play",
+      "action": "enter",
+      "effect": "allow",
+      "allOf": ["room.enter"],
+      "anyOf": [],
+      "priority": 100
+    },
+    {
+      "id": "canon.write.deny",
+      "resource": "canon.*",
+      "action": "*",
+      "effect": "deny",
+      "allOf": [],
+      "anyOf": [],
+      "priority": 1000
+    }
+  ]
+}
