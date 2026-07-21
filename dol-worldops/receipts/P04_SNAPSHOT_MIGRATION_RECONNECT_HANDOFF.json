@@ -1,0 +1,43 @@
+{
+  "batch_id": "P04-SNAPSHOT-MIGRATION-RECONNECT-HANDOFF",
+  "version": "0.4.0",
+  "recorded_at": "2026-07-21",
+  "target_branch": "feature/dol-worldops",
+  "implementation_status": "complete",
+  "local_verification_status": "passed",
+  "github_actions_status": "pending_after_commit",
+  "sql_server_runtime_status": "pending_external_environment",
+  "tests": {
+    "python_full_regression": {"passed": 36, "total": 36},
+    "python_p04_subset": {"passed": 23, "total": 23},
+    "p01_runtime_js": {"passed": 10, "total": 10},
+    "p02_boot_js": {"passed": 9, "total": 9},
+    "p03_client_sync_js": {"passed": 6, "total": 6},
+    "p04_offline_handoff_js": {"passed": 7, "total": 7},
+    "sql_static_contract": {"passed": 4, "total": 4},
+    "static_contract": "passed",
+    "python_compileall": "passed",
+    "javascript_syntax": "passed"
+  },
+  "regression_fixes": [
+    "fixed FastAPI session header parsing under postponed annotations",
+    "ignored reconnect snapshots that are not newer than the client cursor",
+    "rejected events beyond the authoritative room version",
+    "verified cached offline command hashes and recovered interrupted sends",
+    "made conflict rebase validation atomic",
+    "committed expired SQL handoff state before returning an error",
+    "blocked issuing a second client handoff before the first token is exported"
+  ],
+  "controls": {
+    "main_modified": false,
+    "formal_runtime_allowed": false,
+    "canon_auto_write": false,
+    "client_cache_authoritative": false,
+    "client_authoritative_snapshot_write": false,
+    "plaintext_handoff_token_persisted": false,
+    "external_dol_narrative_imported": false,
+    "external_dol_media_imported": false,
+    "training_data_created": false
+  },
+  "next_batch_after_ci": "P05-NARRATIVE-NODE-SCENE-PASSAGE-GRAPH"
+}
