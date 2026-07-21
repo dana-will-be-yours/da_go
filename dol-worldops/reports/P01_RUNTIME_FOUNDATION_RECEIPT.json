@@ -4,8 +4,8 @@
   "branch": "feature/dol-worldops",
   "status": "passed",
   "runtime_contract_tests": {
-    "passed": 9,
-    "total": 9
+    "passed": 10,
+    "total": 10
   },
   "static_contract": "passed",
   "syntax_checks": {
@@ -21,5 +21,9 @@
     "external_media_imported": false,
     "training_data_created": false
   },
+  "regression_fixes": [
+    "export MemoryStorage for deterministic Node tests",
+    "record widget cleanup failures while continuing reverse unmount"
+  ],
   "next_batch": "P02-BOOT-LIFECYCLE"
 }
