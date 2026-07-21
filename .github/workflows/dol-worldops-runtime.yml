@@ -1,0 +1,40 @@
+name: DoL WorldOps Runtime
+
+on:
+  push:
+    branches:
+      - feature/dol-worldops
+    paths:
+      - "dol-worldops/**"
+      - ".github/workflows/dol-worldops-runtime.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  runtime-contract:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: dol-worldops
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Runtime and static contracts
+        run: npm test
+      - name: JavaScript syntax checks
+        run: |
+          node --check runtime/worldops_event_bus.js
+          node --check runtime/worldops_macro_registry.js
+          node --check runtime/worldops_widget_registry.js
+          node --check runtime/worldops_cache_adapter.js
+          node --check runtime/worldops_receipt_store.js
+          node --check runtime/worldops_error_boundary.js
+          node --check runtime/worldops_module_loader.js
+          node --check runtime/worldops_runtime_bridge.js
+          node --check demo/demo.js
