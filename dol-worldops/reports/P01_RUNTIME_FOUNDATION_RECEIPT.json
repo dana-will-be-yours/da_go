@@ -1,16 +1,19 @@
 {
   "batch_id": "P01-RUNTIME-FOUNDATION-COMPLETE",
-  "executed_at": "2026-07-21",
+  "recorded_at": "2026-07-21",
   "branch": "feature/dol-worldops",
-  "status": "passed",
+  "implementation_status": "complete",
+  "verification_status": "pending_ci_or_local_runtime",
   "runtime_contract_tests": {
-    "passed": 10,
-    "total": 10
+    "defined": 10,
+    "executed_in_this_session": 0,
+    "passed_in_this_session": 0
   },
-  "static_contract": "passed",
+  "static_contract": "defined_pending_execution",
   "syntax_checks": {
-    "passed": 9,
-    "total": 9
+    "defined": 9,
+    "executed_in_this_session": 0,
+    "passed_in_this_session": 0
   },
   "controls": {
     "main_modified": false,
@@ -25,5 +28,6 @@
     "export MemoryStorage for deterministic Node tests",
     "record widget cleanup failures while continuing reverse unmount"
   ],
-  "next_batch": "P02-BOOT-LIFECYCLE"
+  "verification_limit": "GitHub Actions has no workflow run and the current execution environment cannot resolve github.com",
+  "next_batch_after_verification": "P02-BOOT-LIFECYCLE"
 }
