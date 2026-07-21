@@ -1,0 +1,8 @@
+{
+  "runtimeVersion": "0.2.0",
+  "schemaVersion": "1",
+  "autosnapshotIntervalMs": 60000,
+  "formalRuntimeAllowed": false,
+  "clientCacheAuthoritative": false,
+  "canonAutoWrite": false
+}
