@@ -12,6 +12,10 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: dol-worldops-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   runtime-contract:
     runs-on: ubuntu-latest
@@ -25,7 +29,11 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "22"
-      - name: Runtime and static contracts
+          cache: npm
+          cache-dependency-path: dol-worldops/package-lock.json
+      - name: Install locked package metadata
+        run: npm ci --ignore-scripts
+      - name: Runtime, P02 boot, and static contracts
         run: npm test
       - name: JavaScript syntax checks
         run: |
@@ -37,4 +45,11 @@ jobs:
           node --check runtime/worldops_error_boundary.js
           node --check runtime/worldops_module_loader.js
           node --check runtime/worldops_runtime_bridge.js
+          node --check runtime/worldops_config_loader.js
+          node --check runtime/worldops_capability_registry.js
+          node --check runtime/worldops_permission_gate.js
+          node --check runtime/worldops_session_handshake.js
+          node --check runtime/worldops_snapshot_manager.js
+          node --check runtime/worldops_boot_coordinator.js
+          node --check tests/p02-boot-lifecycle.mjs
           node --check demo/demo.js
