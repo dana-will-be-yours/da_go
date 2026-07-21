@@ -4,20 +4,22 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="robots" content="noindex,nofollow">
-  <title>DaGo × WorldOps Runtime Foundation</title>
+  <title>DaGo × WorldOps Boot Lifecycle</title>
   <link rel="stylesheet" href="./styles.css">
 </head>
 <body>
   <main class="shell">
     <header>
-      <p class="eyebrow">CLEAN-ROOM RUNTIME FOUNDATION</p>
+      <p class="eyebrow">CLEAN-ROOM BOOT LIFECYCLE</p>
       <h1>DaGo × TRPG WorldOps</h1>
-      <p>此 Demo 驗證模組依賴、啟動、事件、Macro、Widget、非權威快取與反向停止。</p>
+      <p>此 Demo 驗證設定、能力權限、session handshake、server snapshot、Runtime、暫停、恢復、自動 snapshot 請求與 receipt flush。</p>
     </header>
     <section class="controls" aria-label="Runtime controls">
-      <button id="startButton" type="button">啟動 Runtime</button>
+      <button id="startButton" type="button">啟動完整流程</button>
+      <button id="suspendButton" type="button" disabled>暫停</button>
+      <button id="resumeButton" type="button" disabled>恢復</button>
       <button id="eventButton" type="button" disabled>送出測試事件</button>
-      <button id="stopButton" type="button" disabled>停止 Runtime</button>
+      <button id="stopButton" type="button" disabled>停止並請求 Snapshot</button>
     </section>
     <section class="grid">
       <article><h2>狀態</h2><pre id="statusOutput" aria-live="polite"></pre></article>
