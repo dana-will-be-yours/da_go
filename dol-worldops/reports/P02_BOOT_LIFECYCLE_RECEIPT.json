@@ -1,0 +1,47 @@
+{
+  "batch_id": "P02-BOOT-LIFECYCLE",
+  "recorded_at": "2026-07-21",
+  "branch": "feature/dol-worldops",
+  "version": "0.2.0",
+  "implementation_status": "complete",
+  "verification_status": "local_reconstruction_passed_ci_pending",
+  "tests": {
+    "p01_runtime_contract": {
+      "executed": 10,
+      "passed": 10
+    },
+    "p02_boot_lifecycle": {
+      "executed": 9,
+      "passed": 9
+    },
+    "static_contract": "passed",
+    "javascript_syntax": "passed_for_reconstructed_p02_files"
+  },
+  "implemented_contracts": [
+    "guarded config loading",
+    "sealed capability registry",
+    "default-deny permission gate",
+    "validated session handshake",
+    "authoritative server snapshot hydration",
+    "snapshot request-only client operation",
+    "module suspend and resume",
+    "hook timeout",
+    "resume failure recovery",
+    "boot coordinator",
+    "autosnapshot request scheduler",
+    "receipt flush",
+    "responsive device-mode preservation"
+  ],
+  "controls": {
+    "main_modified": false,
+    "formal_runtime_allowed": false,
+    "canon_auto_write": false,
+    "client_cache_authoritative": false,
+    "external_narrative_imported": false,
+    "external_media_imported": false,
+    "training_data_created": false,
+    "destructive_sql": false
+  },
+  "verification_limit": "GitHub Actions workflow run has not yet been independently observed",
+  "next_batch": "P03-AUTHORITATIVE-STATE-COMMAND-CONTRACT"
+}
