@@ -56,6 +56,23 @@ test("widget registry supports all device modes and deterministic cleanup", asyn
   await rejectsCode(() => widgets.mount("desktop.only", {}, {}, { deviceMode: "mobile" }), "WIDGET_DEVICE_DENIED");
 });
 
+test("widget cleanup failures are recorded while unmountAll continues in reverse order", async () => {
+  const widgets = new WorldOpsWidgetRegistry();
+  const calls = [];
+  widgets.register({ id: "cleanup.one", version: "1.0.0", deviceModes: ["desktop"] }, () => () => {
+    calls.push("one");
+    throw new Error("cleanup one failed");
+  });
+  widgets.register({ id: "cleanup.two", version: "1.0.0", deviceModes: ["desktop"] }, () => () => {
+    calls.push("two");
+  });
+  await widgets.mount("cleanup.one", {}, {}, { deviceMode: "desktop" });
+  await widgets.mount("cleanup.two", {}, {}, { deviceMode: "desktop" });
+  await rejectsCode(() => widgets.unmountAll(), "WIDGET_UNMOUNT_FAILED");
+  assert.deepEqual(calls, ["two", "one"]);
+  assert.equal(widgets.exportReceipts().some(row => row.status === "unmount_failed"), true);
+});
+
 test("client cache remains non-authoritative and recovers from ttl, schema, and corruption", async () => {
   const storage = new MemoryStorage();
   let ms = 1000;
