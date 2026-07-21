@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://da-go.invalid/schemas/worldops-boot-receipt.schema.json",
+  "title": "WorldOps Boot Receipt",
+  "type": "object",
+  "additionalProperties": true,
+  "required": ["boot_status", "formal_runtime_allowed"],
+  "properties": {
+    "boot_status": { "enum": ["ready", "failed", "suspended", "suspend_failed", "resume_failed", "stopped", "stop_failed", "already_stopped"] },
+    "started_at": { "type": ["string", "null"] },
+    "ended_at": { "type": ["string", "null"] },
+    "room_id": { "type": ["string", "null"] },
+    "session_id": { "type": ["string", "null"] },
+    "phases": { "type": "array" },
+    "steps": { "type": "array" },
+    "recovery": { "type": "array" },
+    "formal_runtime_allowed": { "const": false }
+  }
+}
