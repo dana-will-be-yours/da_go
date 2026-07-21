@@ -1,0 +1,250 @@
+{
+  "batch_id": "P04-SNAPSHOT-MIGRATION-RECONNECT-HANDOFF",
+  "version": "0.4.0",
+  "target_repository": "dana-will-be-yours/da_go",
+  "target_branch": "feature/dol-worldops",
+  "file_count": 32,
+  "files": [
+    {
+      "source_path": ".github_workflow.yml",
+      "target_path": ".github/workflows/dol-worldops-runtime.yml",
+      "action": "update",
+      "bytes": 1408,
+      "sha256": "71dd4776549249d1bca01daeb534d72b3b785dde37309e87de9b016145d2e75b"
+    },
+    {
+      "source_path": "CHANGELOG.md",
+      "target_path": "dol-worldops/CHANGELOG.md",
+      "action": "update",
+      "bytes": 2464,
+      "sha256": "1ebe7df5245f94b21e6f5a3e7461ddd4bb5837fdf88fe2f08edcd8ebb5d5a495"
+    },
+    {
+      "source_path": "README.md",
+      "target_path": "dol-worldops/README.md",
+      "action": "update",
+      "bytes": 4325,
+      "sha256": "bf540440742fc259aa2810f8f2fb3e778817a25cd8361020ef98acd954da05ad"
+    },
+    {
+      "source_path": "database/migrations/002_wop_snapshot_migration_handoff.sql",
+      "target_path": "dol-worldops/database/migrations/002_wop_snapshot_migration_handoff.sql",
+      "action": "create",
+      "bytes": 22842,
+      "sha256": "8ac79b01e4af8720a08039b0dc6191f4a6a091e66503b66ddf38ba16460e9907"
+    },
+    {
+      "source_path": "database/synthetic/002_wop_snapshot_migration_handoff_dry_run.sql",
+      "target_path": "dol-worldops/database/synthetic/002_wop_snapshot_migration_handoff_dry_run.sql",
+      "action": "create",
+      "bytes": 4886,
+      "sha256": "f1ac3d43a16032fc19130325982e04455d6bda5dc1880bdd2ad65f7e7f52561f"
+    },
+    {
+      "source_path": "database/validation/002_wop_snapshot_migration_handoff_validation.sql",
+      "target_path": "dol-worldops/database/validation/002_wop_snapshot_migration_handoff_validation.sql",
+      "action": "create",
+      "bytes": 3998,
+      "sha256": "ced861d0b666ed78748a0815065b344600840287e39651902d7f8c63899f8760"
+    },
+    {
+      "source_path": "docs/P04_SNAPSHOT_MIGRATION_RECONNECT_HANDOFF.md",
+      "target_path": "dol-worldops/docs/P04_SNAPSHOT_MIGRATION_RECONNECT_HANDOFF.md",
+      "action": "create",
+      "bytes": 7851,
+      "sha256": "9a7a3cdb26e3b5ed16377507ba4b8b928b7d440418acb9e6e75dca6fc3e027f3"
+    },
+    {
+      "source_path": "package-lock.json",
+      "target_path": "dol-worldops/package-lock.json",
+      "action": "update",
+      "bytes": 199,
+      "sha256": "d54a82f02ac45fc3688969adf107fde4ae00aeca25eb9258b148f97287e5577b"
+    },
+    {
+      "source_path": "package.json",
+      "target_path": "dol-worldops/package.json",
+      "action": "update",
+      "bytes": 482,
+      "sha256": "f4ec5bf38f3d523447e4167180975e2a41260521213b98d545a76c8a5d97bf34"
+    },
+    {
+      "source_path": "pyproject.toml",
+      "target_path": "dol-worldops/pyproject.toml",
+      "action": "update",
+      "bytes": 689,
+      "sha256": "8fc7998f81b416c1b1e73437948547a51dcd808c8251160ebc7761335c93c8a9"
+    },
+    {
+      "source_path": "receipts/P04_SNAPSHOT_MIGRATION_RECONNECT_HANDOFF.json",
+      "target_path": "dol-worldops/receipts/P04_SNAPSHOT_MIGRATION_RECONNECT_HANDOFF.json",
+      "action": "create",
+      "bytes": 1955,
+      "sha256": "f4cd3f2d7c4e68965e89dcda77ee85d33e3c5ef10761c0214ec6cce3a832a0d1"
+    },
+    {
+      "source_path": "reports/P04_TEST_REPORT.md",
+      "target_path": "dol-worldops/reports/P04_TEST_REPORT.md",
+      "action": "create",
+      "bytes": 2369,
+      "sha256": "79cd44d6420cccdcd7d8ecb3e0b21788c6b18a895b0922ca6610c5c9b481a3da"
+    },
+    {
+      "source_path": "reports/SESSION_HANDOFF.md",
+      "target_path": "dol-worldops/reports/SESSION_HANDOFF.md",
+      "action": "update",
+      "bytes": 1592,
+      "sha256": "eae7db85ce6c65d332cea35a37f8a3a3e1bc34e415f01d1c3712d20962980f1e"
+    },
+    {
+      "source_path": "runtime/worldops_device_handoff.js",
+      "target_path": "dol-worldops/runtime/worldops_device_handoff.js",
+      "action": "create",
+      "bytes": 2763,
+      "sha256": "77ad929c331549d3851a0fc58a28f973c28730c320cb739a546e92a2a26b4e0f"
+    },
+    {
+      "source_path": "runtime/worldops_offline_queue.js",
+      "target_path": "dol-worldops/runtime/worldops_offline_queue.js",
+      "action": "create",
+      "bytes": 8889,
+      "sha256": "6be8f8c62eb09f6fdb8973660a5a2cef39e92eab05ec16be907c1f3b573ea076"
+    },
+    {
+      "source_path": "server/app.py",
+      "target_path": "dol-worldops/server/app.py",
+      "action": "update",
+      "bytes": 1046,
+      "sha256": "8061d52b1aac5a74562a0c237d4474ec06d6f4c0ca36f2fabb0c7787855ed413"
+    },
+    {
+      "source_path": "server/worldops/__init__.py",
+      "target_path": "dol-worldops/server/worldops/__init__.py",
+      "action": "update",
+      "bytes": 1317,
+      "sha256": "39655d7f12842b728a917cbe8ef2a385c20106d173969f8d0af19e55506da0fa"
+    },
+    {
+      "source_path": "server/worldops/event_replay.py",
+      "target_path": "dol-worldops/server/worldops/event_replay.py",
+      "action": "create",
+      "bytes": 6279,
+      "sha256": "735dce689b9918fd3bfb739696b90e80db630c9447c83d86fc874684e7d3100a"
+    },
+    {
+      "source_path": "server/worldops/handoff.py",
+      "target_path": "dol-worldops/server/worldops/handoff.py",
+      "action": "create",
+      "bytes": 6549,
+      "sha256": "312e0d1bff657c6737a9de1d979f18fef69255830a6df09d10c54ed84828b8b0"
+    },
+    {
+      "source_path": "server/worldops/p04_app_factory.py",
+      "target_path": "dol-worldops/server/worldops/p04_app_factory.py",
+      "action": "create",
+      "bytes": 857,
+      "sha256": "749d68ddfc975130c1ba69782348e4b417a7735c192c1e1fb11d6a5adc0288df"
+    },
+    {
+      "source_path": "server/worldops/p04_router.py",
+      "target_path": "dol-worldops/server/worldops/p04_router.py",
+      "action": "create",
+      "bytes": 6823,
+      "sha256": "561956e365f627ba3b35b7dc90e398b0a7ccf7d0f16bd968e699f6771cd56c8c"
+    },
+    {
+      "source_path": "server/worldops/p04_runtime.py",
+      "target_path": "dol-worldops/server/worldops/p04_runtime.py",
+      "action": "create",
+      "bytes": 1967,
+      "sha256": "064a8134db5ac0e0c5a520a31788848a98d3af291e56b0db055a18a0d421a5b7"
+    },
+    {
+      "source_path": "server/worldops/reconnect.py",
+      "target_path": "dol-worldops/server/worldops/reconnect.py",
+      "action": "create",
+      "bytes": 6742,
+      "sha256": "c01b24b743eb743a4a98a4518871697744971c92aa384b7d5e908bcec8c93d7d"
+    },
+    {
+      "source_path": "server/worldops/schema_migration.py",
+      "target_path": "dol-worldops/server/worldops/schema_migration.py",
+      "action": "create",
+      "bytes": 5361,
+      "sha256": "666e444998c0f0b43bf4b1a26b8372856a50f24dbd2f7d28eb0501f31c2d94df"
+    },
+    {
+      "source_path": "tests/p04-offline-queue.mjs",
+      "target_path": "dol-worldops/tests/p04-offline-queue.mjs",
+      "action": "create",
+      "bytes": 6107,
+      "sha256": "bbaeb57c86a8b2f394e5ae741fa4f4521410b6109f02164d9c903eb87c8c33a1"
+    },
+    {
+      "source_path": "tests/static-contract.mjs",
+      "target_path": "dol-worldops/tests/static-contract.mjs",
+      "action": "update",
+      "bytes": 6974,
+      "sha256": "8eb8522af87c7d6edadddfe782b33fe247dcfdc4377f15eb602df75a54074b9b"
+    },
+    {
+      "source_path": "tests/test_p04_app_factory.py",
+      "target_path": "dol-worldops/tests/test_p04_app_factory.py",
+      "action": "create",
+      "bytes": 1483,
+      "sha256": "06eb520cfa6866263ea23f2143d83fc917b2bb806307cbfe9733c2aa7450eeb2"
+    },
+    {
+      "source_path": "tests/test_p04_handoff_reconnect.py",
+      "target_path": "dol-worldops/tests/test_p04_handoff_reconnect.py",
+      "action": "create",
+      "bytes": 7398,
+      "sha256": "45b83634774f4a7955540abd3e0ff8d8bcf0c5710a2bffe6def9376f22d8fc2f"
+    },
+    {
+      "source_path": "tests/test_p04_replay_migration.py",
+      "target_path": "dol-worldops/tests/test_p04_replay_migration.py",
+      "action": "create",
+      "bytes": 5276,
+      "sha256": "22964d706a0883f33807bbb5eca0a07d98fc0e102d901979ad307c94104c8aea"
+    },
+    {
+      "source_path": "tests/test_p04_router.py",
+      "target_path": "dol-worldops/tests/test_p04_router.py",
+      "action": "create",
+      "bytes": 4670,
+      "sha256": "87fe9b703ee8ae0860ba6abb144187641c8a8497d4689262b682d1e754e4de77"
+    },
+    {
+      "source_path": "tests/test_p04_runtime_install.py",
+      "target_path": "dol-worldops/tests/test_p04_runtime_install.py",
+      "action": "create",
+      "bytes": 2296,
+      "sha256": "a7f6fa120cee67edcfa7868ae215804e65cbec2823c57c47d256f90e5c10e72f"
+    },
+    {
+      "source_path": "tests/test_p04_sql_contract.py",
+      "target_path": "dol-worldops/tests/test_p04_sql_contract.py",
+      "action": "create",
+      "bytes": 2942,
+      "sha256": "ee7668e6b5946062f55e19a0d112942ae92fd25d34fb2c9382f5fccd4512faa8"
+    }
+  ],
+  "controls": {
+    "main_modified": false,
+    "formal_runtime_allowed": false,
+    "canon_auto_write": false,
+    "client_cache_authoritative": false,
+    "external_dol_content_imported": false
+  },
+  "verification": {
+    "python_full_regression": "38/38 passed",
+    "python_p04_subset": "23/23 passed",
+    "p01_runtime_js": "10/10 passed",
+    "p02_boot_js": "8/8 passed",
+    "p04_offline_handoff_js": "7/7 passed",
+    "static_contract": "passed",
+    "python_compileall": "passed",
+    "javascript_syntax": "passed"
+  }
+}

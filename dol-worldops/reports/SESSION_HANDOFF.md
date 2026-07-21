@@ -1,65 +1,40 @@
-# Session Handoff
+# Session Handoff — P04
 
-目前批次：`P02-BOOT-LIFECYCLE`  
-實作結果：完成  
-本機 Contract 驗證：通過  
-GitHub Actions：待獨立回傳  
-下一批次：`P03-AUTHORITATIVE-STATE-COMMAND-CONTRACT`
+日期：2026-07-21  
+目標分支：`feature/dol-worldops`  
+版本：0.4.0
 
 ## 已完成
 
-- Event Bus、Macro Registry、Widget Registry。
-- 非權威 Client Cache。
-- Receipt Store 與 Error Boundary。
-- Deterministic Module Loader。
-- Startup failure reverse rollback。
-- Module hook timeout。
-- Dependents-first suspend／stop。
-- Dependencies-first start／resume。
-- Resume failure recovery。
-- Runtime Bridge。
-- Guarded Config Loader。
-- Sealed Capability Registry。
-- Default-deny Permission Gate。
-- Session Handshake 與 credential receipt redaction。
-- Authoritative server Snapshot hydration。
-- Client snapshot request-only contract。
-- Boot Coordinator。
-- Autosnapshot request scheduler。
-- Receipt flush。
-- P02 Demo、JSON Schema、測試與 workflow。
+- P03 command/event/snapshot 權威契約延伸。
+- Deterministic Schema Migration Registry。
+- Authoritative Snapshot + contiguous Event Replay。
+- Bounded Reconnect Plan、Snapshot fallback、monotonic acknowledgement。
+- 短效 single-use desktop／tablet／mobile Handoff。
+- 非權威 Offline Operation Queue。
+- P04 FastAPI routes 與 P03 app extension factory。
+- P04 SQL migration、validation、synthetic rollback。
+- 38 項 Python full regression、25 項 JS contract、Static contract 及 syntax checks。
 
-## P03 目標
+## 已修正
 
-1. 建立 `wop` schema 的新增式 SQL migration。
-2. 建立 `wop.Room`、`Room_Command`、`Room_Event`、`Room_Snapshot`。
-3. 建立 `Client_Session`、`Sync_Cursor` 與 `Operation_Receipt`。
-4. 定義 command envelope 與 command type registry。
-5. 實作 expected-version optimistic concurrency。
-6. 實作 idempotency key 與 duplicate command receipt。
-7. 實作 append-only room event。
-8. 實作 snapshot rebuild 及 schema migration entry。
-9. 實作 WebSocket cursor、missing-event replay 與 reconnect contract。
-10. 建立 synthetic SQL dry run 與 rollback test。
-11. 建立 Python FastAPI server contract，不啟用正式收案。
-12. 建立 client command queue 與 conflict handling，不使用 last-write-wins。
+- FastAPI Header 被誤判為 query parameter。
+- Reconnect 使用過舊 Snapshot。
+- Event backlog 超過權威版本未被阻擋。
+- Offline cache tamper 與 interrupted sending 無恢復處理。
+- Failed rebase 可能破壞 active conflict gate。
+- SQL expired handoff update 可能被 transaction rollback。
+- 未匯出的 Handoff token 可能被新 issue 覆寫。
 
-## P03 不得破壞的界線
+## 尚待外部環境驗證
 
-```text
-main direct write = false
-formal collection = false
-canon auto write = false
-client cache authority = false
-external DoL narrative/media import = false
-destructive SQL = false
-```
+- GitHub Actions。
+- SQL Server `002` migration、constraint trust、procedures 及 synthetic dry run。
+- 真實 Android／iOS／desktop handoff。
+- 真實 WebSocket reconnect、network partition、backpressure 與多 worker coordination。
 
-## 驗證基線
+## 下一批次
 
-```text
-P01 Runtime contract = 10/10
-P02 Boot lifecycle = 9/9
-Static contract = passed
-GitHub Actions = pending independent run
-```
+`P05-NARRATIVE-NODE-SCENE-PASSAGE-GRAPH`
+
+P05 將建立 Narrative Module、Node、Choice、Condition、Transition、State Mutation、Scene、Encounter 與 Open Plot Thread，並保留 GM／PL 自由輸入及人工裁定，不把 TRPG 限縮為固定選項遊戲。

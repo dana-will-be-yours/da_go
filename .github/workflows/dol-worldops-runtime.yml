@@ -31,25 +31,21 @@ jobs:
           node-version: "22"
           cache: npm
           cache-dependency-path: dol-worldops/package-lock.json
-      - name: Install locked package metadata
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: dol-worldops/pyproject.toml
+      - name: Install locked Node metadata
         run: npm ci --ignore-scripts
-      - name: Runtime, P02 boot, and static contracts
+      - name: Install Python test environment
+        run: python -m pip install -e ".[test]"
+      - name: JavaScript contracts
         run: npm test
+      - name: Python contracts
+        run: python -m pytest
+      - name: Python compile check
+        run: python -m compileall -q server
       - name: JavaScript syntax checks
-        run: |
-          node --check runtime/worldops_event_bus.js
-          node --check runtime/worldops_macro_registry.js
-          node --check runtime/worldops_widget_registry.js
-          node --check runtime/worldops_cache_adapter.js
-          node --check runtime/worldops_receipt_store.js
-          node --check runtime/worldops_error_boundary.js
-          node --check runtime/worldops_module_loader.js
-          node --check runtime/worldops_runtime_bridge.js
-          node --check runtime/worldops_config_loader.js
-          node --check runtime/worldops_capability_registry.js
-          node --check runtime/worldops_permission_gate.js
-          node --check runtime/worldops_session_handshake.js
-          node --check runtime/worldops_snapshot_manager.js
-          node --check runtime/worldops_boot_coordinator.js
-          node --check tests/p02-boot-lifecycle.mjs
-          node --check demo/demo.js
+        run: find runtime tests demo -type f \( -name '*.js' -o -name '*.mjs' \) -print0 | xargs -0 -n1 node --check

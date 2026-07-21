@@ -8,13 +8,30 @@
   "github_actions_status": "pending_after_commit",
   "sql_server_runtime_status": "pending_external_environment",
   "tests": {
-    "python_full_regression": {"passed": 36, "total": 36},
-    "python_p04_subset": {"passed": 23, "total": 23},
-    "p01_runtime_js": {"passed": 10, "total": 10},
-    "p02_boot_js": {"passed": 9, "total": 9},
-    "p03_client_sync_js": {"passed": 6, "total": 6},
-    "p04_offline_handoff_js": {"passed": 7, "total": 7},
-    "sql_static_contract": {"passed": 4, "total": 4},
+    "python_full_regression": {
+      "passed": 38,
+      "total": 38
+    },
+    "python_p04_subset": {
+      "passed": 23,
+      "total": 23
+    },
+    "p01_runtime_js": {
+      "passed": 10,
+      "total": 10
+    },
+    "p02_boot_js": {
+      "passed": 8,
+      "total": 8
+    },
+    "p04_offline_handoff_js": {
+      "passed": 7,
+      "total": 7
+    },
+    "sql_static_contract": {
+      "passed": 4,
+      "total": 4
+    },
     "static_contract": "passed",
     "python_compileall": "passed",
     "javascript_syntax": "passed"
@@ -26,7 +43,8 @@
     "verified cached offline command hashes and recovered interrupted sends",
     "made conflict rebase validation atomic",
     "committed expired SQL handoff state before returning an error",
-    "blocked issuing a second client handoff before the first token is exported"
+    "blocked issuing a second client handoff before the first token is exported",
+    "updated P04 test fixtures to satisfy the hardened SessionRecord credential_hash contract"
   ],
   "controls": {
     "main_modified": false,

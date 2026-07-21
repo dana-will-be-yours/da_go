@@ -8,6 +8,7 @@ const required = [
   "README.md",
   "CHANGELOG.md",
   "package.json",
+  "pyproject.toml",
   "config/runtime.config.json",
   "config/capabilities.json",
   "config/permission-policies.json",
@@ -27,8 +28,33 @@ const required = [
   "runtime/worldops_session_handshake.js",
   "runtime/worldops_snapshot_manager.js",
   "runtime/worldops_boot_coordinator.js",
+  "runtime/worldops_offline_queue.js",
+  "runtime/worldops_device_handoff.js",
+  "server/worldops/models.py",
+  "server/worldops/store.py",
+  "server/worldops/service.py",
+  "server/worldops/app_factory.py",
+  "server/worldops/schema_migration.py",
+  "server/worldops/event_replay.py",
+  "server/worldops/handoff.py",
+  "server/worldops/reconnect.py",
+  "server/worldops/p04_router.py",
+  "server/worldops/p04_runtime.py",
+  "server/worldops/p04_app_factory.py",
+  "database/migrations/001_wop_authoritative_runtime.sql",
+  "database/migrations/002_wop_snapshot_migration_handoff.sql",
+  "database/validation/001_wop_authoritative_runtime_validation.sql",
+  "database/validation/002_wop_snapshot_migration_handoff_validation.sql",
+  "database/synthetic/001_wop_authoritative_runtime_dry_run.sql",
+  "database/synthetic/002_wop_snapshot_migration_handoff_dry_run.sql",
   "tests/runtime-contract.mjs",
   "tests/p02-boot-lifecycle.mjs",
+  "tests/p04-offline-queue.mjs",
+  "tests/test_p04_replay_migration.py",
+  "tests/test_p04_handoff_reconnect.py",
+  "tests/test_p04_router.py",
+  "tests/test_p04_runtime_install.py",
+  "tests/test_p04_sql_contract.py",
   "tests/static-contract.mjs",
   "demo/index.html",
   "demo/demo.js",
@@ -40,7 +66,7 @@ for (const path of required) await readFile(join(root, path), "utf8");
 async function walk(dir) {
   const rows = [];
   for (const entry of await readdir(dir, { withFileTypes: true })) {
-    if (["node_modules", ".git"].includes(entry.name)) continue;
+    if (["node_modules", ".git", "__pycache__", ".pytest_cache"].includes(entry.name)) continue;
     const path = join(dir, entry.name);
     if (entry.isDirectory()) rows.push(...await walk(path));
     else rows.push(path);
@@ -49,7 +75,7 @@ async function walk(dir) {
 }
 
 const files = await walk(root);
-const textFiles = files.filter(path => /\.(?:js|mjs|json|md|html|css|yml|yaml)$/i.test(path));
+const textFiles = files.filter(path => /\.(?:js|mjs|py|sql|json|md|html|css|yml|yaml|toml)$/i.test(path));
 for (const path of textFiles) {
   const content = await readFile(path, "utf8");
   assert.equal(content.includes("\u0000"), false, `NUL found in ${relative(root, path)}`);
@@ -63,13 +89,16 @@ for (const path of files) {
 
 const executableFiles = files.filter(path => {
   const rel = relative(root, path).replaceAll("\\", "/");
-  return /^(?:runtime|tests|demo|config)\//.test(rel) && /\.(?:js|mjs|html|css|json)$/i.test(path);
+  return /^(?:runtime|tests|demo|config|server|database)\//.test(rel) && /\.(?:js|mjs|py|sql|html|css|json)$/i.test(path);
 });
 const forbiddenCode = [
   /DOL_NARRATIVE_IMPORT\s*=\s*true/i,
   /CANON_AUTO_WRITE\s*=\s*true/i,
   /CLIENT_CACHE_AUTHORITATIVE\s*=\s*true/i,
   /FORMAL_RUNTIME_ALLOWED\s*=\s*true/i,
+  /formal_runtime_allowed\s*[:=]\s*True/,
+  /client_cache_authoritative\s*[:=]\s*True/,
+  /canon_auto_write\s*[:=]\s*True/,
   /\bDROP\s+TABLE\b/i,
   /\bTRUNCATE\s+TABLE\b/i,
 ];
@@ -81,6 +110,7 @@ for (const path of executableFiles) {
 const packageJson = JSON.parse(await readFile(join(root, "package.json"), "utf8"));
 assert.equal(packageJson.type, "module");
 assert.match(packageJson.scripts?.test || "", /p02-boot-lifecycle/);
+assert.match(packageJson.scripts?.test || "", /p04-offline-queue/);
 const runtimeConfig = JSON.parse(await readFile(join(root, "config/runtime.config.json"), "utf8"));
 assert.equal(runtimeConfig.formalRuntimeAllowed, false);
 assert.equal(runtimeConfig.clientCacheAuthoritative, false);
@@ -101,6 +131,19 @@ const coordinator = await readFile(join(root, "runtime/worldops_boot_coordinator
 assert.match(coordinator, /session_handshake/);
 assert.match(coordinator, /autosnapshot/);
 assert.match(coordinator, /formal_runtime_allowed:\s*false/);
+const offlineQueue = await readFile(join(root, "runtime/worldops_offline_queue.js"), "utf8");
+assert.match(offlineQueue, /OFFLINE_COMMAND_HASH_MISMATCH/);
+assert.match(offlineQueue, /blockedByConflict/);
+assert.match(offlineQueue, /authoritative:\s*false/);
+const handoff = await readFile(join(root, "server/worldops/handoff.py"), "utf8");
+assert.match(handoff, /token_hash/);
+assert.doesNotMatch(handoff, /self\.records\[[^\]]+\]\s*=\s*[^\n]*handoff_token/);
+const reconnect = await readFile(join(root, "server/worldops/reconnect.py"), "utf8");
+assert.match(reconnect, /RECONNECT_CURSOR_AHEAD/);
+assert.match(reconnect, /RECONNECT_EVENT_GAP/);
+const p04Sql = await readFile(join(root, "database/migrations/002_wop_snapshot_migration_handoff.sql"), "utf8");
+assert.match(p04Sql, /token_hash CHAR\(64\)/);
+assert.doesNotMatch(p04Sql, /handoff_token\s+(?:N?VARCHAR|CHAR)/i);
 const demo = await readFile(join(root, "demo/index.html"), "utf8");
 assert.match(demo, /viewport/);
 assert.match(demo, /suspendButton/);

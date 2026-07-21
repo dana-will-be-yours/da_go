@@ -1,3 +1,4 @@
+from worldops.canonical import hash_credential
 from worldops.p04_app_factory import create_worldops_p04_app
 from worldops.models import SessionRecord
 from worldops.service import WorldOpsCommandService, register_default_commands
@@ -16,11 +17,14 @@ store.create_room(
 store.register_session(
     SessionRecord(
         session_id="DEMO-SESSION",
+        credential_hash=hash_credential("DEMO-WORLDOPS-CREDENTIAL"),
         room_id="DEMO-ROOM",
         actor_member_id="DEMO-MEMBER",
         capabilities=frozenset(
             {
-                "room.command",
+                "chat.send",
+                "map.token.move",
+                "room.manage",
                 "room.read",
                 "snapshot.request",
             }
