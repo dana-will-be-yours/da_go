@@ -1,0 +1,12 @@
+{
+  "reserved": [
+    "canon.write",
+    "database.destructive",
+    "formal.collection.enable"
+  ],
+  "roles": {
+    "guest": ["room.enter", "room.read"],
+    "player": ["chat.send", "room.enter", "room.read", "snapshot.request"],
+    "gm": ["chat.send", "room.enter", "room.host", "room.manage", "room.read", "snapshot.request"]
+  }
+}
