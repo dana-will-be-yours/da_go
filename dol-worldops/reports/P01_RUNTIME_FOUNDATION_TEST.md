@@ -8,7 +8,7 @@
 
 | 檢查 | 結果 |
 |---|---:|
-| Runtime contract tests | 9／9 通過 |
+| Runtime contract tests | 10／10 通過 |
 | Static contract | 通過 |
 | JavaScript syntax checks | 9／9 通過 |
 | Missing documented runtime files | 0 |
@@ -16,6 +16,7 @@
 | Module dependency cycle test | 通過 |
 | Startup rollback test | 通過 |
 | Reverse stop test | 通過 |
+| Widget cleanup failure aggregation | 通過 |
 | Cache TTL／schema／corruption recovery | 通過 |
 | Desktop／tablet／mobile widget contract | 通過 |
 | Canon auto-write | 0 |
